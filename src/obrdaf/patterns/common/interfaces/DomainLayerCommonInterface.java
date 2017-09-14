@@ -1,4 +1,4 @@
-package obrdaf.patterns.common.interfaces;
+package OBRDAF.patterns.common.interfaces;
 
 /**
  * Common interface class for Domain layer.
