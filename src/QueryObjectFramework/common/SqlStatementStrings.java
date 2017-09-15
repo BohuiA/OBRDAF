@@ -2,16 +2,6 @@ package QueryObjectFramework.common;
 
 public final class SqlStatementStrings {
 	/*
-	 * General SQL statement strings
-	 */
-	public static final String SQL_COMMON_WHITE_SPACE = " ";
-	public static final String SQLL_COMMON_COMMA = ",";
-	public static final String SQLL_COMMON_SEMICOLON = ";";
-	public static final String SQLL_COMMON_EQUAL = "=";
-	public static final String SQLL_COMMON_LEFT_BRACKET = "(";
-	public static final String SQLL_COMMON_RIGHT_BRACKET = ")";
-	
-	/*
 	 * Specific table SQL statement strings
 	 */
 	public static final String SQL_TABLE_FROM = "FROM";

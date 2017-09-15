@@ -2,7 +2,9 @@ package QueryObjectFramework.jdbc;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.logging.Logger;
 
 import QueryObjectFramework.common.ExeState;
@@ -31,6 +33,7 @@ public class JdbcDatabaseConnection {
 	 * Database connection
 	 */
 	private Connection fConn = null;
+	private Statement fStatement = null;
 	
 	public JdbcDatabaseConnection(String jdbcDriver, String dbUrl, String user, String pass) {
 		fJdbcDriver = jdbcDriver;
@@ -40,40 +43,82 @@ public class JdbcDatabaseConnection {
 	}
 	
 	/**
-	 * Get database connection.
+	 * Execute SQL statement.
 	 * 
-	 * @return Connection
-	 * 			Database connection
+	 * @param exeSql
+	 * 			SQL string
+	 * @return ResultSet
+	 * 			SQL execution results
 	 */
-	public Connection getDatabaseConnection() {
+	public ResultSet executeQueryObject(String exeSql) {
+		getDatabaseStatement();
+		
+		ResultSet results = null;
+		try {
+			results = fStatement.executeQuery(exeSql);
+		} catch (SQLException executeQueryObjectException) {
+			LOGGER.severe("Failed to execute sql. Datails: " + executeQueryObjectException.getMessage());
+		} finally {
+			if (results != null) {
+				try {
+					results.close();
+				} catch (SQLException closeResultSetException) {
+					LOGGER.severe("Failed to close resultSets. Datails: " + closeResultSetException.getMessage());
+				}
+			}
+			closeDatabaseConnection();
+		}
+		
+		return results;
+	}
+	
+	/**
+	 * Get SQL statement of DB connection.
+	 */
+	private void getDatabaseStatement() {
+		getDatabaseConnection();
+		try {
+			fStatement = fConn.createStatement();
+		} catch (SQLException createStatementException) {
+			LOGGER.severe("Failed to create statement. Datails: " + createStatementException.getMessage());
+		} finally {
+			closeDatabaseConnection();
+		}
+	}
+	
+	/**
+	 * Get database connection.
+	 */
+	private void getDatabaseConnection() {
 		if (fConn == null) {
 			try {
 				ExeState exeState = openDatabaseConn();
 				if (exeState != ExeState.SUCESSFUL) {
-					return null;
+					return;
 				}
 			} catch (ClassNotFoundException classNotFoundExeception) {
 				LOGGER.severe("Unable to load driver class.");
-			} catch (SQLException sqlException) {
-				LOGGER.severe("Failed to access database. Datails: " + sqlException.getMessage());
+			} catch (SQLException dbConnectionException) {
+				LOGGER.severe("Failed to access database. Datails: " + dbConnectionException.getMessage());
 			} finally {
 				closeDatabaseConnection();
 			}
 		}
-		
-		return fConn;
 	}
 	
 	/**
 	 * Close database connection.
 	 */
-	public void closeDatabaseConnection() {
+	private void closeDatabaseConnection() {
 		try {
 			if (fConn != null) {
 				fConn.close();
 			}
-		} catch (SQLException sqlException) {
-			LOGGER.severe("Failed to close database. Datails: " + sqlException.getMessage());
+			if (fStatement != null) {
+				fStatement.close();
+			}
+		} catch (SQLException dbCloseException) {
+			LOGGER.severe("Failed to close database. Datails: " + dbCloseException.getMessage());
 		}
 	}
 	

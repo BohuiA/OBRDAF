@@ -30,4 +30,9 @@ public class QueryObjectAbstract {
 		fFileds.addAll(fileds);
 		fValues.addAll(values);
 	}
+
+	public QueryObjectAbstract(SqlQueryTypes queryObjectType, JdbcDatabaseConnection jdbcDbConn) {
+		fQueryObjectType = queryObjectType;
+		fJdbcDbConn = jdbcDbConn;
+	}
 }
