@@ -1,6 +1,6 @@
-package example.common;
+package QueryObjectFramework.common;
 
-public enum sqlQueryTypes {
+public enum SqlQueryTypes {
 	/*
 	 * Table SQL statements
 	 */
@@ -22,7 +22,7 @@ public enum sqlQueryTypes {
 	
 	private String fSqlQueryType;
 	
-	sqlQueryTypes(String sqlQueryType) {
+	SqlQueryTypes(String sqlQueryType) {
 		this.fSqlQueryType = sqlQueryType;
 	}
 	

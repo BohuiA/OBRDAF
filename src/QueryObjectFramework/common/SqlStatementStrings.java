@@ -1,4 +1,4 @@
-package common;
+package QueryObjectFramework.common;
 
 public final class SqlStatementStrings {
 	/*
