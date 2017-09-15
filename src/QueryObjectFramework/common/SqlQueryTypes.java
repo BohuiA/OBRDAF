@@ -9,7 +9,7 @@ public enum SqlQueryTypes {
 	INSERT("INSERT INTO"),
 	UPDATE("UPDATE"),
 	DELETE("DELETE"),
-	
+
 	/*
 	 * Database SQL statements
 	 */
@@ -19,13 +19,13 @@ public enum SqlQueryTypes {
 	DROP_TABLE("DROP TABLE"),
 	ALTER_TABLE("ALTER TABLE"),
 	CREATE_INDEX("CREATE INDEX");
-	
+
 	private String fSqlQueryType;
-	
+
 	SqlQueryTypes(String sqlQueryType) {
 		this.fSqlQueryType = sqlQueryType;
 	}
-	
+
 	public String sqlQueryType() {
 		return fSqlQueryType;
 	}

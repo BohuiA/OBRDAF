@@ -35,6 +35,19 @@ public class JdbcDatabaseConnection {
 	private Connection fConn = null;
 	private Statement fStatement = null;
 	
+	/**
+	 * Constructor of JDBC database connection class, 
+	 * setting user and pass null if not required.
+	 * 
+	 * @param jdbcDriver
+	 * 			JDBC driver name
+	 * @param dbUrl
+	 * 			Database URL
+	 * @param user
+	 * 			Database user name
+	 * @param pass
+	 * 			Database password
+	 */
 	public JdbcDatabaseConnection(String jdbcDriver, String dbUrl, String user, String pass) {
 		fJdbcDriver = jdbcDriver;
 		fDbUrl = dbUrl;
@@ -42,6 +55,39 @@ public class JdbcDatabaseConnection {
 		fPass = pass;
 	}
 	
+	/**
+	 * Update JDBC database connection.
+	 * 
+	 * @param jdbcDriver
+	 * 			JDBC driver name
+	 * @param dbUrl
+	 * 			Database URL
+	 * @param user
+	 * 			Database user name
+	 * @param pass
+	 * 			Database password
+	 */
+	public void setJdbcDatabaseConnection(String jdbcDriver, String dbUrl, String user, String pass) {
+		fJdbcDriver = jdbcDriver;
+		fDbUrl = dbUrl;
+		fUser = user;
+		fPass = pass;
+	}
+	
+	/**
+	 * Update JDBC database connection.
+	 * 
+	 * @param jdbcDriver
+	 * 			JDBC driver name
+	 * @param dbUrl
+	 * 			Database URL
+	 */
+	public void setJdbcDatabaseConnection(String jdbcDriver, String dbUrl) {
+		fJdbcDriver = jdbcDriver;
+		fDbUrl = dbUrl;
+		fUser = null;
+		fPass = null;
+	}
 	/**
 	 * Execute SQL statement.
 	 * 
@@ -149,7 +195,11 @@ public class JdbcDatabaseConnection {
 		/*
 		 * Open a connection
 		 */
-		fConn = DriverManager.getConnection(fDbUrl, fUser, fPass);
+		if (fUser == null && fPass == null) {
+			fConn = DriverManager.getConnection(fDbUrl);
+		} else {
+			fConn = DriverManager.getConnection(fDbUrl, fUser, fPass);
+		}
 		
 		return ExeState.SUCESSFUL;
 	}
