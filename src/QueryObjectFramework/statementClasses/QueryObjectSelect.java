@@ -66,14 +66,14 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 			return null;
 		}
 		
-		String colunms = "";
+		StringBuilder colunms =new StringBuilder();
 		for (String filedName : fFileds) {
-			colunms += filedName + ", ";
+			colunms.append(filedName + ",");
 		}
-		colunms.substring(0, colunms.length() - 1);
+		colunms.deleteCharAt(colunms.length() - 1);
 		
 		String sql = SqlQueryTypes.SELECT.sqlQueryType() 
-				+ " " + colunms + " " 
+				+ " " + colunms.toString() + " " 
 				+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
