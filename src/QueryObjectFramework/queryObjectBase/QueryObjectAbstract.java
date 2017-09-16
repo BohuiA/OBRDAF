@@ -101,7 +101,7 @@ public class QueryObjectAbstract {
 		}
 		if (fFields.size() != fValues.size() || fValues.size() != fOperators.size()
 				|| fConditions.size() != fValues.size()) {
-			LOGGER.severe("Failed to select fileds from table, fileds, values and operators are not matching.");
+			LOGGER.severe("Failed to select fileds from table, fileds, values, operators and conditions are not matching.");
 			return false;
 		}
 		return true;
