@@ -32,7 +32,8 @@ public final class SqlStatementStrings {
 	public static final String SQL_TABLE_FULL_JOIN = "FULL OUTER JOIN";
 	public static final String SQL_TABLE_ANY = "ANY";
 	public static final String SQL_TABLE_ALL = "ALL";
-	
+	public static final String SQL_TABLE_DISTINCT = "DISTINCT";
+
 	/*
 	 * Specific database SQL state strings
 	 */

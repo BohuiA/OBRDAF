@@ -5,7 +5,6 @@ public enum SqlQueryTypes {
 	 * Table SQL statements
 	 */
 	SELECT("SELECT"),
-	SELECT_DISTINCT("SELECT DISTINCT"),
 	INSERT("INSERT INTO"),
 	UPDATE("UPDATE"),
 	DELETE("DELETE"),
