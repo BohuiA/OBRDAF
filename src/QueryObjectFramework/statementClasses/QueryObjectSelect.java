@@ -423,4 +423,120 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 				+ SqlStatementStrings.SQL_TABLE_WHERE + " " + buildSqlWhereClause() + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
+
+	/**
+	 * Select and AVG specific column from the initialized table.
+	 *
+	 * NOTE: Setting fColumns field to null if SELECT * all columns.
+	 *
+	 * Scenario:
+	 *
+	 * <pre>
+	 *  SELECT AVG(<DISTINCT> column) FROM table_name;
+	 * </pre>
+	 *
+	 * @return ResultSet SQL execution results
+	 */
+	public ResultSet selectAvgColumn() {
+		if(checkEmptyTableAndUpdateEmptyColumn()) {
+			return null;
+		}
+
+		String sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_AVG + "("
+				+ fColumns.get(0) + ") " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + ";";
+		return fJdbcDbConn.executeQueryObject(sql);
+	}
+
+	/**
+	 * Select and AVG specific column from the initialized table with WHERE fields
+	 * filters.
+	 *
+	 * NOTE: Setting fColumns field to null if SELECT * all columns.
+	 *
+	 * Scenario:
+	 *
+	 * <pre>
+	 *  SELECT AVG(<DISTINCT> column) FROM table_name WHERE condition1 field1 operator1 value1 ...;
+	 * </pre>
+	 *
+	 * @param distinctSelection
+	 *			True if only select distinct lines
+	 * @return ResultSet SQL execution results
+	 */
+	public ResultSet selectAvgColumnByFileds(boolean distinctSelection) {
+		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
+			return null;
+		}
+
+		String sql = null;
+		if (distinctSelection) {
+			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_AVG + "("
+					+ SqlStatementStrings.SQL_TABLE_DISTINCT + " " + fColumns.get(0) + ") "
+					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + SqlStatementStrings.SQL_TABLE_WHERE + " "
+					+ buildSqlWhereClause() + ";";
+		} else {
+			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_AVG + "("
+					+ fColumns.get(0) + ") " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0)
+					+ SqlStatementStrings.SQL_TABLE_WHERE + " " + buildSqlWhereClause() + ";";
+		}
+		return fJdbcDbConn.executeQueryObject(sql);
+	}
+
+	/**
+	 * Select and SUM specific column from the initialized table.
+	 *
+	 * NOTE: Setting fColumns field to null if SELECT * all columns.
+	 *
+	 * Scenario:
+	 *
+	 * <pre>
+	 *  SELECT SUM(<DISTINCT> column) FROM table_name;
+	 * </pre>
+	 *
+	 * @return ResultSet SQL execution results
+	 */
+	public ResultSet selectSumColumn() {
+		if(checkEmptyTableAndUpdateEmptyColumn()) {
+			return null;
+		}
+
+		String sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_SUM + "("
+				+ fColumns.get(0) + ") " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + ";";
+		return fJdbcDbConn.executeQueryObject(sql);
+	}
+
+	/**
+	 * Select and SUM specific column from the initialized table with WHERE fields
+	 * filters.
+	 *
+	 * NOTE: Setting fColumns field to null if SELECT * all columns.
+	 *
+	 * Scenario:
+	 *
+	 * <pre>
+	 *  SELECT SUM(<DISTINCT> column) FROM table_name WHERE condition1 field1 operator1 value1 ...;
+	 * </pre>
+	 *
+	 * @param distinctSelection
+	 *			True if only select distinct lines
+	 * @return ResultSet SQL execution results
+	 */
+	public ResultSet selectSumColumnByFileds(boolean distinctSelection) {
+		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
+			return null;
+		}
+
+		String sql = null;
+		if (distinctSelection) {
+			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_SUM + "("
+					+ SqlStatementStrings.SQL_TABLE_DISTINCT + " " + fColumns.get(0) + ") "
+					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + SqlStatementStrings.SQL_TABLE_WHERE + " "
+					+ buildSqlWhereClause() + ";";
+		} else {
+			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_SUM + "("
+					+ fColumns.get(0) + ") " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0)
+					+ SqlStatementStrings.SQL_TABLE_WHERE + " " + buildSqlWhereClause() + ";";
+		}
+		return fJdbcDbConn.executeQueryObject(sql);
+	}
 }
