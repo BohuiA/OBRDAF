@@ -54,18 +54,22 @@ public class QueryObjectAbstract {
 	}
 
 	/**
-	 * Check fTables and fColumns are not empty.
+	 * Check fTables is not empty, and update fColumns with '*' if iColumns is
+	 * empty.
 	 *
-	 * @return True if any one of them is empty.
+	 * @return True if fTables is empty.
 	 */
-	public boolean checkEmptyTableAndColumns() {
+	public boolean checkEmptyTableAndUpdateEmptyColumn() {
 		if (fTables.isEmpty()) {
 			LOGGER.severe("Failed to select columns from table, table name is missing.");
 			return true;
 		}
+		/*
+		 * If fColumns is empty, it means selecting all columns,
+		 * updating fColumns with one '*'.
+		 */
 		if (fColumns.isEmpty()) {
-			LOGGER.severe("Failed to select columns from table, columns names are missing.");
-			return true;
+			fColumns.add("*");
 		}
 		return false;
 	}

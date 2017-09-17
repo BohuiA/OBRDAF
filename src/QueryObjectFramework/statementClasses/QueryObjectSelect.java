@@ -61,42 +61,14 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	}
 
 	/**
-	 * Select all columns from the initialized table.
-	 *
-	 * Scenario:
-	 *
-	 * <pre>
-	 *  SELECT * FROM table_name;
-	 * </pre>
-	 *
-	 * @param distinctSelection
-	 * 			True if only select distinct lines
-	 * @return ResultSet SQL execution results
-	 */
-	public ResultSet selectAll(boolean distinctSelection) {
-		if (fTables.isEmpty()) {
-			LOGGER.severe("Failed to select all fileds from table, table name is missing.");
-			return null;
-		}
-
-		String sql = null;
-		if (distinctSelection) {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_DISTINCT + " * "
-					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + ";";
-		} else {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " * " + SqlStatementStrings.SQL_TABLE_FROM + " "
-					+ fTables.get(0) + ";";
-		}
-		return fJdbcDbConn.executeQueryObject(sql);
-	}
-
-	/**
 	 * Select specific columns from the initialized table.
 	 *
+	 * NOTE: Setting fColumns field to null if SELECT * all columns.
+	 *
 	 * Scenario:
 	 *
 	 * <pre>
-	 *  SELECT column1, column2, .. FROM table_name;
+	 *  SELECT <DISTINCT> column1, column2, .. FROM table_name;
 	 * </pre>
 	 *
 	 * @param distinctSelection
@@ -104,7 +76,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectColumns(boolean distinctSelection) {
-		if (checkEmptyTableAndColumns()) {
+		if (checkEmptyTableAndUpdateEmptyColumn()) {
 			return null;
 		}
 
@@ -134,34 +106,34 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	}
 
 	/**
-	 * Select all columns from the initialized table with WHERE fields filters.
+	 * Select specific columns from the initialized table with WHERE fields filters.
+	 *
+	 * NOTE: Setting fColumns field to null if SELECT * all columns.
 	 *
 	 * Scenario:
 	 *
 	 * <pre>
-	 *  SELECT * FROM table_name WHERE condition 1 field1 operator1 value1 condition2 ...;
+	 *  SELECT <DISTINCT> column1, column2, .. FROM table_name WHERE condition1 field1 operator1 value1 ...;
 	 * </pre>
 	 *
-	 * If first condition is empty string "", then the first condition will be not
-	 * inserted. Example, ... WHERE country='USA' AND name='Bohui';
-	 *
 	 * @param distinctSelection
-	 *			True if only select distinct lines
+	 *            True if only select distinct lines
 	 * @return ResultSet SQL execution results
 	 */
-	public ResultSet selectAllByFileds(boolean distinctSelection) {
-		if (!validateFieldsFiltering()) {
+	public ResultSet selectColumnsByFileds(boolean distinctSelection) {
+		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
 			return null;
 		}
 
 		String sql = null;
 		if (distinctSelection) {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_DISTINCT + " * "
+			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_DISTINCT + " "
+					+ buildSqlColumnsString() + " " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0)
+					+ SqlStatementStrings.SQL_TABLE_WHERE + " " + buildSqlWhereClause() + ";";
+		} else {
+			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + buildSqlColumnsString() + " "
 					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + SqlStatementStrings.SQL_TABLE_WHERE + " "
 					+ buildSqlWhereClause() + ";";
-		} else {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " * " + SqlStatementStrings.SQL_TABLE_FROM + " "
-					+ fTables.get(0) + SqlStatementStrings.SQL_TABLE_WHERE + " " + buildSqlWhereClause() + ";";
 		}
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
@@ -185,80 +157,20 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	}
 
 	/**
-	 * Select specific columns from the initialized table with WHERE fields filters.
-	 *
-	 * Scenario:
-	 *
-	 * <pre>
-	 *  SELECT column1, column2, .. FROM table_name WHERE condition1 field1 operator1 value1 ...;
-	 * </pre>
-	 *
-	 * @param distinctSelection
-	 *			True if only select distinct lines
-	 * @return ResultSet SQL execution results
-	 */
-	public ResultSet selectColumnsByFileds(boolean distinctSelection) {
-		if (!validateFieldsFiltering()) {
-			return null;
-		}
-
-		String sql = null;
-		if (distinctSelection) {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_DISTINCT + " "
-					+ buildSqlColumnsString() + " " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0)
-					+ SqlStatementStrings.SQL_TABLE_WHERE + " " + buildSqlWhereClause() + ";";
-		} else {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + buildSqlColumnsString() + " "
-					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + SqlStatementStrings.SQL_TABLE_WHERE + " "
-					+ buildSqlWhereClause() + ";";
-		}
-		return fJdbcDbConn.executeQueryObject(sql);
-	}
-
-	/**
-	 * Select and count all columns from the initialized table.
-	 *
-	 * Scenario:
-	 *
-	 * <pre>
-	 *  SELECT COUNT(*) FROM table_name;
-	 * </pre>
-	 *
-	 * @param distinctSelection
-	 *			True if only select distinct lines
-	 * @return ResultSet SQL execution results
-	 */
-	public ResultSet selectCountAll(boolean distinctSelection) {
-		if (fTables.isEmpty()) {
-			LOGGER.severe("Failed to select all fileds from table, table name is missing.");
-			return null;
-		}
-
-		String sql = null;
-		if (distinctSelection) {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_COUNT + "("
-					+ SqlStatementStrings.SQL_TABLE_DISTINCT + " *" + ") " + SqlStatementStrings.SQL_TABLE_FROM + " "
-					+ fTables.get(0) + ";";
-		} else {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_COUNT + "(" + "*" + ") "
-					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + ";";
-		}
-		return fJdbcDbConn.executeQueryObject(sql);
-	}
-
-	/**
 	 * Select and count specific column from the initialized table.
 	 *
+	 * NOTE: Setting fColumns field to null if SELECT * all columns.
+	 *
 	 * Scenario:
 	 *
 	 * <pre>
-	 *  SELECT COUNT(column) FROM table_name;
+	 *  SELECT COUNT(<DISTINCT> column) FROM table_name;
 	 * </pre>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectCountColumn() {
-		if(checkEmptyTableAndColumns()) {
+		if(checkEmptyTableAndUpdateEmptyColumn()) {
 			return null;
 		}
 
@@ -268,45 +180,15 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	}
 
 	/**
-	 * Select and count all column from the initialized table with WHERE fields
-	 * filters.
-	 *
-	 * Scenario:
-	 *
-	 * <pre>
-	 *  SELECT COUNT(*) FROM table_name WHERE condition1 field1 operator1 value1 ...;
-	 * </pre>
-	 *
-	 * @param distinctSelection
-	 *			True if only select distinct lines
-	 * @return ResultSet SQL execution results
-	 */
-	public ResultSet selectCountAllByFileds(boolean distinctSelection) {
-		if (!validateFieldsFiltering()) {
-			return null;
-		}
-
-		String sql = null;
-		if (distinctSelection) {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_COUNT + "("
-					+ SqlStatementStrings.SQL_TABLE_DISTINCT + " *) " + SqlStatementStrings.SQL_TABLE_FROM + " "
-					+ fTables.get(0) + SqlStatementStrings.SQL_TABLE_WHERE + " " + buildSqlWhereClause() + ";";
-		} else {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_COUNT + "(" + "*" + ") "
-					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + SqlStatementStrings.SQL_TABLE_WHERE + " "
-					+ buildSqlWhereClause() + ";";
-		}
-		return fJdbcDbConn.executeQueryObject(sql);
-	}
-
-	/**
 	 * Select and count specific column from the initialized table with WHERE fields
 	 * filters.
 	 *
+	 * NOTE: Setting fColumns field to null if SELECT * all columns.
+	 *
 	 * Scenario:
 	 *
 	 * <pre>
-	 *  SELECT COUNT(column) FROM table_name WHERE condition1 field1 operator1 value1 ...;
+	 *  SELECT COUNT(<DISTINCT> column) FROM table_name WHERE condition1 field1 operator1 value1 ...;
 	 * </pre>
 	 *
 	 * @param distinctSelection
@@ -314,7 +196,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectCountColumnByFileds(boolean distinctSelection) {
-		if (!validateFieldsFiltering()) {
+		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
 			return null;
 		}
 
@@ -333,36 +215,34 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	}
 
 	/**
-	 * Select all columns from the initialized table ORDER BY
-	 * columns.
+	 * Select specific columns from the initialized table ORDER BY columns.
+	 *
+	 * NOTE: Setting fColumns field to null if SELECT * all columns.
 	 *
 	 * Scenario:
 	 *
 	 * <pre>
-	 *  SELECT * FROM table_name ORDER BY column1, column2, ... ASC|DESC;
+	 *  SELECT <DISTINCT> column1, column2, .. FROM table_name ORDER BY column1, column2, ... ASC|DESC;
 	 * </pre>
 	 *
 	 * @param distinctSelection
 	 *			True if only select distinct lines
 	 * @return ResultSet SQL execution results
 	 */
-	public ResultSet selectAllOrderByColumns(boolean distinctSelection) {
-		if (fTables.isEmpty()) {
-			LOGGER.severe("Failed to select all fileds from table, table name is missing.");
-			return null;
-		}
-		if (!validateOrderByColumnsAndOrderings()) {
+	public ResultSet selectColumnsOrderByColumns(boolean distinctSelection) {
+		if (checkEmptyTableAndUpdateEmptyColumn() || !validateOrderByColumnsAndOrderings()) {
 			return null;
 		}
 
 		String sql = null;
 		if (distinctSelection) {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_DISTINCT + " * "
-					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + " "
-					+ SqlStatementStrings.SQL_TABLE_ORDER_BY + " " + buildSqlOrderByClause() + ";";
+			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_DISTINCT + " "
+					+ buildSqlColumnsString() + " " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0)
+					+ " " + SqlStatementStrings.SQL_TABLE_ORDER_BY + " " + buildSqlOrderByClause() + ";";
 		} else {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " * " + SqlStatementStrings.SQL_TABLE_FROM + " "
-					+ fTables.get(0) + " " + SqlStatementStrings.SQL_TABLE_ORDER_BY + " " + buildSqlOrderByClause() + ";";
+			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + buildSqlColumnsString() + " "
+					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0)
+					+ " " +SqlStatementStrings.SQL_TABLE_ORDER_BY + " " + buildSqlOrderByClause() + ";";
 		}
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
@@ -415,81 +295,15 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	}
 
 	/**
-	 * Select specific columns from the initialized table ORDER BY columns.
-	 *
-	 * Scenario:
-	 *
-	 * <pre>
-	 *  SELECT column1, column2, .. FROM table_name ORDER BY column1, column2, ... ASC|DESC;
-	 * </pre>
-	 *
-	 * @param distinctSelection
-	 *			True if only select distinct lines
-	 * @return ResultSet SQL execution results
-	 */
-	public ResultSet selectColumnsOrderByColumns(boolean distinctSelection) {
-		if (checkEmptyTableAndColumns() || !validateOrderByColumnsAndOrderings()) {
-			return null;
-		}
-
-		String sql = null;
-		if (distinctSelection) {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_DISTINCT + " "
-					+ buildSqlColumnsString() + " " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0)
-					+ " " + SqlStatementStrings.SQL_TABLE_ORDER_BY + " " + buildSqlOrderByClause() + ";";
-		} else {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + buildSqlColumnsString() + " "
-					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0)
-					+ " " +SqlStatementStrings.SQL_TABLE_ORDER_BY + " " + buildSqlOrderByClause() + ";";
-		}
-		return fJdbcDbConn.executeQueryObject(sql);
-	}
-
-	/**
-	 * Select all columns from the initialized table with WHERE fields filters
-	 * ORDER BY columns.
-	 *
-	 * Scenario:
-	 *
-	 * <pre>
-	 *  SELECT * FROM table_name WHERE condition 1 field1 operator1 value1 condition2 ...
-	 *  ORDER BY column1, column2, ... ASC|DESC;
-	 * </pre>
-	 *
-	 * If first condition is empty string "", then the first condition will be not
-	 * inserted. Example, ... WHERE country='USA' AND name='Bohui';
-	 *
-	 * @param distinctSelection
-	 *			True if only select distinct lines
-	 * @return ResultSet SQL execution results
-	 */
-	public ResultSet selectAllByFiledsOrderByColumns(boolean distinctSelection) {
-		if (!validateFieldsFiltering() || !validateOrderByColumnsAndOrderings()) {
-			return null;
-		}
-
-		String sql = null;
-		if (distinctSelection) {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_DISTINCT + " * "
-					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + SqlStatementStrings.SQL_TABLE_WHERE + " "
-					+ buildSqlWhereClause()
-					+ " " + SqlStatementStrings.SQL_TABLE_ORDER_BY + " " + buildSqlOrderByClause() + ";";
-		} else {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " * " + SqlStatementStrings.SQL_TABLE_FROM + " "
-					+ fTables.get(0) + SqlStatementStrings.SQL_TABLE_WHERE + " " + buildSqlWhereClause()
-					+ " " + SqlStatementStrings.SQL_TABLE_ORDER_BY + " " + buildSqlOrderByClause() + ";";
-		}
-		return fJdbcDbConn.executeQueryObject(sql);
-	}
-
-	/**
 	 * Select specific columns from the initialized table with WHERE fields filters
 	 * ORDER BY columns.
 	 *
+	 * NOTE: Setting fColumns field to null if SELECT * all columns.
+	 *
 	 * Scenario:
 	 *
 	 * <pre>
-	 *  SELECT column1, column2, .. FROM table_name WHERE condition1 field1 operator1 value1 ...
+	 *  SELECT <DISTINCT> column1, column2, .. FROM table_name WHERE condition1 field1 operator1 value1 ...
 	 *  ORDER BY column1, column2, ... ASC|DESC;
 	 * </pre>
 	 *
@@ -498,7 +312,8 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectColumnsByFiledsOrderByColumns(boolean distinctSelection) {
-		if (!validateFieldsFiltering() || !validateOrderByColumnsAndOrderings()) {
+		if (checkEmptyTableAndUpdateEmptyColumn()
+				&& (!validateFieldsFiltering() || !validateOrderByColumnsAndOrderings())) {
 			return null;
 		}
 
@@ -529,7 +344,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectMinColumn() {
-		if(checkEmptyTableAndColumns()) {
+		if(checkEmptyTableAndUpdateEmptyColumn()) {
 			return null;
 		}
 
@@ -550,7 +365,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectMaxColumn() {
-		if(checkEmptyTableAndColumns()) {
+		if(checkEmptyTableAndUpdateEmptyColumn()) {
 			return null;
 		}
 
@@ -563,6 +378,8 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * Select and MIN specific column from the initialized table with WHERE fields
 	 * filters.
 	 *
+	 * NOTE: Setting fColumns field to null if SELECT * all columns.
+	 *
 	 * Scenario:
 	 *
 	 * <pre>
@@ -572,7 +389,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectMinColumnByFileds() {
-		if (!validateFieldsFiltering()) {
+		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
 			return null;
 		}
 
@@ -586,6 +403,8 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * Select and MAX specific column from the initialized table with WHERE fields
 	 * filters.
 	 *
+	 * NOTE: Setting fColumns field to null if SELECT * all columns.
+	 *
 	 * Scenario:
 	 *
 	 * <pre>
@@ -595,7 +414,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectMaxColumnByFileds() {
-		if (!validateFieldsFiltering()) {
+		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
 			return null;
 		}
 
