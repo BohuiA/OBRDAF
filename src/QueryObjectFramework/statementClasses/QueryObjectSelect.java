@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.sun.istack.internal.NotNull;
+
+import QueryObjectFramework.common.SqlCriteriaCondition;
 import QueryObjectFramework.common.SqlQueryTypes;
 import QueryObjectFramework.common.SqlStatementStrings;
 import QueryObjectFramework.jdbc.JdbcDatabaseConnection;
@@ -21,42 +24,52 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	/*
 	 * Select SQL statement specific operation settings
 	 */
-	private final List<String> fOrderByColumns = new ArrayList<>();
-	private final List<String> fOrderByOrderings = new ArrayList<>();
+	private final @NotNull List<String> fOrderByColumns = new ArrayList<>();
+	private final @NotNull List<String> fOrderByOrderings = new ArrayList<>();
 
-	public QueryObjectSelect(JdbcDatabaseConnection jdbcDbConn) {
+	public QueryObjectSelect(@NotNull JdbcDatabaseConnection jdbcDbConn) {
 		super(SqlQueryTypes.SELECT, jdbcDbConn);
 	}
 
-	public QueryObjectSelect(JdbcDatabaseConnection jdbcDbConn, List<String> tables, List<String> columns,
-			List<String> fields, List<Object> values, List<String> operators, List<String> conditionOperators,
-			List<String> orderByColumns, List<String> orderByOrdings) {
-		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, fields, values, operators, conditionOperators);
-		fOrderByColumns.addAll(orderByColumns);
-		fOrderByOrderings.addAll(orderByOrdings);
+	public QueryObjectSelect(@NotNull JdbcDatabaseConnection jdbcDbConn, @NotNull List<String> tables,
+			@NotNull List<String> columns, List<SqlCriteriaCondition> selectCriterias,
+			List<String> orderByColumns, List<String> orderByOrderings) {
+		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, selectCriterias);
+		if (orderByColumns != null) {
+			fOrderByColumns.addAll(orderByColumns);
+		}
+		if (orderByOrderings != null) {
+			fOrderByOrderings.addAll(orderByOrderings);
+		}
 	}
 
-	public void addOrderByColumn(String orderByColumn) {
+	public void addOrderByColumn(@NotNull String orderByColumn) {
 		fOrderByColumns.add(orderByColumn);
 	}
 
 	public void setOrderByColumns(List<String> orderByColumns) {
-		fOrderByColumns.addAll(orderByColumns);
+		clearOrderByColumns();
+		if (orderByColumns != null) {
+			fOrderByColumns.addAll(orderByColumns);
+		}
 	}
 
 	public void clearOrderByColumns() {
 		fOrderByColumns.clear();
 	}
 
-	public void addOrderByOrding(String orderByOrding) {
-		fOrderByOrderings.add(orderByOrding);
+	public void addOrderByOrdering(@NotNull String orderByOrdering) {
+		fOrderByOrderings.add(orderByOrdering);
 	}
 
-	public void setOrderByOrdings(List<String> orderByOrding) {
-		fOrderByOrderings.addAll(orderByOrding);
+	public void setOrderByOrderings(List<String> orderByOrdering) {
+		clearOrderByOrderings();
+		if (orderByOrdering != null) {
+			fOrderByOrderings.addAll(orderByOrdering);
+		}
 	}
 
-	public void clearOrderByOrdings() {
+	public void clearOrderByOrderings() {
 		fOrderByOrderings.clear();
 	}
 
@@ -126,7 +139,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectColumnsWhereConditions(boolean distinctSelection) {
-		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
+		if (checkEmptyTableAndUpdateEmptyColumn() && !validateWhereConditions()) {
 			return null;
 		}
 
@@ -144,18 +157,19 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	}
 
 	/**
-	 * Build SQL WHERE clause string from fConditionOperators, fFields,
-	 * fOperators, and fValues lists.
+	 * Build SQL WHERE clause string from fCriteriaConditions lists.
 	 *
 	 * @return SQL WHERE string
 	 */
 	private String buildSqlWhereClause() {
 		StringBuilder whereClause = new StringBuilder();
-		for (int i = 0; i < fFields.size(); i++) {
-			if (fValues.get(i) instanceof String) {
-				whereClause.append(fConditionOperators.get(i) + " " + fFields.get(i) + fOperators.get(i) + "'" + fValues.get(i) + "' ");
+		for (SqlCriteriaCondition sqlCriteria : fCriteriaConditions) {
+			if (sqlCriteria.getValue() instanceof String) {
+				whereClause.append(sqlCriteria.getConditionOperator() + " " + sqlCriteria.getFiled()
+						+ sqlCriteria.getOperator() + "'" + sqlCriteria.getValue() + "' ");
 			} else {
-				whereClause.append(fConditionOperators.get(i) + " " + fFields.get(i) + fOperators.get(i) + fValues.get(i) + " ");
+				whereClause.append(sqlCriteria.getConditionOperator() + " " + sqlCriteria.getFiled()
+						+ sqlCriteria.getOperator() + sqlCriteria.getValue() + " ");
 			}
 		}
 		return whereClause.toString();
@@ -206,7 +220,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectAndCountColumnsWhereConditions(boolean distinctSelection) {
-		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
+		if (checkEmptyTableAndUpdateEmptyColumn() && !validateWhereConditions()) {
 			return null;
 		}
 
@@ -330,7 +344,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 */
 	public ResultSet selectColumnsWhereConditionsOrderByColumns(boolean distinctSelection) {
 		if (checkEmptyTableAndUpdateEmptyColumn()
-				&& (!validateFieldsFiltering() || !validateOrderByColumnsAndOrderings())) {
+				&& (!validateWhereConditions() || !validateOrderByColumnsAndOrderings())) {
 			return null;
 		}
 
@@ -410,7 +424,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectAndMinColumnsWhereConditions() {
-		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
+		if (checkEmptyTableAndUpdateEmptyColumn() && !validateWhereConditions()) {
 			return null;
 		}
 
@@ -439,7 +453,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectAndMaxColumnsWhereConditions() {
-		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
+		if (checkEmptyTableAndUpdateEmptyColumn() && !validateWhereConditions()) {
 			return null;
 		}
 
@@ -494,7 +508,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectAndAvgColumnsWhereConditions(boolean distinctSelection) {
-		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
+		if (checkEmptyTableAndUpdateEmptyColumn() && !validateWhereConditions()) {
 			return null;
 		}
 
@@ -557,7 +571,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectAndSumColumnsWhereConditions(boolean distinctSelection) {
-		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
+		if (checkEmptyTableAndUpdateEmptyColumn() && !validateWhereConditions()) {
 			return null;
 		}
 

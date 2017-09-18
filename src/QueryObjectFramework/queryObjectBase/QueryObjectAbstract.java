@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.sun.istack.internal.NotNull;
+
+import QueryObjectFramework.common.SqlCriteriaCondition;
 import QueryObjectFramework.common.SqlQueryTypes;
 import QueryObjectFramework.jdbc.JdbcDatabaseConnection;
 
@@ -20,44 +23,24 @@ public class QueryObjectAbstract {
 	private static final Logger LOGGER = Logger.getLogger(QueryObjectAbstract.class.getName());
 
 	public final SqlQueryTypes fQueryObjectType;
-	public final JdbcDatabaseConnection fJdbcDbConn;
-	public final List<String> fTables = new ArrayList<>();
-	public final List<String> fColumns = new ArrayList<>();
-	/*
-	 * Scenario:
-	 *
-	 * field operator value
-	 *
-	 * Example, country = 'USA' or CustomerName LIKE '%or%', LIKE keyword could be
-	 * an operator.
-	 */
-	public final List<String> fFields = new ArrayList<>();
-	public final List<Object> fValues = new ArrayList<>();
-	public final List<String> fOperators = new ArrayList<>();
-	/*
-	 * Scenario:
-	 *
-	 * conditionOperator1 field1 operator1 value1 conditionOperator2 field2 operator2
-	 * value2 ..
-	 *
-	 * Example, NOT country='USA' AND name='Bohui Axelsson'
-	 */
-	public final List<String> fConditionOperators = new ArrayList<>();
+	public final @NotNull JdbcDatabaseConnection fJdbcDbConn;
+	public final @NotNull List<String> fTables = new ArrayList<>();
+	public final @NotNull List<String> fColumns = new ArrayList<>();
+	public final List<SqlCriteriaCondition> fCriteriaConditions = new ArrayList<>();
 
-	public QueryObjectAbstract(SqlQueryTypes queryObjectType, JdbcDatabaseConnection jdbcDbConn, List<String> tables,
-			List<String> columns, List<String> fileds, List<Object> values, List<String> operators,
-			List<String> conditionOperators) {
+	public QueryObjectAbstract(SqlQueryTypes queryObjectType, @NotNull JdbcDatabaseConnection jdbcDbConn,
+			@NotNull List<String> tables, @NotNull List<String> columns,
+			List<SqlCriteriaCondition> selectCriterias) {
 		fQueryObjectType = queryObjectType;
 		fJdbcDbConn = jdbcDbConn;
 		fTables.addAll(tables);
 		fColumns.addAll(columns);
-		fFields.addAll(fileds);
-		fValues.addAll(values);
-		fOperators.addAll(operators);
-		fConditionOperators.addAll(conditionOperators);
+		if (selectCriterias != null) {
+			fCriteriaConditions.addAll(selectCriterias);
+		}
 	}
 
-	public QueryObjectAbstract(SqlQueryTypes queryObjectType, JdbcDatabaseConnection jdbcDbConn) {
+	public QueryObjectAbstract(SqlQueryTypes queryObjectType, @NotNull JdbcDatabaseConnection jdbcDbConn) {
 		fQueryObjectType = queryObjectType;
 		fJdbcDbConn = jdbcDbConn;
 	}
@@ -84,48 +67,32 @@ public class QueryObjectAbstract {
 	}
 
 	/**
-	 * Validate SQL WHERE fields searching filtering setup.
+	 * Validate SQL WHERE condition setups.
 	 *
 	 * fTable, fFields, fOperators, fConditions, fValues should not be
 	 * empty, and amount of these lists should be same.
 	 *
 	 * @return True if all lists are matching valid rules.
 	 */
-	public boolean validateFieldsFiltering() {
+	public boolean validateWhereConditions() {
 		if (fTables.isEmpty()) {
 			LOGGER.severe("Failed to select fileds from table, table name is missing.");
 			return false;
 		}
-		if (fFields.isEmpty()) {
-			LOGGER.severe("Failed to select fileds from table, fileds name is missing.");
-			return false;
-		}
-		if (fValues.isEmpty()) {
-			LOGGER.severe("Failed to select fileds from table, values names are missing.");
-			return false;
-		}
-		if (fOperators.isEmpty()) {
-			LOGGER.severe("Failed to select fileds from table, operators are missing.");
-			return false;
-		}
-		if (fConditionOperators.isEmpty()) {
-			LOGGER.severe("Failed to select fileds from table, conditions are missing.");
-			return false;
-		}
-		if (fFields.size() != fValues.size() || fValues.size() != fOperators.size()
-				|| fConditionOperators.size() != fValues.size()) {
-			LOGGER.severe("Failed to select fileds from table, fileds, values, operators "
-					+ "and condition operators are not matching.");
-			return false;
+		for (SqlCriteriaCondition criteria : fCriteriaConditions) {
+			if (!criteria.validateCriteriaCondition()) {
+				return false;
+			}
 		}
 		return true;
 	}
 
-	public void addTable(String table) {
+	public void addTable(@NotNull String table) {
 		fTables.add(table);
 	}
 
-	public void setTables(List<String> tables) {
+	public void setTables(@NotNull List<String> tables) {
+		clearTables();
 		fTables.addAll(tables);
 	}
 
@@ -133,11 +100,12 @@ public class QueryObjectAbstract {
 		fTables.clear();
 	}
 
-	public void addColumn(String column) {
+	public void addColumn(@NotNull String column) {
 		fColumns.add(column);
 	}
 
-	public void setColumns(List<String> columns) {
+	public void setColumns(@NotNull List<String> columns) {
+		clearColumns();
 		fColumns.addAll(columns);
 	}
 
@@ -145,51 +113,18 @@ public class QueryObjectAbstract {
 		fColumns.clear();
 	}
 
-	public void addField(String field) {
-		fFields.add(field);
+	public void addCriteriaCondition(@NotNull SqlCriteriaCondition criteriaCondition) {
+		fCriteriaConditions.add(criteriaCondition);
 	}
 
-	public void setFields(List<String> fields) {
-		fFields.addAll(fields);
+	public void setCriteriaConditions(List<SqlCriteriaCondition> criteriaConditions) {
+		clearCriteriaConditions();
+		if (criteriaConditions != null) {
+			fCriteriaConditions.addAll(criteriaConditions);
+		}
 	}
 
-	public void clearFields() {
-		fFields.clear();
-	}
-
-	public void addValue(Object value) {
-		fValues.add(value);
-	}
-
-	public void setValues(List<Object> values) {
-		fValues.addAll(values);
-	}
-
-	public void clearValues() {
-		fValues.clear();
-	}
-
-	public void addOperator(String operator) {
-		fOperators.add(operator);
-	}
-
-	public void setOperators(List<String> operators) {
-		fOperators.addAll(operators);
-	}
-
-	public void clearOperators() {
-		fOperators.clear();
-	}
-
-	public void addConditionOperator(String conditionOperator) {
-		fConditionOperators.add(conditionOperator);
-	}
-
-	public void setConditionOperators(List<String> conditionOperators) {
-		fConditionOperators.addAll(conditionOperators);
-	}
-
-	public void clearConditionOperators() {
-		fConditionOperators.clear();
+	public void clearCriteriaConditions() {
+		fCriteriaConditions.clear();
 	}
 }
