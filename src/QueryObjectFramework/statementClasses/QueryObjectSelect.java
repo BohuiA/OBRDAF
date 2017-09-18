@@ -21,8 +21,8 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	/*
 	 * Select SQL statement specific operation settings
 	 */
-	private static final List<String> fOrderByColumns = new ArrayList<>();
-	private static final List<String> fOrderByOrderings = new ArrayList<>();
+	private final List<String> fOrderByColumns = new ArrayList<>();
+	private final List<String> fOrderByOrderings = new ArrayList<>();
 
 	public QueryObjectSelect(JdbcDatabaseConnection jdbcDbConn) {
 		super(SqlQueryTypes.SELECT, jdbcDbConn);
@@ -115,6 +115,10 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * <pre>
 	 *  SELECT <DISTINCT> column1, column2, .. FROM table_name WHERE condition1 field1 operator1 value1 ...;
 	 * </pre>
+	 * 
+	 * <pre>
+	 * 	SELECT <DISTINCT> column1, column2, .. FROM Customers WHERE CustomerName LIKE '%or%';
+	 * </pre>
 	 *
 	 * @param distinctSelection
 	 *            True if only select distinct lines
@@ -189,6 +193,10 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *
 	 * <pre>
 	 *  SELECT COUNT(<DISTINCT> column) FROM table_name WHERE condition1 field1 operator1 value1 ...;
+	 * </pre>
+	 * 
+	 * <pre>
+	 * 	SELECT COUNT(<DISTINCT> *) FROM Customers WHERE CustomerName LIKE '%or%';
 	 * </pre>
 	 *
 	 * @param distinctSelection
@@ -306,9 +314,13 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *  SELECT <DISTINCT> column1, column2, .. FROM table_name WHERE condition1 field1 operator1 value1 ...
 	 *  ORDER BY column1, column2, ... ASC|DESC;
 	 * </pre>
+	 * 
+	 * <pre>
+	 * 	SELECT <DISTINCT> * FROM Customers WHERE CustomerName LIKE '%or%' ORDER BY column1, column2, ... ASC|DESC;
+	 * </pre>
 	 *
 	 * @param distinctSelection
-	 *			True if only select distinct lines
+	 *            True if only select distinct lines
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectColumnsByFiledsOrderByColumns(boolean distinctSelection) {
@@ -385,6 +397,10 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * <pre>
 	 *  SELECT MIN(column) FROM table_name WHERE condition1 field1 operator1 value1 ...;
 	 * </pre>
+	 * 
+	 * <pre>
+	 * 	SELECT MIN(<DISTINCT> *) FROM Customers WHERE CustomerName LIKE '%or%';
+	 * </pre>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
@@ -409,6 +425,10 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *
 	 * <pre>
 	 *  SELECT MAX(column) FROM table_name WHERE condition1 field1 operator1 value1 ...;
+	 * </pre>
+	 * 
+	 * <pre>
+	 * 	SELECT MAX(<DISTINCT> *) FROM Customers WHERE CustomerName LIKE '%or%';
 	 * </pre>
 	 *
 	 * @return ResultSet SQL execution results
@@ -457,6 +477,10 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *
 	 * <pre>
 	 *  SELECT AVG(<DISTINCT> column) FROM table_name WHERE condition1 field1 operator1 value1 ...;
+	 * </pre>
+	 * 
+	 * <pre>
+	 * 	SELECT AVG(<DISTINCT> *) FROM Customers WHERE CustomerName LIKE '%or%';
 	 * </pre>
 	 *
 	 * @param distinctSelection
@@ -515,6 +539,10 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *
 	 * <pre>
 	 *  SELECT SUM(<DISTINCT> column) FROM table_name WHERE condition1 field1 operator1 value1 ...;
+	 * </pre>
+	 * 
+	 * <pre>
+	 * 	SELECT SUM(<DISTINCT> *) FROM Customers WHERE CustomerName LIKE '%or%';
 	 * </pre>
 	 *
 	 * @param distinctSelection

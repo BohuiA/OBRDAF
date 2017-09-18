@@ -24,7 +24,10 @@ public class QueryObjectAbstract {
 	public final List<String> fTables = new ArrayList<>();
 	public final List<String> fColumns = new ArrayList<>();
 	/*
-	 * Scenario: field operator value Example, country = 'USA'
+	 * Scenario: field operator value 
+	 * 
+	 * Example, country = 'USA' or CustomerName LIKE '%or%', LIKE keyword could be
+	 * an operator.
 	 */
 	public final List<String> fFields = new ArrayList<>();
 	public final List<Object> fValues = new ArrayList<>();
@@ -32,6 +35,7 @@ public class QueryObjectAbstract {
 	/*
 	 * Scenario: condition1 field1 operator1 value1 condition2 field2 operator2
 	 * value2 ..
+	 * 
 	 * Example, NOT country='USA' AND name='Bohui Axelsson'
 	 */
 	public final List<String> fConditions = new ArrayList<>();
