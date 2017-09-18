@@ -24,8 +24,10 @@ public class QueryObjectAbstract {
 	public final List<String> fTables = new ArrayList<>();
 	public final List<String> fColumns = new ArrayList<>();
 	/*
-	 * Scenario: field operator value 
-	 * 
+	 * Scenario:
+	 *
+	 * field operator value
+	 *
 	 * Example, country = 'USA' or CustomerName LIKE '%or%', LIKE keyword could be
 	 * an operator.
 	 */
@@ -33,15 +35,18 @@ public class QueryObjectAbstract {
 	public final List<Object> fValues = new ArrayList<>();
 	public final List<String> fOperators = new ArrayList<>();
 	/*
-	 * Scenario: condition1 field1 operator1 value1 condition2 field2 operator2
+	 * Scenario:
+	 *
+	 * conditionOperator1 field1 operator1 value1 conditionOperator2 field2 operator2
 	 * value2 ..
-	 * 
+	 *
 	 * Example, NOT country='USA' AND name='Bohui Axelsson'
 	 */
-	public final List<String> fConditions = new ArrayList<>();
+	public final List<String> fConditionOperators = new ArrayList<>();
 
 	public QueryObjectAbstract(SqlQueryTypes queryObjectType, JdbcDatabaseConnection jdbcDbConn, List<String> tables,
-			List<String> columns, List<String> fileds, List<Object> values, List<String> operators, List<String> conditions) {
+			List<String> columns, List<String> fileds, List<Object> values, List<String> operators,
+			List<String> conditionOperators) {
 		fQueryObjectType = queryObjectType;
 		fJdbcDbConn = jdbcDbConn;
 		fTables.addAll(tables);
@@ -49,7 +54,7 @@ public class QueryObjectAbstract {
 		fFields.addAll(fileds);
 		fValues.addAll(values);
 		fOperators.addAll(operators);
-		fConditions.addAll(conditions);
+		fConditionOperators.addAll(conditionOperators);
 	}
 
 	public QueryObjectAbstract(SqlQueryTypes queryObjectType, JdbcDatabaseConnection jdbcDbConn) {
@@ -103,13 +108,14 @@ public class QueryObjectAbstract {
 			LOGGER.severe("Failed to select fileds from table, operators are missing.");
 			return false;
 		}
-		if (fConditions.isEmpty()) {
+		if (fConditionOperators.isEmpty()) {
 			LOGGER.severe("Failed to select fileds from table, conditions are missing.");
 			return false;
 		}
 		if (fFields.size() != fValues.size() || fValues.size() != fOperators.size()
-				|| fConditions.size() != fValues.size()) {
-			LOGGER.severe("Failed to select fileds from table, fileds, values, operators and conditions are not matching.");
+				|| fConditionOperators.size() != fValues.size()) {
+			LOGGER.severe("Failed to select fileds from table, fileds, values, operators "
+					+ "and condition operators are not matching.");
 			return false;
 		}
 		return true;
@@ -175,15 +181,15 @@ public class QueryObjectAbstract {
 		fOperators.clear();
 	}
 
-	public void addCondition(String condition) {
-		fConditions.add(condition);
+	public void addConditionOperator(String conditionOperator) {
+		fConditionOperators.add(conditionOperator);
 	}
 
-	public void setConditions(List<String> conditions) {
-		fConditions.addAll(conditions);
+	public void setConditionOperators(List<String> conditionOperators) {
+		fConditionOperators.addAll(conditionOperators);
 	}
 
-	public void clearConditions() {
-		fConditions.clear();
+	public void clearConditionOperators() {
+		fConditionOperators.clear();
 	}
 }

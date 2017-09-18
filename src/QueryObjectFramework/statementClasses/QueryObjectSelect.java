@@ -29,9 +29,9 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	}
 
 	public QueryObjectSelect(JdbcDatabaseConnection jdbcDbConn, List<String> tables, List<String> columns,
-			List<String> fields, List<Object> values, List<String> operators, List<String> conditions,
+			List<String> fields, List<Object> values, List<String> operators, List<String> conditionOperators,
 			List<String> orderByColumns, List<String> orderByOrdings) {
-		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, fields, values, operators, conditions);
+		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, fields, values, operators, conditionOperators);
 		fOrderByColumns.addAll(orderByColumns);
 		fOrderByOrderings.addAll(orderByOrdings);
 	}
@@ -113,9 +113,10 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * Scenario:
 	 *
 	 * <pre>
-	 *  SELECT <DISTINCT> column1, column2, .. FROM table_name WHERE condition1 field1 operator1 value1 ...;
+	 *  SELECT <DISTINCT> column1, column2, .. FROM table_name WHERE conditionOperator1
+	 *  field1 operator1 value1 ...;
 	 * </pre>
-	 * 
+	 *
 	 * <pre>
 	 * 	SELECT <DISTINCT> column1, column2, .. FROM Customers WHERE CustomerName LIKE '%or%';
 	 * </pre>
@@ -124,7 +125,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *            True if only select distinct lines
 	 * @return ResultSet SQL execution results
 	 */
-	public ResultSet selectColumnsByFileds(boolean distinctSelection) {
+	public ResultSet selectColumnsWhereConditions(boolean distinctSelection) {
 		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
 			return null;
 		}
@@ -143,7 +144,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	}
 
 	/**
-	 * Build SQL WHERE clause string from fConditions, fFields,
+	 * Build SQL WHERE clause string from fConditionOperators, fFields,
 	 * fOperators, and fValues lists.
 	 *
 	 * @return SQL WHERE string
@@ -152,16 +153,16 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 		StringBuilder whereClause = new StringBuilder();
 		for (int i = 0; i < fFields.size(); i++) {
 			if (fValues.get(i) instanceof String) {
-				whereClause.append(fConditions.get(i) + " " + fFields.get(i) + fOperators.get(i) + "'" + fValues.get(i) + "' ");
+				whereClause.append(fConditionOperators.get(i) + " " + fFields.get(i) + fOperators.get(i) + "'" + fValues.get(i) + "' ");
 			} else {
-				whereClause.append(fConditions.get(i) + " " + fFields.get(i) + fOperators.get(i) + fValues.get(i) + " ");
+				whereClause.append(fConditionOperators.get(i) + " " + fFields.get(i) + fOperators.get(i) + fValues.get(i) + " ");
 			}
 		}
 		return whereClause.toString();
 	}
 
 	/**
-	 * Select and count specific column from the initialized table.
+	 * Select and COUNT specific column from the initialized table.
 	 *
 	 * NOTE: Setting fColumns field to null if SELECT * all columns.
 	 *
@@ -173,7 +174,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *
 	 * @return ResultSet SQL execution results
 	 */
-	public ResultSet selectCountColumn() {
+	public ResultSet selectAndCountColumns() {
 		if(checkEmptyTableAndUpdateEmptyColumn()) {
 			return null;
 		}
@@ -192,9 +193,10 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * Scenario:
 	 *
 	 * <pre>
-	 *  SELECT COUNT(<DISTINCT> column) FROM table_name WHERE condition1 field1 operator1 value1 ...;
+	 *  SELECT COUNT(<DISTINCT> column) FROM table_name WHERE conditionOperator1
+	 *  field1 operator1 value1 ...;
 	 * </pre>
-	 * 
+	 *
 	 * <pre>
 	 * 	SELECT COUNT(<DISTINCT> *) FROM Customers WHERE CustomerName LIKE '%or%';
 	 * </pre>
@@ -203,7 +205,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *			True if only select distinct lines
 	 * @return ResultSet SQL execution results
 	 */
-	public ResultSet selectCountColumnByFileds(boolean distinctSelection) {
+	public ResultSet selectAndCountColumnsWhereConditions(boolean distinctSelection) {
 		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
 			return null;
 		}
@@ -230,7 +232,8 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * Scenario:
 	 *
 	 * <pre>
-	 *  SELECT <DISTINCT> column1, column2, .. FROM table_name ORDER BY column1, column2, ... ASC|DESC;
+	 *  SELECT <DISTINCT> column1, column2, .. FROM table_name ORDER BY column1,
+	 *  column2, ... ASC|DESC;
 	 * </pre>
 	 *
 	 * @param distinctSelection
@@ -311,19 +314,21 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * Scenario:
 	 *
 	 * <pre>
-	 *  SELECT <DISTINCT> column1, column2, .. FROM table_name WHERE condition1 field1 operator1 value1 ...
+	 *  SELECT <DISTINCT> column1, column2, .. FROM table_name WHERE conditionOperator1
+	 *  field1 operator1 value1 ...
 	 *  ORDER BY column1, column2, ... ASC|DESC;
 	 * </pre>
-	 * 
+	 *
 	 * <pre>
-	 * 	SELECT <DISTINCT> * FROM Customers WHERE CustomerName LIKE '%or%' ORDER BY column1, column2, ... ASC|DESC;
+	 * 	SELECT <DISTINCT> * FROM Customers WHERE CustomerName LIKE '%or%' ORDER BY column1,
+	 * column2, ... ASC|DESC;
 	 * </pre>
 	 *
 	 * @param distinctSelection
 	 *            True if only select distinct lines
 	 * @return ResultSet SQL execution results
 	 */
-	public ResultSet selectColumnsByFiledsOrderByColumns(boolean distinctSelection) {
+	public ResultSet selectColumnsWhereConditionsOrderByColumns(boolean distinctSelection) {
 		if (checkEmptyTableAndUpdateEmptyColumn()
 				&& (!validateFieldsFiltering() || !validateOrderByColumnsAndOrderings())) {
 			return null;
@@ -355,7 +360,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *
 	 * @return ResultSet SQL execution results
 	 */
-	public ResultSet selectMinColumn() {
+	public ResultSet selectAndMinColumns() {
 		if(checkEmptyTableAndUpdateEmptyColumn()) {
 			return null;
 		}
@@ -376,7 +381,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *
 	 * @return ResultSet SQL execution results
 	 */
-	public ResultSet selectMaxColumn() {
+	public ResultSet selectAndMaxColumns() {
 		if(checkEmptyTableAndUpdateEmptyColumn()) {
 			return null;
 		}
@@ -395,16 +400,16 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * Scenario:
 	 *
 	 * <pre>
-	 *  SELECT MIN(column) FROM table_name WHERE condition1 field1 operator1 value1 ...;
+	 *  SELECT MIN(column) FROM table_name WHERE conditionOperator1 field1 operator1 value1 ...;
 	 * </pre>
-	 * 
+	 *
 	 * <pre>
 	 * 	SELECT MIN(<DISTINCT> *) FROM Customers WHERE CustomerName LIKE '%or%';
 	 * </pre>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
-	public ResultSet selectMinColumnByFileds() {
+	public ResultSet selectAndMinColumnsWhereConditions() {
 		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
 			return null;
 		}
@@ -424,16 +429,16 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * Scenario:
 	 *
 	 * <pre>
-	 *  SELECT MAX(column) FROM table_name WHERE condition1 field1 operator1 value1 ...;
+	 *  SELECT MAX(column) FROM table_name WHERE conditionOperator1 field1 operator1 value1 ...;
 	 * </pre>
-	 * 
+	 *
 	 * <pre>
 	 * 	SELECT MAX(<DISTINCT> *) FROM Customers WHERE CustomerName LIKE '%or%';
 	 * </pre>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
-	public ResultSet selectMaxColumnByFileds() {
+	public ResultSet selectAndMaxColumnsWhereConditions() {
 		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
 			return null;
 		}
@@ -457,7 +462,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *
 	 * @return ResultSet SQL execution results
 	 */
-	public ResultSet selectAvgColumn() {
+	public ResultSet selectAndAvgColumns() {
 		if(checkEmptyTableAndUpdateEmptyColumn()) {
 			return null;
 		}
@@ -476,9 +481,10 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * Scenario:
 	 *
 	 * <pre>
-	 *  SELECT AVG(<DISTINCT> column) FROM table_name WHERE condition1 field1 operator1 value1 ...;
+	 *  SELECT AVG(<DISTINCT> column) FROM table_name WHERE conditionOperator1
+	 *  field1 operator1 value1 ...;
 	 * </pre>
-	 * 
+	 *
 	 * <pre>
 	 * 	SELECT AVG(<DISTINCT> *) FROM Customers WHERE CustomerName LIKE '%or%';
 	 * </pre>
@@ -487,7 +493,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *			True if only select distinct lines
 	 * @return ResultSet SQL execution results
 	 */
-	public ResultSet selectAvgColumnByFileds(boolean distinctSelection) {
+	public ResultSet selectAndAvgColumnsWhereConditions(boolean distinctSelection) {
 		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
 			return null;
 		}
@@ -519,7 +525,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *
 	 * @return ResultSet SQL execution results
 	 */
-	public ResultSet selectSumColumn() {
+	public ResultSet selectAndSumColumns() {
 		if(checkEmptyTableAndUpdateEmptyColumn()) {
 			return null;
 		}
@@ -538,9 +544,10 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * Scenario:
 	 *
 	 * <pre>
-	 *  SELECT SUM(<DISTINCT> column) FROM table_name WHERE condition1 field1 operator1 value1 ...;
+	 *  SELECT SUM(<DISTINCT> column) FROM table_name WHERE conditionOperator1
+	 *  field1 operator1 value1 ...;
 	 * </pre>
-	 * 
+	 *
 	 * <pre>
 	 * 	SELECT SUM(<DISTINCT> *) FROM Customers WHERE CustomerName LIKE '%or%';
 	 * </pre>
@@ -549,7 +556,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *			True if only select distinct lines
 	 * @return ResultSet SQL execution results
 	 */
-	public ResultSet selectSumColumnByFileds(boolean distinctSelection) {
+	public ResultSet selectAndSumColumnsWhereConditions(boolean distinctSelection) {
 		if (checkEmptyTableAndUpdateEmptyColumn() && !validateFieldsFiltering()) {
 			return null;
 		}
