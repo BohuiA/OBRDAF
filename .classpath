@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/Users/Axelsson/Documents/workspaceJava/guava-23.0.jar"/>
-	<classpathentry kind="lib" path="org.eclipse.jdt.annotation_2.1.100.v20170511-1408.jar"/>
+	<classpathentry kind="lib" path="ExternalLib/guava-23.0.jar"/>
+	<classpathentry kind="lib" path="ExternalLib/org.eclipse.jdt.annotation_2.1.100.v20170511-1408.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
