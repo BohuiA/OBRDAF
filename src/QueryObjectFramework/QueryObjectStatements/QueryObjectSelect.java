@@ -1,4 +1,4 @@
-package QueryObjectFramework.statementClasses;
+package QueryObjectFramework.QueryObjectStatements;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -7,12 +7,12 @@ import java.util.logging.Logger;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import QueryObjectFramework.common.SqlCriteriaCondition;
-import QueryObjectFramework.common.SqlJoinType;
-import QueryObjectFramework.common.SqlQueryTypes;
-import QueryObjectFramework.common.SqlStatementStrings;
-import QueryObjectFramework.jdbc.JdbcDatabaseConnection;
-import QueryObjectFramework.queryObjectBase.QueryObjectAbstract;
+import QueryObjectFramework.CommonClasses.SqlCriteriaCondition;
+import QueryObjectFramework.CommonClasses.SqlJoinType;
+import QueryObjectFramework.CommonClasses.SqlQueryTypes;
+import QueryObjectFramework.CommonClasses.SqlStatementStrings;
+import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
+import QueryObjectFramework.QueryObjectAbstract.QueryObjectAbstract;
 
 /**
  * Query object class for Select statement.

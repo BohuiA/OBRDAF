@@ -1,4 +1,4 @@
-package QueryObjectFramework.common;
+package QueryObjectFramework.CommonClasses;
 
 public enum SqlQueryTypes {
 	/*

@@ -1,4 +1,4 @@
-package QueryObjectFramework.jdbc;
+package QueryObjectFramework.JdbcDatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Logger;
 
-import QueryObjectFramework.common.ExeState;
+import QueryObjectFramework.CommonClasses.ExeState;
 
 /**
  * JDBC database connection class.

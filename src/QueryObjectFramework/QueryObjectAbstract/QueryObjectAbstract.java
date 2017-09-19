@@ -1,13 +1,13 @@
-package QueryObjectFramework.queryObjectBase;
+package QueryObjectFramework.QueryObjectAbstract;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import QueryObjectFramework.common.SqlCriteriaCondition;
-import QueryObjectFramework.common.SqlQueryTypes;
-import QueryObjectFramework.jdbc.JdbcDatabaseConnection;
+import QueryObjectFramework.CommonClasses.SqlCriteriaCondition;
+import QueryObjectFramework.CommonClasses.SqlQueryTypes;
+import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
 
 /**
  * Abstract class for Query Object pattern. Contains basic SQL database

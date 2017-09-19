@@ -1,4 +1,4 @@
-package QueryObjectFramework.common;
+package QueryObjectFramework.CommonClasses;
 
 /**
  * Enum class for different JOIN types that
