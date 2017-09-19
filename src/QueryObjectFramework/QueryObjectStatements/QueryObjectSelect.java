@@ -228,6 +228,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	public void clearJoinTypes() {
 		fJoinTypes.clear();
 	}
+
 	/**
 	 * Select specific columns from the initialized table.
 	 *
@@ -250,16 +251,21 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 
 		String sql = null;
 		if (distinctSelection) {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_DISTINCT + " "
+			sql = fQueryObjectType.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_DISTINCT + " "
 					+ buildSqlColumnsString() + " " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + ";";
 		} else {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + buildSqlColumnsString() + " "
+			sql = fQueryObjectType.sqlQueryType() + " " + buildSqlColumnsString() + " "
 					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + ";";
 		}
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
 
-	@Override
+	/**
+	 * Check fTables is not empty, and update fColumns with '*' if iColumns is
+	 * empty.
+	 *
+	 * @return True if fTables is not empty.
+	 */
 	public boolean validateEmptyTableAndUpdateEmptyColumn() {
 		if (fTables.isEmpty()) {
 			LOGGER.severe("Failed to select columns from table, table name is missing.");
@@ -319,18 +325,25 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 
 		String sql = null;
 		if (distinctSelection) {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_DISTINCT + " "
+			sql = fQueryObjectType.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_DISTINCT + " "
 					+ buildSqlColumnsString() + " " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0)
 					+ SqlStatementStrings.SQL_TABLE_WHERE + " " + buildSqlWhereClause() + ";";
 		} else {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + buildSqlColumnsString() + " "
+			sql = fQueryObjectType.sqlQueryType() + " " + buildSqlColumnsString() + " "
 					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + SqlStatementStrings.SQL_TABLE_WHERE + " "
 					+ buildSqlWhereClause() + ";";
 		}
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
 
-	@Override
+	/**
+	 * Validate SQL WHERE condition setups.
+	 *
+	 * fTable, fFields, fOperators, fConditions, fValues should not be
+	 * empty, and amount of these lists should be same.
+	 *
+	 * @return True if all lists are matching valid rules.
+	 */
 	public boolean validateWhereConditions() {
 		if (fTables.isEmpty()) {
 			LOGGER.severe("Failed to select fileds from table, table name is missing.");
@@ -381,7 +394,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 			return null;
 		}
 
-		String sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_COUNT + "("
+		String sql = fQueryObjectType.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_COUNT + "("
 				+ fColumns.get(0) + ") " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
@@ -417,12 +430,12 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 
 		String sql = null;
 		if (distinctSelection) {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_COUNT + "("
+			sql = fQueryObjectType.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_COUNT + "("
 					+ SqlStatementStrings.SQL_TABLE_DISTINCT + " " + fColumns.get(0) + ") "
 					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + SqlStatementStrings.SQL_TABLE_WHERE + " "
 					+ buildSqlWhereClause() + ";";
 		} else {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_COUNT + "("
+			sql = fQueryObjectType.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_COUNT + "("
 					+ fColumns.get(0) + ") " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0)
 					+ SqlStatementStrings.SQL_TABLE_WHERE + " " + buildSqlWhereClause() + ";";
 		}
@@ -452,11 +465,11 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 
 		String sql = null;
 		if (distinctSelection) {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_DISTINCT + " "
+			sql = fQueryObjectType.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_DISTINCT + " "
 					+ buildSqlColumnsString() + " " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0)
 					+ " " + SqlStatementStrings.SQL_TABLE_ORDER_BY + " " + buildSqlOrderByClause() + ";";
 		} else {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + buildSqlColumnsString() + " "
+			sql = fQueryObjectType.sqlQueryType() + " " + buildSqlColumnsString() + " "
 					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0)
 					+ " " +SqlStatementStrings.SQL_TABLE_ORDER_BY + " " + buildSqlOrderByClause() + ";";
 		}
@@ -544,12 +557,12 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 
 		String sql = null;
 		if (distinctSelection) {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_DISTINCT + " "
+			sql = fQueryObjectType.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_DISTINCT + " "
 					+ buildSqlColumnsString() + " " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0)
 					+ SqlStatementStrings.SQL_TABLE_WHERE + " " + buildSqlWhereClause()
 					+ " " + SqlStatementStrings.SQL_TABLE_ORDER_BY + " " + buildSqlOrderByClause() + ";";
 		} else {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + buildSqlColumnsString() + " "
+			sql = fQueryObjectType.sqlQueryType() + " " + buildSqlColumnsString() + " "
 					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + SqlStatementStrings.SQL_TABLE_WHERE + " "
 					+ buildSqlWhereClause()
 					+ " " + SqlStatementStrings.SQL_TABLE_ORDER_BY + " " + buildSqlOrderByClause() + ";";
@@ -573,7 +586,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 			return null;
 		}
 
-		String sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_MIN + "("
+		String sql = fQueryObjectType.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_MIN + "("
 				+ fColumns.get(0) + ") " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
@@ -594,7 +607,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 			return null;
 		}
 
-		String sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_MAX + "("
+		String sql = fQueryObjectType.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_MAX + "("
 				+ fColumns.get(0) + ") " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
@@ -625,7 +638,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 			return null;
 		}
 
-		String sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_MIN + "("
+		String sql = fQueryObjectType.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_MIN + "("
 				+ fColumns.get(0) + ") " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0)
 				+ SqlStatementStrings.SQL_TABLE_WHERE + " " + buildSqlWhereClause() + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
@@ -657,7 +670,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 			return null;
 		}
 
-		String sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_MAX + "("
+		String sql = fQueryObjectType.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_MAX + "("
 				+ fColumns.get(0) + ") " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0)
 				+ SqlStatementStrings.SQL_TABLE_WHERE + " " + buildSqlWhereClause() + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
@@ -681,7 +694,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 			return null;
 		}
 
-		String sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_AVG + "("
+		String sql = fQueryObjectType.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_AVG + "("
 				+ fColumns.get(0) + ") " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
@@ -717,12 +730,12 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 
 		String sql = null;
 		if (distinctSelection) {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_AVG + "("
+			sql = fQueryObjectType.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_AVG + "("
 					+ SqlStatementStrings.SQL_TABLE_DISTINCT + " " + fColumns.get(0) + ") "
 					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + SqlStatementStrings.SQL_TABLE_WHERE + " "
 					+ buildSqlWhereClause() + ";";
 		} else {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_AVG + "("
+			sql = fQueryObjectType.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_AVG + "("
 					+ fColumns.get(0) + ") " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0)
 					+ SqlStatementStrings.SQL_TABLE_WHERE + " " + buildSqlWhereClause() + ";";
 		}
@@ -747,7 +760,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 			return null;
 		}
 
-		String sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_SUM + "("
+		String sql = fQueryObjectType.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_SUM + "("
 				+ fColumns.get(0) + ") " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
@@ -783,12 +796,12 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 
 		String sql = null;
 		if (distinctSelection) {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_SUM + "("
+			sql = fQueryObjectType.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_SUM + "("
 					+ SqlStatementStrings.SQL_TABLE_DISTINCT + " " + fColumns.get(0) + ") "
 					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + SqlStatementStrings.SQL_TABLE_WHERE + " "
 					+ buildSqlWhereClause() + ";";
 		} else {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_SUM + "("
+			sql = fQueryObjectType.sqlQueryType() + " " + SqlStatementStrings.SQL_TABLE_SUM + "("
 					+ fColumns.get(0) + ") " + SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0)
 					+ SqlStatementStrings.SQL_TABLE_WHERE + " " + buildSqlWhereClause() + ";";
 		}
@@ -829,11 +842,11 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 
 		String sql = null;
 		if (distinctSelection) {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " "
+			sql = fQueryObjectType.sqlQueryType() + " "
 					+ SqlStatementStrings.SQL_TABLE_DISTINCT + " " + buildSqlColumnsString() + " "
 					+ SqlStatementStrings.SQL_TABLE_FROM + buildSqlJoinClause() + ";";
 		} else {
-			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + buildSqlColumnsString() + " "
+			sql = fQueryObjectType.sqlQueryType() + " " + buildSqlColumnsString() + " "
 					+ SqlStatementStrings.SQL_TABLE_FROM + buildSqlJoinClause() + ";";
 		}
 		return fJdbcDbConn.executeQueryObject(sql);

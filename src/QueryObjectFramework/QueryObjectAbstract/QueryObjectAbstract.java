@@ -31,7 +31,9 @@ public class QueryObjectAbstract {
 		fQueryObjectType = queryObjectType;
 		fJdbcDbConn = jdbcDbConn;
 		fTables.addAll(tables);
-		fColumns.addAll(columns);
+		if (columns != null) {
+			fColumns.addAll(columns);
+		}
 		if (selectCriterias != null) {
 			fCriteriaConditions.addAll(selectCriterias);
 		}
@@ -40,28 +42,6 @@ public class QueryObjectAbstract {
 	public QueryObjectAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn) {
 		fQueryObjectType = queryObjectType;
 		fJdbcDbConn = jdbcDbConn;
-	}
-
-	/**
-	 * Check fTables is not empty, and update fColumns with '*' if iColumns is
-	 * empty.
-	 *
-	 * @return True if fTables is not empty.
-	 */
-	public boolean validateEmptyTableAndUpdateEmptyColumn() {
-		return true;
-	}
-
-	/**
-	 * Validate SQL WHERE condition setups.
-	 *
-	 * fTable, fFields, fOperators, fConditions, fValues should not be
-	 * empty, and amount of these lists should be same.
-	 *
-	 * @return True if all lists are matching valid rules.
-	 */
-	public boolean validateWhereConditions() {
-		return false;
 	}
 
 	public void addTable(@NonNull String table) {
