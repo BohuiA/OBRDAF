@@ -5,9 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import com.sun.istack.internal.NotNull;
+import org.eclipse.jdt.annotation.NonNull;
 
 import QueryObjectFramework.common.SqlCriteriaCondition;
+import QueryObjectFramework.common.SqlJoinType;
 import QueryObjectFramework.common.SqlQueryTypes;
 import QueryObjectFramework.common.SqlStatementStrings;
 import QueryObjectFramework.jdbc.JdbcDatabaseConnection;
@@ -24,15 +25,105 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	/*
 	 * Select SQL statement specific operation settings
 	 */
-	private final @NotNull List<String> fOrderByColumns = new ArrayList<>();
-	private final @NotNull List<String> fOrderByOrderings = new ArrayList<>();
+	private final @NonNull List<String> fOrderByColumns = new ArrayList<>();
+	private final @NonNull List<String> fOrderByOrderings = new ArrayList<>();
+	private final @NonNull List<SqlJoinType> fJoinTypes = new ArrayList<>();
 
-	public QueryObjectSelect(@NotNull JdbcDatabaseConnection jdbcDbConn) {
+	/**
+	 * Create a SELECT query object with only JDBC connection.
+	 *
+	 * @param jdbcDbConn
+	 * 			JDBC database connection
+	 */
+	public QueryObjectSelect(@NonNull JdbcDatabaseConnection jdbcDbConn) {
 		super(SqlQueryTypes.SELECT, jdbcDbConn);
 	}
 
-	public QueryObjectSelect(@NotNull JdbcDatabaseConnection jdbcDbConn, @NotNull List<String> tables,
-			@NotNull List<String> columns, List<SqlCriteriaCondition> selectCriterias,
+	/**
+	 * Create a SELECT query object with normal select grammar.
+	 *
+	 * Example:
+	 *
+	 * <pre>
+	 * 	SELECT column1, column2, ... FROM table_name;
+	 * </pre>
+	 *
+	 * @param jdbcDbConn
+	 * 			JDBC database connection
+	 * @param tables
+	 * 			Names of table for selecting, should be only one
+	 * @param columns
+	 * 			Names of columns for selection, setting null for
+	 * 			selecting all columns.
+	 */
+	public QueryObjectSelect(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
+			@NonNull List<String> columns) {
+		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, null);
+	}
+
+	/**
+	 * Create a SELECT query object with WHERE filtering grammar.
+	 *
+	 * Example:
+	 *
+	 * <pre>
+	 *  SELECT column1, column2, ...
+	 *  FROM table_name
+	 *  WHERE NOT condition1 AND condition2 AND NOT condition3 ...;
+	 * </pre>
+	 *
+	 * Note: conditionOperator is set as "" or NULL means there is no condition operator,
+	 * Available condition operators are NOT, OR, AND.
+	 *
+	 * @param jdbcDbConn
+	 * 			JDBC database connection
+	 * @param tables
+	 * 			Names of table for selecting, should be only one
+	 * @param columns
+	 * 			Names of columns for selection, setting null for
+	 * 			selecting all columns.
+	 * @param selectCriterias
+	 * 			List that contains filtering selection criteria.
+	 * 			Setting to NULL for ignoring.
+	 */
+	public QueryObjectSelect(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
+			@NonNull List<String> columns, List<SqlCriteriaCondition> selectCriterias) {
+		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, selectCriterias);
+	}
+
+	/**
+	 * Create a SELECT query object with WHERE and ORDER BY grammar.
+	 *
+	 * Example:
+	 *
+	 * <pre>
+	 *  SELECT column1, column2, ...
+	 *  FROM table_name
+	 *  ORDER BY column1, column2, ... ASC|DESC;
+	 * </pre>
+	 *
+	 * Note: conditionOperator is set as "" or NULL means there is no condition operator,
+	 * Available condition operators are NOT, OR, AND.
+	 *
+	 * @param jdbcDbConn
+	 * 			JDBC database connection
+	 * @param tables
+	 * 			Names of table for selecting, should be only one
+	 * @param columns
+	 * 			Names of columns for selection, setting null for
+	 * 			selecting all columns.
+	 * @param selectCriterias
+	 * 			List that contains filtering selection criteria
+	 * @param orderByColumns
+	 * 			Names of columns that need to order by.
+	 * 			Setting to NULL for ignoring.
+	 * @param orderByOrderings
+	 * 			Names of Orderings that need to perform, should be
+	 * 			'ASC' or 'DESC'.
+	 * 			Setting to NULL for ignoring.
+	 */
+	public QueryObjectSelect(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
+			@NonNull List<String> columns, List<SqlCriteriaCondition> selectCriterias,
 			List<String> orderByColumns, List<String> orderByOrderings) {
 		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, selectCriterias);
 		if (orderByColumns != null) {
@@ -43,7 +134,57 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 		}
 	}
 
-	public void addOrderByColumn(@NotNull String orderByColumn) {
+	/**
+	 * Create a SELECT query object with WHERE, ODERBY and JOIN grammars.
+	 *
+	 * Example:
+	 * <pre>
+	 *  SELECT Customers.CustomerName, Orders.OrderID
+	 *  FROM Customers
+	 *  LEFT JOIN Orders ON Customers.CustomerID = Orders.CustomerID
+	 *  ORDER BY Customers.CustomerName ASC;
+	 * </pre>
+	 *
+	 * Note: conditionOperator is set as "" or NULL means there is no condition operator,
+	 * Available condition operators are NOT, OR, AND.
+	 *
+	 * @param jdbcDbConn
+	 * 			JDBC database connection
+	 * @param tables
+	 * 			Names of table for selecting, should be only one
+	 * @param columns
+	 * 			Names of columns for selection, setting null for
+	 * 			selecting all columns.
+	 * @param selectCriterias
+	 * 			List that contains filtering selection criteria.
+	 * 			Setting to NULL for ignoring.
+	 * @param orderByColumns
+	 * 			Names of columns that need to order by.
+	 * 			Setting to NULL for ignoring.
+	 * @param orderByOrderings
+	 * 			Names of Orderings that need to perform, should be
+	 * 			'ASC' or 'DESC'.
+	 * 			Setting to NULL for ignoring.
+	 * @param joinTypes
+	 * 			List that contains Join types defining in SqlJoinType class.
+	 * 			Setting to NULL for ignoring.
+	 */
+	public QueryObjectSelect(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
+			@NonNull List<String> columns, List<SqlCriteriaCondition> selectCriterias,
+			List<String> orderByColumns, List<String> orderByOrderings, List<SqlJoinType> joinTypes) {
+		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, selectCriterias);
+		if (orderByColumns != null) {
+			fOrderByColumns.addAll(orderByColumns);
+		}
+		if (orderByOrderings != null) {
+			fOrderByOrderings.addAll(orderByOrderings);
+		}
+		if (joinTypes!= null) {
+			fJoinTypes.addAll(joinTypes);
+		}
+	}
+
+	public void addOrderByColumn(@NonNull String orderByColumn) {
 		fOrderByColumns.add(orderByColumn);
 	}
 
@@ -58,7 +199,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 		fOrderByColumns.clear();
 	}
 
-	public void addOrderByOrdering(@NotNull String orderByOrdering) {
+	public void addOrderByOrdering(@NonNull String orderByOrdering) {
 		fOrderByOrderings.add(orderByOrdering);
 	}
 
@@ -73,6 +214,20 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 		fOrderByOrderings.clear();
 	}
 
+	public void addJoinType(@NonNull SqlJoinType joinType) {
+		fJoinTypes.add(joinType);
+	}
+
+	public void setJoinTypes(List<SqlJoinType> joinTypes) {
+		clearJoinTypes();
+		if (joinTypes != null) {
+			fJoinTypes.addAll(joinTypes);
+		}
+	}
+
+	public void clearJoinTypes() {
+		fJoinTypes.clear();
+	}
 	/**
 	 * Select specific columns from the initialized table.
 	 *
@@ -89,7 +244,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectColumns(boolean distinctSelection) {
-		if (checkEmptyTableAndUpdateEmptyColumn()) {
+		if (!validateEmptyTableAndUpdateEmptyColumn()) {
 			return null;
 		}
 
@@ -102,6 +257,22 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 					+ SqlStatementStrings.SQL_TABLE_FROM + " " + fTables.get(0) + ";";
 		}
 		return fJdbcDbConn.executeQueryObject(sql);
+	}
+
+	@Override
+	public boolean validateEmptyTableAndUpdateEmptyColumn() {
+		if (fTables.isEmpty()) {
+			LOGGER.severe("Failed to select columns from table, table name is missing.");
+			return false;
+		}
+		/*
+		 * If fColumns is empty, it means selecting all columns,
+		 * updating fColumns with one '*'.
+		 */
+		if (fColumns.isEmpty()) {
+			fColumns.add("*");
+		}
+		return true;
 	}
 
 	/**
@@ -123,6 +294,9 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *
 	 * NOTE: Setting fColumns field to null if SELECT * all columns.
 	 *
+	 * Note: conditionOperator is set as "" or NULL means there is no condition operator,
+	 * Available condition operators are NOT, OR, AND.
+	 *
 	 * Scenario:
 	 *
 	 * <pre>
@@ -139,7 +313,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectColumnsWhereConditions(boolean distinctSelection) {
-		if (checkEmptyTableAndUpdateEmptyColumn() && !validateWhereConditions()) {
+		if (!validateEmptyTableAndUpdateEmptyColumn() || !validateWhereConditions()) {
 			return null;
 		}
 
@@ -154,6 +328,20 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 					+ buildSqlWhereClause() + ";";
 		}
 		return fJdbcDbConn.executeQueryObject(sql);
+	}
+
+	@Override
+	public boolean validateWhereConditions() {
+		if (fTables.isEmpty()) {
+			LOGGER.severe("Failed to select fileds from table, table name is missing.");
+			return false;
+		}
+		for (SqlCriteriaCondition criteria : fCriteriaConditions) {
+			if (!criteria.validateCriteriaCondition()) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -189,7 +377,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectAndCountColumns() {
-		if(checkEmptyTableAndUpdateEmptyColumn()) {
+		if(!validateEmptyTableAndUpdateEmptyColumn()) {
 			return null;
 		}
 
@@ -203,6 +391,9 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * filters.
 	 *
 	 * NOTE: Setting fColumns field to null if SELECT * all columns.
+	 *
+	 * Note: conditionOperator is set as "" or NULL means there is no condition operator,
+	 * Available condition operators are NOT, OR, AND.
 	 *
 	 * Scenario:
 	 *
@@ -220,7 +411,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectAndCountColumnsWhereConditions(boolean distinctSelection) {
-		if (checkEmptyTableAndUpdateEmptyColumn() && !validateWhereConditions()) {
+		if (!validateEmptyTableAndUpdateEmptyColumn() && !validateWhereConditions()) {
 			return null;
 		}
 
@@ -255,7 +446,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectColumnsOrderByColumns(boolean distinctSelection) {
-		if (checkEmptyTableAndUpdateEmptyColumn() || !validateOrderByColumnsAndOrderings()) {
+		if (!validateEmptyTableAndUpdateEmptyColumn() || !validateOrderByColumnsAndOrderings()) {
 			return null;
 		}
 
@@ -325,6 +516,9 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *
 	 * NOTE: Setting fColumns field to null if SELECT * all columns.
 	 *
+	 * Note: conditionOperator is set as "" or NULL means there is no condition operator,
+	 * Available condition operators are NOT, OR, AND.
+	 *
 	 * Scenario:
 	 *
 	 * <pre>
@@ -343,8 +537,8 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectColumnsWhereConditionsOrderByColumns(boolean distinctSelection) {
-		if (checkEmptyTableAndUpdateEmptyColumn()
-				&& (!validateWhereConditions() || !validateOrderByColumnsAndOrderings())) {
+		if (!validateEmptyTableAndUpdateEmptyColumn()
+				|| !validateWhereConditions() || !validateOrderByColumnsAndOrderings()) {
 			return null;
 		}
 
@@ -375,7 +569,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectAndMinColumns() {
-		if(checkEmptyTableAndUpdateEmptyColumn()) {
+		if(!validateEmptyTableAndUpdateEmptyColumn()) {
 			return null;
 		}
 
@@ -396,7 +590,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectAndMaxColumns() {
-		if(checkEmptyTableAndUpdateEmptyColumn()) {
+		if(!validateEmptyTableAndUpdateEmptyColumn()) {
 			return null;
 		}
 
@@ -411,6 +605,9 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *
 	 * NOTE: Setting fColumns field to null if SELECT * all columns.
 	 *
+	 * Note: conditionOperator is set as "" or NULL means there is no condition operator,
+	 * Available condition operators are NOT, OR, AND.
+	 *
 	 * Scenario:
 	 *
 	 * <pre>
@@ -424,7 +621,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectAndMinColumnsWhereConditions() {
-		if (checkEmptyTableAndUpdateEmptyColumn() && !validateWhereConditions()) {
+		if (!validateEmptyTableAndUpdateEmptyColumn() || !validateWhereConditions()) {
 			return null;
 		}
 
@@ -440,6 +637,9 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 *
 	 * NOTE: Setting fColumns field to null if SELECT * all columns.
 	 *
+	 * Note: conditionOperator is set as "" or NULL means there is no condition operator,
+	 * Available condition operators are NOT, OR, AND.
+	 *
 	 * Scenario:
 	 *
 	 * <pre>
@@ -453,7 +653,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectAndMaxColumnsWhereConditions() {
-		if (checkEmptyTableAndUpdateEmptyColumn() && !validateWhereConditions()) {
+		if (!validateEmptyTableAndUpdateEmptyColumn() || !validateWhereConditions()) {
 			return null;
 		}
 
@@ -477,7 +677,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectAndAvgColumns() {
-		if(checkEmptyTableAndUpdateEmptyColumn()) {
+		if(!validateEmptyTableAndUpdateEmptyColumn()) {
 			return null;
 		}
 
@@ -491,6 +691,9 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * filters.
 	 *
 	 * NOTE: Setting fColumns field to null if SELECT * all columns.
+	 *
+	 * Note: conditionOperator is set as "" or NULL means there is no condition operator,
+	 * Available condition operators are NOT, OR, AND.
 	 *
 	 * Scenario:
 	 *
@@ -508,7 +711,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectAndAvgColumnsWhereConditions(boolean distinctSelection) {
-		if (checkEmptyTableAndUpdateEmptyColumn() && !validateWhereConditions()) {
+		if (!validateEmptyTableAndUpdateEmptyColumn() || !validateWhereConditions()) {
 			return null;
 		}
 
@@ -540,7 +743,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectAndSumColumns() {
-		if(checkEmptyTableAndUpdateEmptyColumn()) {
+		if(!validateEmptyTableAndUpdateEmptyColumn()) {
 			return null;
 		}
 
@@ -554,6 +757,9 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * filters.
 	 *
 	 * NOTE: Setting fColumns field to null if SELECT * all columns.
+	 *
+	 * Note: conditionOperator is set as "" or NULL means there is no condition operator,
+	 * Available condition operators are NOT, OR, AND.
 	 *
 	 * Scenario:
 	 *
@@ -571,7 +777,7 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectAndSumColumnsWhereConditions(boolean distinctSelection) {
-		if (checkEmptyTableAndUpdateEmptyColumn() && !validateWhereConditions()) {
+		if (!validateEmptyTableAndUpdateEmptyColumn() || !validateWhereConditions()) {
 			return null;
 		}
 
@@ -587,5 +793,106 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 					+ SqlStatementStrings.SQL_TABLE_WHERE + " " + buildSqlWhereClause() + ";";
 		}
 		return fJdbcDbConn.executeQueryObject(sql);
+	}
+
+	/**
+	 * Select target columns from tables by joining.
+	 *
+	 * NOTE: Setting fColumns field to null if SELECT * all columns.
+	 *
+	 * Note: conditionOperator is set as "" or NULL means there is no condition
+	 * operator, Available condition operators are NOT, OR, AND.
+	 *
+	 * Scenario:
+	 *
+	 * <pre>
+	 *  SELECT Orders.OrderID, Customers.CustomerName
+	 *  FROM Orders
+	 *  INNER JOIN Customers ON Orders.CustomerID = Customers.CustomerID;
+	 * </pre>
+	 *
+	 * <pre>
+	 * 	SELECT Orders.OrderID, Customers.CustomerName, Shippers.ShipperName
+	 *  FROM ((Orders
+	 *  INNER JOIN Customers ON Orders.CustomerID = Customers.CustomerID)
+	 *  INNER JOIN Shippers ON Orders.ShipperID = Shippers.ShipperID);
+	 * </pre>
+	 *
+	 * @param distinctSelection
+	 *			True if only select distinct lines
+	 * @return ResultSet SQL execution results
+	 */
+	public ResultSet selectColumnsJoinTablesOnConditions(boolean distinctSelection) {
+		if (!validateEmptyTableAndUpdateEmptyColumn() || !validateJoinConditions()) {
+			return null;
+		}
+
+		String sql = null;
+		if (distinctSelection) {
+			sql = SqlQueryTypes.SELECT.sqlQueryType() + " "
+					+ SqlStatementStrings.SQL_TABLE_DISTINCT + " " + buildSqlColumnsString() + " "
+					+ SqlStatementStrings.SQL_TABLE_FROM + buildSqlJoinClause() + ";";
+		} else {
+			sql = SqlQueryTypes.SELECT.sqlQueryType() + " " + buildSqlColumnsString() + " "
+					+ SqlStatementStrings.SQL_TABLE_FROM + buildSqlJoinClause() + ";";
+		}
+		return fJdbcDbConn.executeQueryObject(sql);
+	}
+
+	/**
+	 * Validate SQL JOIN condition setups.
+	 *
+	 * fTable, fCriteriaConditions, fJoinTypes should not be empty, and amount of
+	 * fTable should be the amount of fCriteriaConditions + 1.
+	 *
+	 * @return True if all lists are matching valid rules.
+	 */
+	private boolean validateJoinConditions() {
+		for (SqlCriteriaCondition criteria : fCriteriaConditions) {
+			if (!criteria.validateCriteriaCondition()) {
+				return false;
+			}
+		}
+		if (fJoinTypes.isEmpty()) {
+			LOGGER.severe("Failed to select fileds from table, join types are missing.");
+			return false;
+		}
+		if (fTables.size() != fCriteriaConditions.size() + 1
+				|| fCriteriaConditions.size() != fJoinTypes.size()) {
+			LOGGER.severe("Failed to select fileds from table, join types, ceriteria conditions"
+					+ ", and tables are not matching.");
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Build SQL JOIN clause string from fTable, fCriteriaConditions,
+	 * fJoinTypes lists.
+	 *
+	 * @return SQL JOIN string
+	 */
+	private String buildSqlJoinClause() {
+		StringBuilder joinClause = new StringBuilder();
+		for (int i = 0; i < fJoinTypes.size(); i ++) {
+			if (i == 0) {
+				joinClause.append("(");
+				joinClause.append(fTables.get(i) + " ");
+				joinClause.append(fJoinTypes.get(i) + " ");
+				joinClause.append(fTables.get(i + 1) + " ");
+				joinClause.append(SqlStatementStrings.SQL_TABLE_ON + " ");
+				joinClause.append(fCriteriaConditions.get(i).getConditionOperator()
+						+ " " + fCriteriaConditions.get(i).getFiled() + fCriteriaConditions.get(i).getOperator()
+						+ fCriteriaConditions.get(i).getValue() + ") ");
+			} else {
+				joinClause.insert(0, '(');
+				joinClause.append(fJoinTypes.get(i) + " ");
+				joinClause.append(fTables.get(i + 1) + " ");
+				joinClause.append(SqlStatementStrings.SQL_TABLE_ON + " ");
+				joinClause.append(fCriteriaConditions.get(i).getFiled() + fCriteriaConditions.get(i).getOperator()
+						+ fCriteriaConditions.get(i).getValue() + ") ");
+			}
+		}
+		return joinClause.toString();
 	}
 }

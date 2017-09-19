@@ -2,9 +2,8 @@ package QueryObjectFramework.queryObjectBase;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
-import com.sun.istack.internal.NotNull;
+import org.eclipse.jdt.annotation.NonNull;
 
 import QueryObjectFramework.common.SqlCriteriaCondition;
 import QueryObjectFramework.common.SqlQueryTypes;
@@ -20,16 +19,14 @@ import QueryObjectFramework.jdbc.JdbcDatabaseConnection;
  * @author Bohui Axelsson
  */
 public class QueryObjectAbstract {
-	private static final Logger LOGGER = Logger.getLogger(QueryObjectAbstract.class.getName());
-
 	public final SqlQueryTypes fQueryObjectType;
-	public final @NotNull JdbcDatabaseConnection fJdbcDbConn;
-	public final @NotNull List<String> fTables = new ArrayList<>();
-	public final @NotNull List<String> fColumns = new ArrayList<>();
+	public final @NonNull JdbcDatabaseConnection fJdbcDbConn;
+	public final @NonNull List<String> fTables = new ArrayList<>();
+	public final @NonNull List<String> fColumns = new ArrayList<>();
 	public final List<SqlCriteriaCondition> fCriteriaConditions = new ArrayList<>();
 
-	public QueryObjectAbstract(SqlQueryTypes queryObjectType, @NotNull JdbcDatabaseConnection jdbcDbConn,
-			@NotNull List<String> tables, @NotNull List<String> columns,
+	public QueryObjectAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn,
+			@NonNull List<String> tables, @NonNull List<String> columns,
 			List<SqlCriteriaCondition> selectCriterias) {
 		fQueryObjectType = queryObjectType;
 		fJdbcDbConn = jdbcDbConn;
@@ -40,7 +37,7 @@ public class QueryObjectAbstract {
 		}
 	}
 
-	public QueryObjectAbstract(SqlQueryTypes queryObjectType, @NotNull JdbcDatabaseConnection jdbcDbConn) {
+	public QueryObjectAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn) {
 		fQueryObjectType = queryObjectType;
 		fJdbcDbConn = jdbcDbConn;
 	}
@@ -49,21 +46,10 @@ public class QueryObjectAbstract {
 	 * Check fTables is not empty, and update fColumns with '*' if iColumns is
 	 * empty.
 	 *
-	 * @return True if fTables is empty.
+	 * @return True if fTables is not empty.
 	 */
-	public boolean checkEmptyTableAndUpdateEmptyColumn() {
-		if (fTables.isEmpty()) {
-			LOGGER.severe("Failed to select columns from table, table name is missing.");
-			return true;
-		}
-		/*
-		 * If fColumns is empty, it means selecting all columns,
-		 * updating fColumns with one '*'.
-		 */
-		if (fColumns.isEmpty()) {
-			fColumns.add("*");
-		}
-		return false;
+	public boolean validateEmptyTableAndUpdateEmptyColumn() {
+		return true;
 	}
 
 	/**
@@ -75,23 +61,14 @@ public class QueryObjectAbstract {
 	 * @return True if all lists are matching valid rules.
 	 */
 	public boolean validateWhereConditions() {
-		if (fTables.isEmpty()) {
-			LOGGER.severe("Failed to select fileds from table, table name is missing.");
-			return false;
-		}
-		for (SqlCriteriaCondition criteria : fCriteriaConditions) {
-			if (!criteria.validateCriteriaCondition()) {
-				return false;
-			}
-		}
-		return true;
+		return false;
 	}
 
-	public void addTable(@NotNull String table) {
+	public void addTable(@NonNull String table) {
 		fTables.add(table);
 	}
 
-	public void setTables(@NotNull List<String> tables) {
+	public void setTables(@NonNull List<String> tables) {
 		clearTables();
 		fTables.addAll(tables);
 	}
@@ -100,11 +77,11 @@ public class QueryObjectAbstract {
 		fTables.clear();
 	}
 
-	public void addColumn(@NotNull String column) {
+	public void addColumn(@NonNull String column) {
 		fColumns.add(column);
 	}
 
-	public void setColumns(@NotNull List<String> columns) {
+	public void setColumns(@NonNull List<String> columns) {
 		clearColumns();
 		fColumns.addAll(columns);
 	}
@@ -113,7 +90,7 @@ public class QueryObjectAbstract {
 		fColumns.clear();
 	}
 
-	public void addCriteriaCondition(@NotNull SqlCriteriaCondition criteriaCondition) {
+	public void addCriteriaCondition(@NonNull SqlCriteriaCondition criteriaCondition) {
 		fCriteriaConditions.add(criteriaCondition);
 	}
 

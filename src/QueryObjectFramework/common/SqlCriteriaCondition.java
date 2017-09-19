@@ -80,8 +80,11 @@ public class SqlCriteriaCondition {
 	/**
 	 * Validate SQL WHERE condition setups.
 	 *
-	 *  fFields, fOperators, fConditions, fValues should not be
+	 * fFields, fOperators, fValues should not be
 	 * empty, and amount of these lists should be same.
+	 *
+	 * If fConditionOperator is null, then changing fConditionOperator
+	 * to "", in order to achieve empty condition operation.
 	 *
 	 * @return True if all lists are matching valid rules.
 	 */
@@ -99,8 +102,7 @@ public class SqlCriteriaCondition {
 			return false;
 		}
 		if (fConditionOperator == null) {
-			LOGGER.severe("Failed to select fileds from table, conditions are missing.");
-			return false;
+			fConditionOperator = "";
 		}
 		return true;
 	}
