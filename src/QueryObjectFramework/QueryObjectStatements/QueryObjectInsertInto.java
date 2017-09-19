@@ -92,8 +92,23 @@ public class QueryObjectInsertInto extends QueryObjectAbstract {
 	}
 
 	/**
+	 * Insert target values into table.
 	 *
-	 * @return
+	 * NOTE: Only one table name should be added into object.
+	 *
+	 * Scenario:
+	 *
+	 * <pre>
+     *  INSERT INTO Customers
+     *  VALUES ('Cardinal', 'Stavanger', 'Norway');
+	 * </pre>
+	 *
+	 * <pre>
+	 * 	INSERT INTO Customers
+	 *  VALUES ('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway');
+	 * </pre>
+	 *
+	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet insertIntoTableWithValues() {
 		if (!validateTableAmountAndValuesNotEmpty()) {
@@ -129,7 +144,7 @@ public class QueryObjectInsertInto extends QueryObjectAbstract {
 	 *
 	 * @return True if fTables contains one table and fInsertValues is not empty.
 	 */
-	public boolean validateTableAmountAndValuesNotEmpty() {
+	private boolean validateTableAmountAndValuesNotEmpty() {
 		if (fTables.isEmpty()) {
 			LOGGER.severe("Failed to insert values into table, table name is missing.");
 			return false;
