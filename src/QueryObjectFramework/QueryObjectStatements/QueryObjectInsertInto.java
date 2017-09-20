@@ -91,6 +91,21 @@ public class QueryObjectInsertInto extends QueryObjectAbstract {
 		}
 	}
 
+	public void addInsertValue(@NonNull String insertValue) {
+		fInsertValues.add(insertValue);
+	}
+
+	public void setInsertValues(List<String> insertValues) {
+		clearInsertValues();
+		if (insertValues != null) {
+			fInsertValues.addAll(insertValues);
+		}
+	}
+
+	public void clearInsertValues() {
+		fInsertValues.clear();
+	}
+
 	/**
 	 * Insert target values into table.
 	 *
@@ -116,7 +131,7 @@ public class QueryObjectInsertInto extends QueryObjectAbstract {
 		}
 
 		String sql = fQueryObjectType.sqlQueryType() + " " + fTables.get(0)
-				 + " " + SqlStatementStrings.SQL_TABLE_VALUES + " (" + buildSqlInsterValuesClause() + " );";
+				 + " " + SqlStatementStrings.SQL_TABLE_VALUES + " (" + buildSqlInsertValuesClause() + " );";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
 
@@ -125,7 +140,7 @@ public class QueryObjectInsertInto extends QueryObjectAbstract {
 	 *
 	 * @return SQL insert values string
 	 */
-	private String buildSqlInsterValuesClause() {
+	private String buildSqlInsertValuesClause() {
 		StringBuilder insertValuesClause = new StringBuilder();
 		for (Object insertValue : fInsertValues) {
 			if (insertValue instanceof String) {
@@ -158,5 +173,56 @@ public class QueryObjectInsertInto extends QueryObjectAbstract {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Insert target values into table.
+	 *
+	 * NOTE: Only one table name should be added into object.
+	 *
+	 * Scenario:
+	 *
+	 * <pre>
+	 *  INSERT INTO Customers (CustomerName, ContactName, Address, City, PostalCode, Country)
+	 *  VALUES ('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway');
+	 * </pre>
+	 *
+	 * @return ResultSet SQL execution results
+	 */
+	public ResultSet insertIntoTableWithColumnsAndValues() {
+		if (!validateTableAmountAndValuesNotEmpty() || !validateColumnsNotEmpty()) {
+			return null;
+		}
+
+		String sql = fQueryObjectType.sqlQueryType() + " " + fTables.get(0) + " " + "( " + buildSqlInsertColumnsClause()
+				+ " )" + " " + SqlStatementStrings.SQL_TABLE_VALUES + " (" + buildSqlInsertValuesClause() + " );";
+		return fJdbcDbConn.executeQueryObject(sql);
+	}
+
+	/**
+	 * Validate fColumns list should not be empty.
+	 *
+	 * @return True if fColumns is not empty.
+	 */
+	private boolean validateColumnsNotEmpty() {
+		if (fColumns.isEmpty()) {
+			LOGGER.severe("Failed to insert values into table, column names are missing.");
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Build SQL columns string contains all target column names.
+	 *
+	 * @return SQL columns string
+	 */
+	private String buildSqlInsertColumnsClause() {
+		StringBuilder colunms = new StringBuilder();
+		for (String filedName : fColumns) {
+			colunms.append(filedName + ",");
+		}
+		colunms.deleteCharAt(colunms.length() - 1);
+		return colunms.toString();
 	}
 }
