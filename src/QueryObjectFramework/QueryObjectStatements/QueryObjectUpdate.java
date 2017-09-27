@@ -189,4 +189,68 @@ public class QueryObjectUpdate extends QueryObjectAbstract {
 		updateColumsAndValues.deleteCharAt(updateColumsAndValues.length() - 1);
 		return updateColumsAndValues.toString();
 	}
+
+	/**
+	 * Update values of columns in table filtering by WHERE.
+	 *
+	 * NOTE: Only one table name should be added into object.
+	 *
+	 * Scenario:
+	 *
+	 * <pre>
+	 *  UPDATE table_name
+	 *  SET column1 = value1, column2 = value2, ...
+	 *  WHERE condition;
+	 * </pre>
+	 *
+	 * @return ResultSet SQL execution results
+	 */
+	public ResultSet updateColumnsWithValuesWhereConditions() {
+		if (!validatUpdateColumnsWithValuesWhereConditions()) {
+			return null;
+		}
+
+		String sql = fQueryObjectType.sqlQueryType() + " " + fTables.get(0) + " " + SqlStatementStrings.SQL_TABLE_SET
+				+ " " + buildSqlUpdateColumnsVaulesClause() + " " + SqlStatementStrings.SQL_TABLE_WHERE + " " +
+				buildSqlUpdateColumnsVaulesClause() + ";";
+		return fJdbcDbConn.executeQueryObject(sql);
+	}
+
+	/**
+	 * Validate fTables list only contains one table. fColumns and fUpdateValues are
+	 * not empty, meanwhile, the amounts of fColumns and fUpdateValues is same. At
+	 * the same time, validating criteria conditions.
+	 *
+	 * @return True if fTables only contains one table, the amounts of columns and
+	 *         updateValues are equal, as well as all criteria conditions are matching
+	 *         validate rule.
+	 */
+	private boolean validatUpdateColumnsWithValuesWhereConditions() {
+		if (!validatUpdateAllColumnsWithValues()) {
+			return false;
+		}
+		for (SqlCriteriaCondition criteria : fCriteriaConditions) {
+			if (!criteria.validateCriteriaCondition()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Validate SQL WHERE condition setups.
+	 *
+	 * fTable, fFields, fOperators, fConditions, fValues should not be
+	 * empty, and amount of these lists should be same.
+	 *
+	 * @return True if all lists are matching valid rules.
+	 */
+	public boolean validateWhereConditions() {
+		for (SqlCriteriaCondition criteria : fCriteriaConditions) {
+			if (!criteria.validateCriteriaCondition()) {
+				return false;
+			}
+		}
+		return true;
+	}
 }

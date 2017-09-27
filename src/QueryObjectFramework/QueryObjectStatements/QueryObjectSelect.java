@@ -345,10 +345,6 @@ public class QueryObjectSelect extends QueryObjectAbstract {
 	 * @return True if all lists are matching valid rules.
 	 */
 	public boolean validateWhereConditions() {
-		if (fTables.isEmpty()) {
-			LOGGER.severe("Failed to select fileds from table, table name is missing.");
-			return false;
-		}
 		for (SqlCriteriaCondition criteria : fCriteriaConditions) {
 			if (!criteria.validateCriteriaCondition()) {
 				return false;
