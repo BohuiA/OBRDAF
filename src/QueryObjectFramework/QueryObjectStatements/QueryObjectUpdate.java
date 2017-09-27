@@ -42,7 +42,7 @@ public class QueryObjectUpdate extends QueryObjectAbstract {
 	}
 
 	/**
-	 * Create an UPDATE query object with only JDBC connection.
+	 * Create an UPDATE query object with update values.
 	 *
 	 * Example:
 	 *
@@ -70,7 +70,7 @@ public class QueryObjectUpdate extends QueryObjectAbstract {
 	}
 
 	/**
-	 * Create an UPDATE query object with only JDBC connection.
+	 * Create an UPDATE query object with WHERE conditions.
 	 *
 	 * Example:
 	 *
@@ -210,9 +210,16 @@ public class QueryObjectUpdate extends QueryObjectAbstract {
 			return null;
 		}
 
-		String sql = fQueryObjectType.sqlQueryType() + " " + fTables.get(0) + " " + SqlStatementStrings.SQL_TABLE_SET
-				+ " " + buildSqlUpdateColumnsVaulesClause() + " " + SqlStatementStrings.SQL_TABLE_WHERE + " " +
-				buildSqlUpdateColumnsVaulesClause() + ";";
+		String whereClause = buildSqlWhereClause();
+		String sql = null;
+		if (whereClause.equals("")) {
+			sql = fQueryObjectType.sqlQueryType() + " " + fTables.get(0) + " " + SqlStatementStrings.SQL_TABLE_SET
+					+ " " + buildSqlUpdateColumnsVaulesClause() + ";";
+		} else {
+			sql = fQueryObjectType.sqlQueryType() + " " + fTables.get(0) + " " + SqlStatementStrings.SQL_TABLE_SET
+					+ " " + buildSqlUpdateColumnsVaulesClause() + " " + SqlStatementStrings.SQL_TABLE_WHERE + " " +
+					 buildSqlWhereClause() + ";";
+		}
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
 
@@ -238,19 +245,21 @@ public class QueryObjectUpdate extends QueryObjectAbstract {
 	}
 
 	/**
-	 * Validate SQL WHERE condition setups.
+	 * Build SQL WHERE clause string from fCriteriaConditions lists.
 	 *
-	 * fTable, fFields, fOperators, fConditions, fValues should not be
-	 * empty, and amount of these lists should be same.
-	 *
-	 * @return True if all lists are matching valid rules.
+	 * @return SQL WHERE string
 	 */
-	public boolean validateWhereConditions() {
-		for (SqlCriteriaCondition criteria : fCriteriaConditions) {
-			if (!criteria.validateCriteriaCondition()) {
-				return false;
+	private String buildSqlWhereClause() {
+		StringBuilder whereClause = new StringBuilder("");
+		for (SqlCriteriaCondition sqlCriteria : fCriteriaConditions) {
+			if (sqlCriteria.getValue() instanceof String) {
+				whereClause.append(sqlCriteria.getConditionOperator() + " " + sqlCriteria.getFiled()
+						+ sqlCriteria.getOperator() + "'" + sqlCriteria.getValue() + "' ");
+			} else {
+				whereClause.append(sqlCriteria.getConditionOperator() + " " + sqlCriteria.getFiled()
+						+ sqlCriteria.getOperator() + sqlCriteria.getValue() + " ");
 			}
 		}
-		return true;
+		return whereClause.toString();
 	}
 }
