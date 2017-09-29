@@ -10,7 +10,7 @@ import QueryObjectFramework.CommonClasses.SqlQueryTypes;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
 
 /**
- * Abstract class for Query Object pattern. Contains basic SQL database
+ * Abstract class for Query Object pattern. Contains basic SQL table
  * operations and interface for customized SQL operations.
  *
  * SQL statement tutorial website link:
@@ -18,14 +18,14 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  *
  * @author Bohui Axelsson
  */
-public class QueryObjectAbstract {
+public class QueryObjectTableAbstract {
 	public final SqlQueryTypes fQueryObjectType;
 	public final @NonNull JdbcDatabaseConnection fJdbcDbConn;
 	public final @NonNull List<String> fTables = new ArrayList<>();
 	public final @NonNull List<String> fColumns = new ArrayList<>();
 	public final List<SqlCriteriaCondition> fCriteriaConditions = new ArrayList<>();
 
-	public QueryObjectAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn,
+	public QueryObjectTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn,
 			@NonNull List<String> tables, @NonNull List<String> columns,
 			List<SqlCriteriaCondition> selectCriterias) {
 		fQueryObjectType = queryObjectType;
@@ -39,7 +39,7 @@ public class QueryObjectAbstract {
 		}
 	}
 
-	public QueryObjectAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn) {
+	public QueryObjectTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn) {
 		fQueryObjectType = queryObjectType;
 		fJdbcDbConn = jdbcDbConn;
 	}

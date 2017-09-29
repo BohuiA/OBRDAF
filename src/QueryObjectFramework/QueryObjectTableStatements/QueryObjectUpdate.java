@@ -1,4 +1,4 @@
-package QueryObjectFramework.QueryObjectStatements;
+package QueryObjectFramework.QueryObjectTableStatements;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import QueryObjectFramework.CommonClasses.SqlCriteriaCondition;
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
 import QueryObjectFramework.CommonClasses.SqlStatementStrings;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
-import QueryObjectFramework.QueryObjectAbstract.QueryObjectAbstract;
+import QueryObjectFramework.QueryObjectAbstract.QueryObjectTableAbstract;
 
 /**
  * Query object class for Update statement.
@@ -23,7 +23,7 @@ import QueryObjectFramework.QueryObjectAbstract.QueryObjectAbstract;
  *
  * @author Bohui Axelsson
  */
-public class QueryObjectUpdate extends QueryObjectAbstract {
+public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	private static final Logger LOGGER = Logger.getLogger(QueryObjectUpdate.class.getName());
 
 	/*

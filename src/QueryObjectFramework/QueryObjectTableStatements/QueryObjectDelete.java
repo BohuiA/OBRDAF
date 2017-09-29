@@ -1,4 +1,4 @@
-package QueryObjectFramework.QueryObjectStatements;
+package QueryObjectFramework.QueryObjectTableStatements;
 
 import java.sql.ResultSet;
 import java.util.List;
@@ -10,7 +10,7 @@ import QueryObjectFramework.CommonClasses.SqlCriteriaCondition;
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
 import QueryObjectFramework.CommonClasses.SqlStatementStrings;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
-import QueryObjectFramework.QueryObjectAbstract.QueryObjectAbstract;
+import QueryObjectFramework.QueryObjectAbstract.QueryObjectTableAbstract;
 
 /**
  * Query object class for Delete statement.
@@ -22,7 +22,7 @@ import QueryObjectFramework.QueryObjectAbstract.QueryObjectAbstract;
  *
  * @author Bohui Axelsson
  */
-public class QueryObjectDelete extends QueryObjectAbstract {
+public class QueryObjectDelete extends QueryObjectTableAbstract {
 	private static final Logger LOGGER = Logger.getLogger(QueryObjectDelete.class.getName());
 
 	/**

@@ -1,4 +1,4 @@
-package QueryObjectFramework.QueryObjectStatements;
+package QueryObjectFramework.QueryObjectTableStatements;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -12,14 +12,14 @@ import QueryObjectFramework.CommonClasses.SqlJoinType;
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
 import QueryObjectFramework.CommonClasses.SqlStatementStrings;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
-import QueryObjectFramework.QueryObjectAbstract.QueryObjectAbstract;
+import QueryObjectFramework.QueryObjectAbstract.QueryObjectTableAbstract;
 
 /**
  * Query object class for Select statement.
  *
  * @author Bohui Axelsson
  */
-public class QueryObjectSelect extends QueryObjectAbstract {
+public class QueryObjectSelect extends QueryObjectTableAbstract {
 	private static final Logger LOGGER = Logger.getLogger(QueryObjectSelect.class.getName());
 
 	/*
