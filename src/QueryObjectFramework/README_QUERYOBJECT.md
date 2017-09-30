@@ -3,7 +3,7 @@ Object Based Rational Database Application Framework - Query Object Pattern
 
 ABSTRACT:
 An object that represents a database query.
-For a full description see <<Patterns of Enterprise Application Architecture>> by Martin Fowler.
+For a full description see <pre> Patterns of Enterprise Application Architecture </pre> by Martin Fowler.
 
 DESCRIPTION:
 SQL can be an involved language, and many developers aren't particularly familiar with it. Furthermore, you need to know what the database schema looks like to form queries. You can avoid this by creating specialized finder methods that hide the SQL inside parameterized methods, but that makes it difficult to form more ad hoc queries. It also leads to duplication in the SQL statements should the database schema change.
