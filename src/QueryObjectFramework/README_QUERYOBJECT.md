@@ -10,6 +10,9 @@ SQL can be an involved language, and many developers aren't particularly familia
 
 A Query Object is an interpreter [Gang of Four], that is, a structure of objects that can form itself into a SQL query. You can create this query by refer-ring to classes and fields rather than tables and columns. In this way those who write the queries can do so independently of the database schema and changes to the schema can be localized in a single place.
 
+NOTE:
+At the moment, OBRDAD - Query Object Pattern only supports MYSQL database server.
+
 NOTE: 
 All outputs from Query Object Pattern are streamed out by java.util.logging.Logger library. 
 In order to get all logging messages in console, users need to enable LOGGER level to at least Level.INFO level.
