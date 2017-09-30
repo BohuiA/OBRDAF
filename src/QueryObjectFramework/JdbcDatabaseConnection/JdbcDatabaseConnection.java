@@ -11,34 +11,34 @@ import QueryObjectFramework.CommonClasses.ExeState;
 
 /**
  * JDBC database connection class.
- * 
+ *
  * @author Bohui Axelsson
  */
 public class JdbcDatabaseConnection {
 	private static final Logger LOGGER = Logger.getLogger(JdbcDatabaseConnection.class.getName());
-	
+
 	/*
-	 * JDBC driver name and database URL 
+	 * JDBC driver name and database URL
 	 */
 	private String fJdbcDriver = null;
 	private String fDbUrl = null;
-	
+
 	/*
 	 * Database credentials
 	 */
 	private String fUser = null;
 	private String fPass = null;
-	
+
 	/*
 	 * Database connection
 	 */
 	private Connection fConn = null;
 	private Statement fStatement = null;
-	
+
 	/**
-	 * Constructor of JDBC database connection class, 
+	 * Constructor of JDBC database connection class,
 	 * setting user and pass null if not required.
-	 * 
+	 *
 	 * @param jdbcDriver
 	 * 			JDBC driver name
 	 * @param dbUrl
@@ -54,10 +54,10 @@ public class JdbcDatabaseConnection {
 		fUser = user;
 		fPass = pass;
 	}
-	
+
 	/**
 	 * Update JDBC database connection.
-	 * 
+	 *
 	 * @param jdbcDriver
 	 * 			JDBC driver name
 	 * @param dbUrl
@@ -73,10 +73,10 @@ public class JdbcDatabaseConnection {
 		fUser = user;
 		fPass = pass;
 	}
-	
+
 	/**
 	 * Update JDBC database connection.
-	 * 
+	 *
 	 * @param jdbcDriver
 	 * 			JDBC driver name
 	 * @param dbUrl
@@ -88,9 +88,19 @@ public class JdbcDatabaseConnection {
 		fUser = null;
 		fPass = null;
 	}
+
+	/**
+	 * Get defined JDBC database URL string.
+	 *
+	 * @return JDBC database URL.
+	 */
+	public String getDbUrl() {
+		return fDbUrl;
+	}
+
 	/**
 	 * Execute SQL statement.
-	 * 
+	 *
 	 * @param exeSql
 	 * 			SQL string
 	 * @return ResultSet
@@ -98,7 +108,7 @@ public class JdbcDatabaseConnection {
 	 */
 	public ResultSet executeQueryObject(String exeSql) {
 		getDatabaseStatement();
-		
+
 		ResultSet results = null;
 		try {
 			results = fStatement.executeQuery(exeSql);
@@ -114,10 +124,10 @@ public class JdbcDatabaseConnection {
 			}
 			closeDatabaseConnection();
 		}
-		
+
 		return results;
 	}
-	
+
 	/**
 	 * Get SQL statement of DB connection.
 	 */
@@ -131,7 +141,7 @@ public class JdbcDatabaseConnection {
 			closeDatabaseConnection();
 		}
 	}
-	
+
 	/**
 	 * Get database connection.
 	 */
@@ -151,7 +161,7 @@ public class JdbcDatabaseConnection {
 			}
 		}
 	}
-	
+
 	/**
 	 * Close database connection.
 	 */
@@ -167,11 +177,11 @@ public class JdbcDatabaseConnection {
 			LOGGER.severe("Failed to close database. Datails: " + dbCloseException.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Open a database connection.
-	 * 
-	 * @return ExeState 
+	 *
+	 * @return ExeState
 	 * 			State connection
 	 * @throws ClassNotFoundException
 	 * 			Unable to load driver class
@@ -186,12 +196,12 @@ public class JdbcDatabaseConnection {
 			LOGGER.warning("JDBC database url configuration is missing.");
 			return ExeState.ERROR;
 		}
-		
+
 		/*
 		 * Register JDBC driver
 		 */
 		Class.forName(fJdbcDriver);
-		
+
 		/*
 		 * Open a connection
 		 */
@@ -200,7 +210,7 @@ public class JdbcDatabaseConnection {
 		} else {
 			fConn = DriverManager.getConnection(fDbUrl, fUser, fPass);
 		}
-		
+
 		return ExeState.SUCESSFUL;
 	}
 }
