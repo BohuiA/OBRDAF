@@ -1,6 +1,7 @@
 package QueryObjectFramework.JdbcDatabaseConnection;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -212,5 +213,33 @@ public class JdbcDatabaseConnection {
 		}
 
 		return ExeState.SUCESSFUL;
+	}
+
+	/**
+	 * Show all databases list in the JDBC connection.
+	 */
+	public void showAllDatabases() {
+		getDatabaseStatement();
+
+		ResultSet results = null;
+		try {
+			LOGGER.info("Showing all databses:");
+			DatabaseMetaData meta = fConn.getMetaData();
+			results = meta.getCatalogs();
+			while (results.next()) {
+				LOGGER.info(results.getString("TABLE_CAT"));
+			}
+		} catch (SQLException executeQueryObjectException) {
+			LOGGER.severe("Failed to execute sql. Datails: " + executeQueryObjectException.getMessage());
+		} finally {
+			if (results != null) {
+				try {
+					results.close();
+				} catch (SQLException closeResultSetException) {
+					LOGGER.severe("Failed to close resultSets. Datails: " + closeResultSetException.getMessage());
+				}
+			}
+			closeDatabaseConnection();
+		}
 	}
 }

@@ -65,7 +65,7 @@ public class QueryObjectCreateDB extends QueryObjectDBAbstract {
 	 * NOTE: Using new database URL to create a new JDBC connection
 	 * object for further table operations.
 	 */
-	public String createDatabases() {
+	public String createDatabase() {
 		if (!validateDBNameNotNull()) {
 			return null;
 		}
@@ -78,12 +78,12 @@ public class QueryObjectCreateDB extends QueryObjectDBAbstract {
 		/*
 		 * Create database via JDBC connection.
 		 */
-		LOGGER.config("Creating database " + fDBName);
+		LOGGER.info("Creating database " + fDBName);
 		String sql = fQueryObjectType.sqlQueryType() + " " + fDBName + ";";
 		fJdbcDbConn.executeQueryObject(sql);
-		LOGGER.config("Database " + fDBName + "is created. Database URL is " + fJdbcDbConn.getDbUrl() + separateChar
+		LOGGER.info("Database " + fDBName + "is created. Database URL is " + fJdbcDbConn.getDbUrl() + separateChar
 				+ fDBName);
-		LOGGER.config("Don't forget to create a new JDBC connection object to supply further table"
+		LOGGER.info("Don't forget to create a new JDBC connection object to supply further table"
 				+ " operations on this particular database.");
 		return fJdbcDbConn.getDbUrl() + separateChar + fDBName;
 	}

@@ -62,14 +62,14 @@ public class QueryObjectDropDB extends QueryObjectDBAbstract {
 	 * NOTE: Be sure all data in the database have been considered, when
 	 * a database is dropped, all data in the database will be lost.
 	 */
-	public void createDatabases() {
+	public void dropDatabase() {
 		if (!validateDBNameNotNull()) {
 			return;
 		}
 
-		LOGGER.config("Droping database " + fDBName);
+		LOGGER.info("Droping database " + fDBName);
 		String sql = fQueryObjectType.sqlQueryType() + " " + fDBName + ";";
 		fJdbcDbConn.executeQueryObject(sql);
-		LOGGER.config("Database " + fDBName + "is deleted.");
+		LOGGER.info("Database " + fDBName + "is deleted.");
 	}
 }
