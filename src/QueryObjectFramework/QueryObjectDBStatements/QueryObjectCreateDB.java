@@ -48,7 +48,7 @@ public class QueryObjectCreateDB extends QueryObjectDBAbstract {
 	}
 
 	/**
-	 * Create databases.
+	 * Create a database.
 	 *
 	 * Scenario:
 	 *
@@ -86,18 +86,5 @@ public class QueryObjectCreateDB extends QueryObjectDBAbstract {
 		LOGGER.config("Don't forget to create a new JDBC connection object to supply further table"
 				+ " operations on this particular database.");
 		return fJdbcDbConn.getDbUrl() + separateChar + fDBName;
-	}
-
-	/**
-	 * Validate fDBName is not null.
-	 *
-	 * @return True if fDBName is null.
-	 */
-	private boolean validateDBNameNotNull() {
-		if (fDBName == null) {
-			LOGGER.severe("Failed to create database, database name is missing.");
-			return false;
-		}
-		return true;
 	}
 }

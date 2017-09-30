@@ -1,5 +1,7 @@
 package QueryObjectFramework.QueryObjectAbstract;
 
+import java.util.logging.Logger;
+
 import org.eclipse.jdt.annotation.NonNull;
 
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
@@ -15,6 +17,8 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  * @author Bohui Axelsson
  */
 public class QueryObjectDBAbstract {
+	private static final Logger LOGGER = Logger.getLogger(QueryObjectDBAbstract.class.getName());
+
 	public final SqlQueryTypes fQueryObjectType;
 	public final @NonNull JdbcDatabaseConnection fJdbcDbConn;
 	public String fDBName = null;
@@ -35,5 +39,18 @@ public class QueryObjectDBAbstract {
 
 	public void setDB(@NonNull String db) {
 		fDBName = db;
+	}
+
+	/**
+	 * Validate fDBName is not null.
+	 *
+	 * @return True if fDBName is null.
+	 */
+	public boolean validateDBNameNotNull() {
+		if (fDBName == null) {
+			LOGGER.severe("Failed to create database, database name is missing.");
+			return false;
+		}
+		return true;
 	}
 }
