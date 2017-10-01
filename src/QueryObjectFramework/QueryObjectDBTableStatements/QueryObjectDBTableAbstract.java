@@ -24,12 +24,12 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
 public class QueryObjectDBTableAbstract {
 	private static final Logger LOGGER = Logger.getLogger(QueryObjectDBTableAbstract.class.getName());
 
-	public final SqlQueryTypes fQueryObjectType;
-	public final @NonNull JdbcDatabaseConnection fJdbcDbConn;
-	public final @NonNull List<String> fColumns = new ArrayList<>();
-	public final @NonNull List<SqlColumnDataType> fColumnDataTypes = new ArrayList<>();
+	protected final SqlQueryTypes fQueryObjectType;
+	protected final @NonNull JdbcDatabaseConnection fJdbcDbConn;
+	protected final @NonNull List<String> fColumns = new ArrayList<>();
+	protected final @NonNull List<SqlColumnDataType> fColumnDataTypes = new ArrayList<>();
 
-	public String fTableName = null;
+	protected String fTableName = null;
 
 	public QueryObjectDBTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn) {
 		fQueryObjectType = queryObjectType;
@@ -42,6 +42,18 @@ public class QueryObjectDBTableAbstract {
 		fJdbcDbConn = jdbcDbConn;
 		if (tableName != null) {
 			fTableName = tableName;
+		}
+	}
+
+	public QueryObjectDBTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn,
+			@NonNull String tableName, @NonNull List<String> columns) {
+		fQueryObjectType = queryObjectType;
+		fJdbcDbConn = jdbcDbConn;
+		if (tableName != null) {
+			fTableName = tableName;
+		}
+		if (columns != null) {
+			fColumns.addAll(columns);
 		}
 	}
 
@@ -77,7 +89,7 @@ public class QueryObjectDBTableAbstract {
 	 *
 	 * @return True if fDBName is null.
 	 */
-	public boolean validateTableNameNotNull() {
+	protected boolean validateTableNameNotNull() {
 		if (fTableName == null) {
 			LOGGER.severe("Failed to operate table operation, table name is missing.");
 			return false;
@@ -90,7 +102,7 @@ public class QueryObjectDBTableAbstract {
 	 *
 	 * @return True if columns and columns data types are not null and matching.
 	 */
-	public boolean validateColumnsAndDataTypesNotNullAndMatching() {
+	protected boolean validateColumnsAndDataTypesNotNullAndMatching() {
 		if (fColumns == null) {
 			LOGGER.severe("Failed to operate table operation, column names are missing.");
 			return false;

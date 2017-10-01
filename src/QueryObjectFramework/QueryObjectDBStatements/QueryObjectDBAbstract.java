@@ -19,9 +19,9 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
 public class QueryObjectDBAbstract {
 	private static final Logger LOGGER = Logger.getLogger(QueryObjectDBAbstract.class.getName());
 
-	public final SqlQueryTypes fQueryObjectType;
-	public final @NonNull JdbcDatabaseConnection fJdbcDbConn;
-	public String fDBName = null;
+	protected final SqlQueryTypes fQueryObjectType;
+	protected final @NonNull JdbcDatabaseConnection fJdbcDbConn;
+	protected String fDBName = null;
 
 	public QueryObjectDBAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn) {
 		fQueryObjectType = queryObjectType;
@@ -46,7 +46,7 @@ public class QueryObjectDBAbstract {
 	 *
 	 * @return True if fDBName is null.
 	 */
-	public boolean validateDBNameNotNull() {
+	protected boolean validateDBNameNotNull() {
 		if (fDBName == null) {
 			LOGGER.severe("Failed to create database, database name is missing.");
 			return false;

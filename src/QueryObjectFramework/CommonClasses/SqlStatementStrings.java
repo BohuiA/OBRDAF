@@ -42,4 +42,7 @@ public final class SqlStatementStrings {
 	public static final String SQL_DATABASE_PRIMARY_KEY = "PRIMARY KEY";
 	public static final String SQL_DATABASE_FOREIGN_KEY = "FOREIGN KEY";
 	public static final String SQL_DATABASE_REFERENCES = "REFERENCES";
+	public static final String SQL_DATABASE_ADD = "ADD";
+	public static final String SQL_DATABASE_DROP_COLUMN = "DROP COLUMN";
+	public static final String SQL_DATABASE_MODIFY_COLUMN = "MODIFY COLUMN";
 }

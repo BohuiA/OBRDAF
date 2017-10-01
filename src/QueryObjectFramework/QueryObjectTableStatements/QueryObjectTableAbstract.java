@@ -19,11 +19,11 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  * @author Bohui Axelsson
  */
 public class QueryObjectTableAbstract {
-	public final SqlQueryTypes fQueryObjectType;
-	public final @NonNull JdbcDatabaseConnection fJdbcDbConn;
-	public final @NonNull List<String> fTables = new ArrayList<>();
-	public final @NonNull List<String> fColumns = new ArrayList<>();
-	public final List<SqlCriteriaCondition> fCriteriaConditions = new ArrayList<>();
+	protected final SqlQueryTypes fQueryObjectType;
+	protected final @NonNull JdbcDatabaseConnection fJdbcDbConn;
+	protected final @NonNull List<String> fTables = new ArrayList<>();
+	protected final @NonNull List<String> fColumns = new ArrayList<>();
+	protected final List<SqlCriteriaCondition> fCriteriaConditions = new ArrayList<>();
 
 	public QueryObjectTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn,
 			@NonNull List<String> tables, @NonNull List<String> columns,

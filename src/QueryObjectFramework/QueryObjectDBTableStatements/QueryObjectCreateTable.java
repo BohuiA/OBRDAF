@@ -2,7 +2,6 @@ package QueryObjectFramework.QueryObjectDBTableStatements;
 
 import java.sql.ResultSet;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.eclipse.jdt.annotation.NonNull;
 
@@ -34,8 +33,6 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  * @author Bohui Axelsson
  */
 public class QueryObjectCreateTable extends QueryObjectDBTableAbstract {
-	private static final Logger LOGGER = Logger.getLogger(QueryObjectCreateTable.class.getName());
-
 	/**
 	 * Create an CREATE TABLE query object with Table names.
 	 *
