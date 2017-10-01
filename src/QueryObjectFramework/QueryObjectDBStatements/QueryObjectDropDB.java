@@ -25,16 +25,6 @@ public class QueryObjectDropDB extends QueryObjectDBAbstract {
 	private static final Logger LOGGER = Logger.getLogger(QueryObjectDropDB.class.getName());
 
 	/**
-	 * Create an DROP DATABASE query object with only JDBC connection.
-	 *
-	 * @param jdbcDbConn
-	 * 			JDBC database connection
-	 */
-	public QueryObjectDropDB(@NonNull JdbcDatabaseConnection jdbcDbConn) {
-		super(SqlQueryTypes.DROP_DATABASE, jdbcDbConn);
-	}
-
-	/**
 	 * Create an DROP DATABSE query object with DB names.
 	 *
 	 * @param jdbcDbConn

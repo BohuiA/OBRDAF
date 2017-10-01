@@ -1,4 +1,4 @@
-package QueryObjectFramework.QueryObjectDBStatements;
+package QueryObjectFramework.QueryObjectDBTableStatements;
 
 import java.sql.ResultSet;
 import java.util.List;
