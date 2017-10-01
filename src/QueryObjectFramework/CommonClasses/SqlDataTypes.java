@@ -9,6 +9,8 @@ package QueryObjectFramework.CommonClasses;
  *
  * NOTE: Currently only support MYSQL database server.
  *
+ * More details see https://www.w3schools.com/sql/sql_select.asp
+ *
  * @author Bohui Axelsson
  */
 public enum SqlDataTypes {

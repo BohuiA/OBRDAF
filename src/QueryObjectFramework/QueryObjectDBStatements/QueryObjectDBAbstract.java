@@ -1,4 +1,4 @@
-package QueryObjectFramework.QueryObjectAbstract;
+package QueryObjectFramework.QueryObjectDBStatements;
 
 import java.util.logging.Logger;
 

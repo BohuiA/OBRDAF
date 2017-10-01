@@ -6,7 +6,6 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
-import QueryObjectFramework.QueryObjectAbstract.QueryObjectDBAbstract;
 
 /**
  * Query object class for CREATE DATABASE statement.

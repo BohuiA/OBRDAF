@@ -12,7 +12,6 @@ import QueryObjectFramework.CommonClasses.SqlJoinType;
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
 import QueryObjectFramework.CommonClasses.SqlStatementStrings;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
-import QueryObjectFramework.QueryObjectAbstract.QueryObjectTableAbstract;
 
 /**
  * Query object class for Select statement.

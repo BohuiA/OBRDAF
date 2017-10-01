@@ -1,4 +1,4 @@
-package QueryObjectFramework.QueryObjectAbstract;
+package QueryObjectFramework.QueryObjectTableStatements;
 
 import java.util.ArrayList;
 import java.util.List;
