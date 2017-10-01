@@ -50,7 +50,7 @@ public class QueryObjectDropTable extends QueryObjectDBTableAbstract {
 	 * NOTE: Be sure all data in the table have been considered, when
 	 * a table is dropped, all data in the table will be lost.
 	 */
-	public void dropDatabase() {
+	public void dropTable() {
 		if (!validateTableNameNotNull()) {
 			return;
 		}
