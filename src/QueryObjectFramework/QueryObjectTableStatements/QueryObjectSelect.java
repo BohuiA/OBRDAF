@@ -265,7 +265,7 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * @return True if fTables is not empty.
 	 */
-	public boolean validateEmptyTableAndUpdateEmptyColumn() {
+	private boolean validateEmptyTableAndUpdateEmptyColumn() {
 		if (fTables.isEmpty()) {
 			LOGGER.severe("Failed to select columns from table, table name is missing.");
 			return false;
@@ -343,7 +343,7 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * @return True if all lists are matching valid rules.
 	 */
-	public boolean validateWhereConditions() {
+	private boolean validateWhereConditions() {
 		for (SqlCriteriaCondition criteria : fCriteriaConditions) {
 			if (!criteria.validateCriteriaCondition()) {
 				return false;

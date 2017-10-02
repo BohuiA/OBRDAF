@@ -130,14 +130,6 @@ public class QueryObjectDBTableAbstract {
 	 * @return True if above validate rules are matching.
 	 */
 	protected boolean validateColumnsSettingsMatching() {
-		if (fColumns == null) {
-			LOGGER.severe("Failed to operate table operation, column names are missing.");
-			return false;
-		}
-		if (fColumnDataTypes == null) {
-			LOGGER.severe("Failed to operate table operation, column data types are missing.");
-			return false;
-		}
 		if (fColumns.size() != fColumnDataTypes.size()) {
 			LOGGER.severe("Failed to operate table operation, column data types and columns are not matching.");
 			return false;

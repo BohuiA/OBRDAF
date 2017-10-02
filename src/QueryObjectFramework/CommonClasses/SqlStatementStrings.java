@@ -1,6 +1,8 @@
 package QueryObjectFramework.CommonClasses;
 
 public final class SqlStatementStrings {
+	private SqlStatementStrings() {}
+
 	/*
 	 * Specific table SQL statement strings
 	 */
@@ -45,4 +47,6 @@ public final class SqlStatementStrings {
 	public static final String SQL_DATABASE_ADD = "ADD";
 	public static final String SQL_DATABASE_DROP_COLUMN = "DROP COLUMN";
 	public static final String SQL_DATABASE_MODIFY_COLUMN = "MODIFY COLUMN";
+	public static final String SQL_DATABASE_AUTO_INCREMENT = "AUTO_INCREMENT";
+	public static final String SQL_DATABASE_NOT_NULL = "NOT NULL";
 }
