@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import org.eclipse.jdt.annotation.NonNull;
 
 import QueryObjectFramework.CommonClasses.SqlColumnDataType;
+import QueryObjectFramework.CommonClasses.SqlDBTableConstraints;
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
 import QueryObjectFramework.CommonClasses.SqlStatementStrings;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
@@ -58,6 +59,28 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 * 			Table column names
 	 * @param columnDataTypes
 	 *          Table column data types
+	 * @param columnConstraints
+	 * 			Table column constraint.
+	 */
+	public QueryObjectAlterTable(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull String tableName,
+			@NonNull List<String> columns, @NonNull List<SqlColumnDataType> columnDataTypes,
+			@NonNull List<SqlDBTableConstraints> columnConstraints) {
+		super(SqlQueryTypes.ALTER_TABLE, jdbcDbConn, tableName, columns, columnDataTypes, columnConstraints);
+	}
+
+	/**
+	 * Create an ALTER TABLE query object with Table names, columns, column data types and constraints.
+	 *
+	 * Query Object ALTER TABLE for adding/modifying columns into Table.
+	 *
+	 * @param jdbcDbConn
+	 * 			JDBC database connection
+	 * @param tableName
+	 * 			Table name
+	 * @param columns
+	 * 			Table column names
+	 * @param columnDataTypes
+	 *          Table column data types
 	 */
 	public QueryObjectAlterTable(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull String tableName,
 			@NonNull List<String> columns, @NonNull List<SqlColumnDataType> columnDataTypes) {
@@ -89,13 +112,13 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 *
 	 * <pre>
 	 *  CALTER TABLE table_name
-	 *  ADD column_name datatype;
+	 *  ADD column_name datatype constraint;
 	 * </pre>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet alterTableAddColumns() {
-		if (!validateTableNameNotNull() || !validateColumnsAndDataTypesNotNullAndMatching()) {
+		if (!validateTableNameNotNull() || !validateColumnsSettingsMatching()) {
 			return null;
 		}
 
@@ -112,7 +135,8 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	private String buildAddColumnsIntoTableClaues() {
 		StringBuilder alterTableAddColumnsClause = new StringBuilder();
 		for (int i = 0; i < fColumns.size(); i ++) {
-			alterTableAddColumnsClause.append(fColumns.get(i) + " " + fColumnDataTypes.get(i).getSqlColumnDataType() + ",");
+			alterTableAddColumnsClause.append(fColumns.get(i) + " " + fColumnDataTypes.get(i).getSqlColumnDataType()
+					+ " " + fColumnConstraints.get(i).getColumnConstraintsString() + ",");
 		}
 		alterTableAddColumnsClause.deleteCharAt(alterTableAddColumnsClause.length() - 1);
 		return alterTableAddColumnsClause.toString();
@@ -188,7 +212,7 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet alterTableModifyColumns() {
-		if (!validateTableNameNotNull() || !validateColumnsAndDataTypesNotNullAndMatching()) {
+		if (!validateTableNameNotNull() || !validateColumnsSettingsMatching()) {
 			return null;
 		}
 

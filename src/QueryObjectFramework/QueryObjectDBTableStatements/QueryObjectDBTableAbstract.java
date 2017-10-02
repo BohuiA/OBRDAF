@@ -1,12 +1,14 @@
 package QueryObjectFramework.QueryObjectDBTableStatements;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
 import org.eclipse.jdt.annotation.NonNull;
 
 import QueryObjectFramework.CommonClasses.SqlColumnDataType;
+import QueryObjectFramework.CommonClasses.SqlDBTableConstraints;
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
 
@@ -28,6 +30,7 @@ public class QueryObjectDBTableAbstract {
 	protected final @NonNull JdbcDatabaseConnection fJdbcDbConn;
 	protected final @NonNull List<String> fColumns = new ArrayList<>();
 	protected final @NonNull List<SqlColumnDataType> fColumnDataTypes = new ArrayList<>();
+	protected final @NonNull List<SqlDBTableConstraints> fColumnConstraints = new ArrayList<>();
 
 	protected String fTableName = null;
 
@@ -72,6 +75,25 @@ public class QueryObjectDBTableAbstract {
 		}
 	}
 
+	public QueryObjectDBTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn,
+			@NonNull String tableName, @NonNull List<String> columns, @NonNull List<SqlColumnDataType> columnDataTypes,
+			@NonNull List<SqlDBTableConstraints> columnConstraints) {
+		fQueryObjectType = queryObjectType;
+		fJdbcDbConn = jdbcDbConn;
+		if (tableName != null) {
+			fTableName = tableName;
+		}
+		if (columns != null) {
+			fColumns.addAll(columns);
+		}
+		if (columnDataTypes != null) {
+			fColumnDataTypes.addAll(columnDataTypes);
+		}
+		if (columnConstraints != null) {
+			fColumnConstraints.addAll(columnConstraints);
+		}
+	}
+
 	public void setTableName(@NonNull String tableName) {
 		fTableName = tableName;
 	}
@@ -82,6 +104,10 @@ public class QueryObjectDBTableAbstract {
 
 	public void addColumnDataType(@NonNull SqlColumnDataType columnDataType) {
 		fColumnDataTypes.add(columnDataType);
+	}
+
+	public void addColumnConstraints(SqlDBTableConstraints columnConstraint) {
+		fColumnConstraints.add(columnConstraint);
 	}
 
 	/**
@@ -99,10 +125,11 @@ public class QueryObjectDBTableAbstract {
 
 	/**
 	 * Validate columns and columns data types are not null and matching.
+	 * Meanwhile, ColumnConstraints amount must be matched to columns list amount or empty.
 	 *
-	 * @return True if columns and columns data types are not null and matching.
+	 * @return True if above validate rules are matching.
 	 */
-	protected boolean validateColumnsAndDataTypesNotNullAndMatching() {
+	protected boolean validateColumnsSettingsMatching() {
 		if (fColumns == null) {
 			LOGGER.severe("Failed to operate table operation, column names are missing.");
 			return false;
@@ -127,6 +154,15 @@ public class QueryObjectDBTableAbstract {
 				return false;
 			}
 		}
+		if (!fColumnConstraints.isEmpty() && fColumnConstraints.size() != fColumns.size()) {
+			LOGGER.severe("Failed to operate table operation, ColumnConstraints should be empty or as same amount of columns.");
+			return false;
+		}
+		/*
+		 * Replace all null constraint to a default SqlDBTableConstraints instance.
+		 */
+		Collections.replaceAll(fColumnConstraints, null, new SqlDBTableConstraints());
+
 		return true;
 	}
 }

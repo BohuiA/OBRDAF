@@ -6,6 +6,7 @@ import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 
 import QueryObjectFramework.CommonClasses.SqlColumnDataType;
+import QueryObjectFramework.CommonClasses.SqlDBTableConstraints;
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
 
@@ -15,9 +16,9 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  *
  * <pre>
  * 	CREATE TABLE table_name (
- *   	column1 datatype,
- *   	column2 datatype,
- *   	column3 datatype,
+ *   	column1 datatype constraint,
+ *   	column2 datatype constraint,
+ *   	column3 datatype constraint,
  *  		....
  *	);
  * </pre>
@@ -63,6 +64,29 @@ public class QueryObjectCreateTable extends QueryObjectDBTableAbstract {
 	}
 
 	/**
+	 * Create an CREATE TABLE query object with Table names, columns, column data types and constraints.
+	 *
+	 * NOTE: The number of constraints should be the same as columns. For those columns that don't have constraint,
+	 * placing NULL for placeholder in the list.
+	 *
+	 * @param jdbcDbConn
+	 * 			JDBC database connection
+	 * @param tableName
+	 * 			Table name
+	 * @param columns
+	 * 			Table column names
+	 * @param columnDataTypes
+	 *          Table column data types
+	 * @param columnConstraints
+	 * 			Table column constraint.
+	 */
+	public QueryObjectCreateTable(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull String tableName,
+			@NonNull List<String> columns, @NonNull List<SqlColumnDataType> columnDataTypes,
+			@NonNull List<SqlDBTableConstraints> columnConstraints) {
+		super(SqlQueryTypes.CREATE_TABLE, jdbcDbConn, tableName, columns, columnDataTypes, columnConstraints);
+	}
+
+	/**
 	 * Create a table.
 	 *
 	 * Scenario:
@@ -85,7 +109,7 @@ public class QueryObjectCreateTable extends QueryObjectDBTableAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet createTable() {
-		if (!validateTableNameNotNull() || !validateColumnsAndDataTypesNotNullAndMatching()) {
+		if (!validateTableNameNotNull() || !validateColumnsSettingsMatching()) {
 			return null;
 		}
 
@@ -101,7 +125,8 @@ public class QueryObjectCreateTable extends QueryObjectDBTableAbstract {
 	private String buildColumnsAndColumnDataTypes() {
 		StringBuilder createTableColumnsClause = new StringBuilder();
 		for (int i = 0; i < fColumns.size(); i ++) {
-			createTableColumnsClause.append(fColumns.get(i) + " " + fColumnDataTypes.get(i).getSqlColumnDataType() + ",");
+			createTableColumnsClause.append(fColumns.get(i) + " " + fColumnDataTypes.get(i).getSqlColumnDataType() + " "
+					+ fColumnConstraints.get(i).getColumnConstraintsString() + ",");
 		}
 		createTableColumnsClause.deleteCharAt(createTableColumnsClause.length() - 1);
 		return createTableColumnsClause.toString();
