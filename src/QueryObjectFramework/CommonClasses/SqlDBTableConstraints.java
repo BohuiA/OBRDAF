@@ -37,7 +37,7 @@ package QueryObjectFramework.CommonClasses;
  *		);
  *   </pre>
  *
- *   NOTE: At the moment, Query Object pattern only supports auto-increment from 1.
+ *   NOTE: As default, Query Object pattern begins auto-increment from 1.
  *
  * @author Bohui Axelsson
  */
