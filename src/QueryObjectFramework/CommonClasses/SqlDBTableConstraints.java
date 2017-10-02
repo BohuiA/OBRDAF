@@ -1,5 +1,7 @@
 package QueryObjectFramework.CommonClasses;
 
+import java.util.logging.Logger;
+
 /**
  * Class contains all constraints for one particular
  * column in one table.
@@ -42,7 +44,15 @@ package QueryObjectFramework.CommonClasses;
  * @author Bohui Axelsson
  */
 public class SqlDBTableConstraints {
+	private static final Logger LOGGER = Logger.getLogger(SqlDBTableConstraints.class.getName());
+
+	/*
+	 * NOT NULL constraint
+	 */
 	private boolean fNotNullConstraint = false;
+	/*
+	 * AUTO_INCREMENT constraint
+	 */
 	private boolean fAutoIncrementConstraint = false;
 	private int fAutoIncrementBeginningValue = 1;
 
@@ -89,6 +99,21 @@ public class SqlDBTableConstraints {
 			int autoIncrementBeginningValue) {
 		fNotNullConstraint = notNullConstraint;
 		fAutoIncrementConstraint = autoIncrementConstraint;
+		fAutoIncrementBeginningValue = autoIncrementBeginningValue;
+	}
+
+	/**
+	 * Update AUTO_INCREMENT beginning value. AUTO_INCREMENT Beginning Value should
+	 * be bigger than 1.
+	 *
+	 * @param autoIncrementBeginningValue
+	 *            Customized AUTO_INCREMENT beginning value.
+	 */
+	public void setAutoIncrementBeginningValue(int autoIncrementBeginningValue) {
+		if (autoIncrementBeginningValue < 1) {
+			LOGGER.warning("AUTO_INCREMENT Beginning Value should be bigger than 1.");
+			return;
+		}
 		fAutoIncrementBeginningValue = autoIncrementBeginningValue;
 	}
 
