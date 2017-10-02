@@ -41,6 +41,8 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  * NOTE: At the moment, MYSQL server is fully supported as altering
  * tables.
  *
+ * NOTE: At the moment, DROP UNIQUE constraints is not supported.
+ *
  * @author Bohui Axelsson
  */
 public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
@@ -53,6 +55,14 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 *
 	 * NOTE: The number of constraints should be the same as columns. For those columns that don't have constraint,
 	 * placing NULL for placeholder in the list.
+	 *
+	 * NOTE: For updating UNIQUE constraint on table, setting columnDataTypes parameter as NULL.
+	 *
+	 * Example:
+	 * <pre>
+	 *  ALTER TABLE table_name
+	 *  ADD UNIQUE (column_name);
+	 * </pre>
 	 *
 	 * @param jdbcDbConn
 	 * 			JDBC database connection
@@ -143,6 +153,54 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 		}
 		alterTableAddColumnsClause.deleteCharAt(alterTableAddColumnsClause.length() - 1);
 		return alterTableAddColumnsClause.toString();
+	}
+
+	/**
+	 * ALTER TABLE - ADD Column UNIQUE constraints
+	 * To add UNIQUE constraints to columns in a table.
+	 *
+	 * Scenario:
+	 *
+	 * <pre>
+	 *  ALTER TABLE table_name
+	 *  ADD UNIQUE (column_name);
+	 * </pre>
+	 *
+	 * @return ResultSet SQL execution results
+	 */
+	public ResultSet alterTableAddColumnUniqueConstraints() {
+		if (!validateTableNameNotNull() || !validateColumnsUniqueConstraintsSetting()) {
+			return null;
+		}
+
+		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + SqlStatementStrings.SQL_DATABASE_ADD + " "
+				+ checkAndCreateUniqueConstraintColumns() + ";";
+		return fJdbcDbConn.executeQueryObject(sql);
+	}
+
+	/**
+	 * Validate columns and  ColumnConstraints are not null and matching.
+	 *
+	 * @return True if above validate rules are matching.
+	 */
+	private boolean validateColumnsUniqueConstraintsSetting() {
+		if (fColumnConstraints.size() != fColumns.size()) {
+			LOGGER.severe("Failed to operate table operation, ColumnConstraints should be empty or as same amount of columns.");
+			return false;
+		}
+		for (String column : fColumns) {
+			if (column == null) {
+				LOGGER.severe("Failed to operate table operation, column item is null.");
+				return false;
+			}
+		}
+		for (SqlDBTableConstraints columnConstraint : fColumnConstraints) {
+			if (columnConstraint == null) {
+				LOGGER.severe("Failed to operate table operation, columnConstraint is null.");
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**

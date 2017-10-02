@@ -11,7 +11,7 @@ import java.util.logging.Logger;
  * - NOT NULL:
  * 	 The NOT NULL constraint enforces a column to NOT accept NULL values.
  *
- *   Example:
+ *   Example0:
  *   <pre>
  *   	CREATE TABLE Persons (
  *   		ID int NOT NULL,
@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  *   Auto-increment allows a unique number to be generated automatically when a new
  *   record is inserted into a table.
  *
- *   Example:
+ *   Example1:
  *   <pre>
  *   	CREATE TABLE Persons (
  *   		ID int NOT NULL AUTO_INCREMENT,
@@ -39,7 +39,48 @@ import java.util.logging.Logger;
  *		);
  *   </pre>
  *
- *   NOTE: As default, Query Object pattern begins auto-increment from 1.
+ *   NOTE: As default, Query Object pattern begins auto_increment from 1.
+ *
+ * - UNIQUE:
+ * 	 The UNIQUE constraint ensures that all values in a column are different.
+ *   Both the UNIQUE and PRIMARY KEY constraints provide a guarantee for uniqueness for
+ *   a column or set of columns.
+ *   A PRIMARY KEY constraint automatically has a UNIQUE constraint.
+ *   However, you can have many UNIQUE constraints per table, but only one PRIMARY KEY constraint
+ *   per table.
+ *
+ *   Example2:
+ *   <pre>
+ *   	CREATE TABLE Persons (
+ *   		ID int NOT NULL,
+ *   		LastName varchar(255) NOT NULL,
+ *   		FirstName varchar(255),
+ *   		Age int,
+ *   		UNIQUE (ID)
+ *		);
+ *   </pre>
+ *   <pre>
+ *   	CREATE TABLE Persons (
+ *   		ID int NOT NULL,
+ *   		LastName varchar(255) NOT NULL,
+ *   		FirstName varchar(255),
+ *   		Age int,
+ *   		CONSTRAINT UC_Person UNIQUE (ID,LastName)
+ *		);
+ *   </pre>
+ *
+ *   NOTE: To set multiple columns as UNIQUE, just setting the UNIQUE vaule of each constraint instance of
+ *   each column to TRUE. Query Object Pattern will do the rest work.
+ *
+ *   Example of Example2:
+ *   <pre>
+ *   	CREATE TABLE Persons (
+ *   		ID int NOT NULL UNIQUE,
+ *   		LastName varchar(255) NOT NULL UNIQUE,
+ *   		FirstName varchar(255),
+ *   		Age int
+ *		);
+ *   </pre>
  *
  * @author Bohui Axelsson
  */
@@ -55,6 +96,10 @@ public class SqlDBTableConstraints {
 	 */
 	private boolean fAutoIncrementConstraint = false;
 	private int fAutoIncrementBeginningValue = 1;
+	/*
+	 * UNIQUE constraint
+	 */
+	private boolean fUniqueConstraint = false;
 
 	/**
 	 * Create a default SqlDBTableConstraints instance without any
@@ -69,7 +114,7 @@ public class SqlDBTableConstraints {
 	 * NOTE: create a constraint instance that AUTO_INCREMENT from default 1. If
 	 * creating a constraint instance that AUTO_INCREMENT from a customized value,
 	 * please using SqlDBTableConstraints(boolean, boolean, int) construct method or
-	 * to set AUTO_INCREMENT beginning vaule by method
+	 * to set AUTO_INCREMENT beginning value by method
 	 * setAutoIncrementBeginningValue().
 	 *
 	 * @param notNullConstraint
@@ -80,6 +125,53 @@ public class SqlDBTableConstraints {
 	public SqlDBTableConstraints(boolean notNullConstraint, boolean autoIncrementConstraint) {
 		fNotNullConstraint = notNullConstraint;
 		fAutoIncrementConstraint = autoIncrementConstraint;
+	}
+
+	/**
+	 * Create a SqlDBTableConstraints instance with NOT NULL, AUTO_INCREMENT and UNIQUE
+	 * constraint definitions.
+	 *
+	 * NOTE: create a constraint instance that AUTO_INCREMENT from default 1. If
+	 * creating a constraint instance that AUTO_INCREMENT from a customized value,
+	 * please using SqlDBTableConstraints(boolean, boolean, int) construct method or
+	 * to set AUTO_INCREMENT beginning value by method
+	 * setAutoIncrementBeginningValue().
+	 *
+	 * @param notNullConstraint
+	 *            True if creating NOT NULL constraint
+	 * @param autoIncrementConstraint
+	 *            True if creating AUTO_INCREMENT constraint
+	 * @param uniqueConstraint
+	 * 			  True if creating UNIQUE constraint
+	 */
+	public SqlDBTableConstraints(boolean notNullConstraint, boolean autoIncrementConstraint,
+			boolean uniqueConstraint) {
+		fNotNullConstraint = notNullConstraint;
+		fAutoIncrementConstraint = autoIncrementConstraint;
+		fUniqueConstraint = uniqueConstraint;
+	}
+
+	/**
+	 * Create a SqlDBTableConstraints instance with NOT NULL, AUTO_INCREMENT and UNIQUE
+	 * constraint definitions.
+	 *
+	 * Create a constraint instance with a customized AUTO_INCREMENT beginning value.
+	 *
+	 * @param notNullConstraint
+	 *            True if creating NOT NULL constraint
+	 * @param autoIncrementConstraint
+	 *            True if creating AUTO_INCREMENT constraint
+	 * @param autoIncrementBeginningValue
+	 * 			  AUTO_INCREMENT beginning value
+	 * @param uniqueConstraint
+	 * 			  True if creating UNIQUE constraint
+	 */
+	public SqlDBTableConstraints(boolean notNullConstraint, boolean autoIncrementConstraint,
+			int autoIncrementBeginningValue, boolean uniqueConstraint) {
+		fNotNullConstraint = notNullConstraint;
+		fAutoIncrementConstraint = autoIncrementConstraint;
+		fAutoIncrementBeginningValue = autoIncrementBeginningValue;
+		fUniqueConstraint = uniqueConstraint;
 	}
 
 	/**
@@ -100,6 +192,15 @@ public class SqlDBTableConstraints {
 		fNotNullConstraint = notNullConstraint;
 		fAutoIncrementConstraint = autoIncrementConstraint;
 		fAutoIncrementBeginningValue = autoIncrementBeginningValue;
+	}
+
+	/**
+	 * Get UNIQUE constraint of the column.
+	 *
+	 * @return True if UNIQUE constraint has been settled.
+	 */
+	public boolean getUniqueState() {
+		return fUniqueConstraint;
 	}
 
 	/**

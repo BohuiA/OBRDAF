@@ -10,6 +10,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import QueryObjectFramework.CommonClasses.SqlColumnDataType;
 import QueryObjectFramework.CommonClasses.SqlDBTableConstraints;
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
+import QueryObjectFramework.CommonClasses.SqlStatementStrings;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
 
 /**
@@ -121,6 +122,39 @@ public class QueryObjectDBTableAbstract {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Check UNIQUE columns and create a UNIQUE constraint string.
+	 *
+	 * @return UNIQUE constraint string.
+	 */
+	protected String checkAndCreateUniqueConstraintColumns() {
+		int uniqueColumnAmount = 0;
+		StringBuilder uniqueTableColumnsClause = new StringBuilder("");
+		for (int i = 0; i < fColumnConstraints.size(); i ++) {
+			if (fColumnConstraints.get(i).getUniqueState()) {
+				 uniqueTableColumnsClause.append(fColumns.get(i) + ",");
+				 uniqueColumnAmount ++;
+			}
+		}
+		uniqueTableColumnsClause.deleteCharAt(uniqueTableColumnsClause.length() - 1);
+
+		/*
+		 * If only one column is UNIQUE, creating clause as "UNIQUE (ID)"; Otherwise,
+		 * creating clause as CONSTRAINT UC_Person UNIQUE (ID,LastName).
+		 */
+		if (uniqueColumnAmount == 1) {
+			uniqueTableColumnsClause.insert(0, ", " + SqlStatementStrings.SQL_DATABASE_UNIQUE + "(");
+			uniqueTableColumnsClause.append(")");
+		} else if (uniqueColumnAmount > 1) {
+			uniqueTableColumnsClause.insert(0,
+					", " + SqlStatementStrings.SQL_DATABASE_CONSTRAINT
+							+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_UNIQUE_COLUMNS + this.fTableName + " "
+							+ SqlStatementStrings.SQL_DATABASE_UNIQUE + "(");
+			uniqueTableColumnsClause.append(")");
+		}
+		return uniqueTableColumnsClause.toString();
 	}
 
 	/**
