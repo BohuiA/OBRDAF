@@ -51,6 +51,9 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 *
 	 * Query Object ALTER TABLE for adding/modifying columns into Table.
 	 *
+	 * NOTE: The number of constraints should be the same as columns. For those columns that don't have constraint,
+	 * placing NULL for placeholder in the list.
+	 *
 	 * @param jdbcDbConn
 	 * 			JDBC database connection
 	 * @param tableName
