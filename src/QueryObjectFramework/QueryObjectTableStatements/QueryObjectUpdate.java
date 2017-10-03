@@ -27,17 +27,7 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	/*
 	 * Update SQL statement specific operation settings
 	 */
-	private final @NonNull List<Object> fUpdateValues = new ArrayList<>();
-
-	/**
-	 * Create an UPDATE query object with only JDBC connection.
-	 *
-	 * @param jdbcDbConn
-	 * 			JDBC database connection
-	 */
-	public QueryObjectUpdate(@NonNull JdbcDatabaseConnection jdbcDbConn) {
-		super(SqlQueryTypes.UPDATE, jdbcDbConn);
-	}
+	private final @NonNull List<QueryObjectTableUpdateColumnAndValue> fUpdateItems = new ArrayList<>();
 
 	/**
 	 * Create an UPDATE query object with update values.
@@ -53,18 +43,13 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	 * 			JDBC database connection
 	 * @param tables
 	 * 			Names of table for selecting, should be only one
-	 * @param columns
-	 * 			Names of columns for selection
-	 * @param updateValues
-	 * 			Updating values for UPDATE. The amount of updateVaules
-	 * 			should be the same as the amount of columns.
+	 * @param updateItems
+	 * 			Updating column and value lists
 	 */
 	public QueryObjectUpdate(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
-			@NonNull List<String> columns, @NonNull List<Object> updateValues) {
-		super(SqlQueryTypes.UPDATE, jdbcDbConn, tables, columns, null);
-		if (updateValues != null) {
-			fUpdateValues.addAll(updateValues);
-		}
+			@NonNull List<QueryObjectTableUpdateColumnAndValue> updateItems) {
+		super(SqlQueryTypes.UPDATE, jdbcDbConn, tables, null, null);
+		fUpdateItems.addAll(updateItems);
 	}
 
 	/**
@@ -82,35 +67,16 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	 * 			JDBC database connection
 	 * @param tables
 	 * 			Names of table for selecting, should be only one
-	 * @param columns
-	 * 			Names of columns for selection
 	 * @param selectCriterias
 	 * 			List that contains filtering selection criteria
-	 * @param updateValues
-	 * 			Updating values for UPDATE. The amount of updateVaules
-	 * 			should be the same as the amount of columns.
+	 * @param updateItems
+	 * 			Updating column and value lists
 	 */
 	public QueryObjectUpdate(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
-			@NonNull List<String> columns, @NonNull List<QueryObjectTableCriteriaCondition> selectCriterias, @NonNull List<Object> updateValues) {
-		super(SqlQueryTypes.UPDATE, jdbcDbConn, tables, columns, selectCriterias);
-		if (updateValues != null) {
-			fUpdateValues.addAll(updateValues);
-		}
-	}
-
-	public void addUpdateValue(@NonNull String updateValue) {
-		fUpdateValues.add(updateValue);
-	}
-
-	public void setUpdateValues(List<String> updateValues) {
-		clearUpdateValues();
-		if (updateValues != null) {
-			fUpdateValues.addAll(updateValues);
-		}
-	}
-
-	public void clearUpdateValues() {
-		fUpdateValues.clear();
+			@NonNull List<QueryObjectTableCriteriaCondition> selectCriterias,
+			@NonNull List<QueryObjectTableUpdateColumnAndValue> updateItems) {
+		super(SqlQueryTypes.UPDATE, jdbcDbConn, tables, null, selectCriterias);
+		fUpdateItems.addAll(updateItems);
 	}
 
 	/**
@@ -138,27 +104,17 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	}
 
 	/**
-	 * Validate fTables list only contains one table. fColumns and fUpdateValues are
-	 * not empty, meanwhile, the amounts of fColumns and fUpdateValues is same.
+	 * Validate fTables list only contains one table. fUpdateItems is not empty.
 	 *
-	 * @return True if fTables only contains one table, the amounts of columns and
-	 *         updateValues are equal.
+	 * @return True if fTables only contains one table, fUpdateItems is not empty.
 	 */
 	private boolean validatUpdateAllColumnsWithValues() {
 		if (fTables.size() != 1) {
 			LOGGER.severe("Failed to update values in table, more than one table are provided.");
 			return false;
 		}
-		if (fColumns.isEmpty()) {
-			LOGGER.severe("Failed to update values in table, columns are missing.");
-			return false;
-		}
-		if (fUpdateValues.isEmpty()) {
-			LOGGER.severe("Failed to update values in table, update values are missing.");
-			return false;
-		}
-		if (fUpdateValues.size() != fColumns.size()) {
-			LOGGER.severe("Failed to update values in table, update values and columns are not matching.");
+		if (fUpdateItems.isEmpty()) {
+			LOGGER.severe("Failed to update values in table, update columns and values are missing.");
 			return false;
 		}
 		return true;
@@ -177,11 +133,11 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	 */
 	private String buildSqlUpdateColumnsVaulesClause() {
 		StringBuilder updateColumsAndValues = new StringBuilder();
-		for (int i = 0; i < fColumns.size(); i ++) {
-			if (fUpdateValues.get(i) instanceof String) {
-				updateColumsAndValues.append(fColumns.get(i) + " = " + "'" + fUpdateValues.get(i) + "'" + ",");
+		for (QueryObjectTableUpdateColumnAndValue updateItem : fUpdateItems) {
+			if (updateItem.getUpdateValue() instanceof String) {
+				updateColumsAndValues.append(updateItem.getUpdateColumnName() + " = " + "'" + updateItem.getUpdateValue() + "'" + ",");
 			} else {
-				updateColumsAndValues.append(fColumns.get(i) + " = " + fUpdateValues.get(i) + ",");
+				updateColumsAndValues.append(updateItem.getUpdateColumnName() + " = " + updateItem.getUpdateValue() + ",");
 			}
 		}
 		updateColumsAndValues.deleteCharAt(updateColumsAndValues.length() - 1);
