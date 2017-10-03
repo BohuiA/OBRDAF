@@ -10,8 +10,13 @@ package QueryObjectFramework.CommonClasses;
  */
 public class SqlColumnDataType {
 	private SqlDataTypes fDataType = SqlDataTypes.EMPTYDATATYPE;
-	private int fDataTypeRange;
-	private int fDataTypeDecimal;
+	private int fDataTypeRange = -1;
+	private int fDataTypeDecimal = -1;
+
+	/**
+	 * Create a default SQL data type instance.
+	 */
+	public SqlColumnDataType() {}
 
 	/**
 	 * Create a SQL data type without data range and data decimal.

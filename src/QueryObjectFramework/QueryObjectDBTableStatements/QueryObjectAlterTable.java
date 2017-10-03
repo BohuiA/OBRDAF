@@ -2,12 +2,9 @@ package QueryObjectFramework.QueryObjectDBTableStatements;
 
 import java.sql.ResultSet;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import QueryObjectFramework.CommonClasses.SqlColumnDataType;
-import QueryObjectFramework.CommonClasses.SqlDBTableConstraints;
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
 import QueryObjectFramework.CommonClasses.SqlStatementStrings;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
@@ -22,20 +19,35 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  * an existing table.
  *
  * Example:
- *
+ * - Add column:
  * <pre>
  *  ALTER TABLE table_name
  *  ADD column_name datatype;
  * </pre>
  *
+ * - Drop column:
  * <pre>
  *  ALTER TABLE table_name
  *  DROP COLUMN column_name;
  * </pre>
  *
+ * - Modify column:
  * <pre>
  *  ALTER TABLE table_name
  *  MODIFY COLUMN column_name datatype;
+ * </pre>
+ *
+ * - Add UNIQUE to existing columns
+ * <pre>
+ *  ALTER TABLE table_name
+ *  ADD UNIQUE(column_name);
+ * </pre>
+ * <pre>
+ *  ALTER TABLE table_name
+ *  ADD CONSTRAINT UC_<table_name> UNIQUE(column_name1, column_name2, ..);
+ *
+ *  NOTE: Currently, the UNIQUE name of multiple columns is hard coupled to table
+ *  name, as format "UC_<table_name>".
  * </pre>
  *
  * NOTE: At the moment, MYSQL server is fully supported as altering
@@ -46,17 +58,12 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  * @author Bohui Axelsson
  */
 public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
-	private static final Logger LOGGER = Logger.getLogger(QueryObjectAlterTable.class.getName());
-
 	/**
 	 * Create an ALTER TABLE query object with Table names, columns, and column data types.
 	 *
-	 * Query Object ALTER TABLE for adding/modifying columns into Table.
-	 *
-	 * NOTE: The number of constraints should be the same as columns. For those columns that don't have constraint,
-	 * placing NULL for placeholder in the list.
-	 *
-	 * NOTE: For updating UNIQUE constraint on table, setting columnDataTypes parameter as NULL.
+	 * NOTE: For updating UNIQUE constraint on table, setting fUniqueConstraint to true in
+	 * fColumnConstraint filed of fTableColumns. Be careful about fUniqueConstraint value, default
+	 * value is false for not creating UNIQUE constraint.
 	 *
 	 * Example:
 	 * <pre>
@@ -64,57 +71,19 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 *  ADD UNIQUE (column_name);
 	 * </pre>
 	 *
-	 * @param jdbcDbConn
-	 * 			JDBC database connection
-	 * @param tableName
-	 * 			Table name
-	 * @param columns
-	 * 			Table column names
-	 * @param columnDataTypes
-	 *          Table column data types
-	 * @param columnConstraints
-	 * 			Table column constraint.
-	 */
-	public QueryObjectAlterTable(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull String tableName,
-			@NonNull List<String> columns, @NonNull List<SqlColumnDataType> columnDataTypes,
-			@NonNull List<SqlDBTableConstraints> columnConstraints) {
-		super(SqlQueryTypes.ALTER_TABLE, jdbcDbConn, tableName, columns, columnDataTypes, columnConstraints);
-	}
-
-	/**
-	 * Create an ALTER TABLE query object with Table names, columns, column data types and constraints.
-	 *
-	 * Query Object ALTER TABLE for adding/modifying columns into Table.
+	 * For setting multiple columns as UNIQUE, just set the fUniqueConstraints of target columns to TRUE,
+	 * Query Object Pattern will take care of rest work.
 	 *
 	 * @param jdbcDbConn
 	 * 			JDBC database connection
 	 * @param tableName
 	 * 			Table name
-	 * @param columns
-	 * 			Table column names
-	 * @param columnDataTypes
-	 *          Table column data types
+	 * @param tableColumns
+	 * 			Table column instances
 	 */
 	public QueryObjectAlterTable(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull String tableName,
-			@NonNull List<String> columns, @NonNull List<SqlColumnDataType> columnDataTypes) {
-		super(SqlQueryTypes.ALTER_TABLE, jdbcDbConn, tableName, columns, columnDataTypes);
-	}
-
-	/**
-	 * Create an ALTER TABLE query object with Table names, columns, and column data types.
-	 *
-	 * Query Object ALTER TABLE for dropping columns into Table.
-	 *
-	 * @param jdbcDbConn
-	 * 			JDBC database connection
-	 * @param tableName
-	 * 			Table name
-	 * @param columns
-	 * 			Table column names
-	 */
-	public QueryObjectAlterTable(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull String tableName,
-			@NonNull List<String> columns) {
-		super(SqlQueryTypes.ALTER_TABLE, jdbcDbConn, tableName, columns);
+			@NonNull List<QueryObjectDBTableColumn> tableColumns) {
+		super(SqlQueryTypes.ALTER_TABLE, jdbcDbConn, tableName, tableColumns);
 	}
 
 	/**
@@ -124,40 +93,31 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 * Scenario:
 	 *
 	 * <pre>
-	 *  CALTER TABLE table_name
+	 *  ALTER TABLE table_name
 	 *  ADD column_name datatype constraint;
+	 * </pre>
+	 *
+	 * <pre>
+	 *  ALTER TABLE table_name
+	 *  ADD column_name datatype constraint,
+	 *  UNIQUE(column_name);
 	 * </pre>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet alterTableAddColumns() {
-		if (!validateTableNameNotNull() || !validateColumnsSettingsMatching()) {
+		if (!validateTableColumnsNotNull()) {
 			return null;
 		}
 
 		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + SqlStatementStrings.SQL_DATABASE_ADD + " "
-				+ buildAddColumnsIntoTableClaues() + ";";
+				+ buildColumnsAndColumnDataTypes() + createAppendConstraintForColumns() + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
 
 	/**
-	 * Build SQL ALTER TABLE ADD columns string.
-	 *
-	 * @return SQL ALTER TABLE ADD columns string
-	 */
-	private String buildAddColumnsIntoTableClaues() {
-		StringBuilder alterTableAddColumnsClause = new StringBuilder();
-		for (int i = 0; i < fColumns.size(); i ++) {
-			alterTableAddColumnsClause.append(fColumns.get(i) + " " + fColumnDataTypes.get(i).getSqlColumnDataType()
-					+ " " + fColumnConstraints.get(i).getColumnConstraintsString() + ",");
-		}
-		alterTableAddColumnsClause.deleteCharAt(alterTableAddColumnsClause.length() - 1);
-		return alterTableAddColumnsClause.toString();
-	}
-
-	/**
-	 * ALTER TABLE - ADD Column UNIQUE constraints
-	 * To add UNIQUE constraints to columns in a table.
+	 * ALTER TABLE - ADD UNIQUE constraints on existing columns
+	 * To add UNIQUE constraints to columns already existing in a table.
 	 *
 	 * Scenario:
 	 *
@@ -166,41 +126,21 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 *  ADD UNIQUE (column_name);
 	 * </pre>
 	 *
+	 * <pre>
+	 *  ALTER TABLE table_name
+	 *  ADD CONSTRAINT UC_<table_name> UNIQUE (column_name1, column_name2, ..);
+	 * </pre>
+	 *
 	 * @return ResultSet SQL execution results
 	 */
-	public ResultSet alterTableAddColumnUniqueConstraints() {
-		if (!validateTableNameNotNull() || !validateColumnsUniqueConstraintsSetting()) {
+	public ResultSet alterTableAddUniqueConstraintsOnExistingColumns() {
+		if (!validateTableColumnsNotNull()) {
 			return null;
 		}
 
 		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + SqlStatementStrings.SQL_DATABASE_ADD + " "
-				+ checkAndCreateUniqueConstraintColumns() + ";";
+				+ createAppendConstraintForColumns() + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
-	}
-
-	/**
-	 * Validate columns and  ColumnConstraints are not null and matching.
-	 *
-	 * @return True if above validate rules are matching.
-	 */
-	private boolean validateColumnsUniqueConstraintsSetting() {
-		if (fColumnConstraints.size() != fColumns.size()) {
-			LOGGER.severe("Failed to operate table operation, ColumnConstraints should be empty or as same amount of columns.");
-			return false;
-		}
-		for (String column : fColumns) {
-			if (column == null) {
-				LOGGER.severe("Failed to operate table operation, column item is null.");
-				return false;
-			}
-		}
-		for (SqlDBTableConstraints columnConstraint : fColumnConstraints) {
-			if (columnConstraint == null) {
-				LOGGER.severe("Failed to operate table operation, columnConstraint is null.");
-				return false;
-			}
-		}
-		return true;
 	}
 
 	/**
@@ -217,7 +157,7 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet alterTableDropColumns() {
-		if (!validateTableNameNotNull() || !validateColumnsNotNull()) {
+		if (!validateTableColumnsNotNull()) {
 			return null;
 		}
 
@@ -227,33 +167,14 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	}
 
 	/**
-	 * Validate columns is not null.
-	 *
-	 * @return True if columns is not null.
-	 */
-	private boolean validateColumnsNotNull() {
-		if (fColumns == null) {
-			LOGGER.severe("Failed to operate table operation, column names are missing.");
-			return false;
-		}
-		for (String column : fColumns) {
-			if (column == null) {
-				LOGGER.severe("Failed to operate table operation, column item is null.");
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
 	 * Build SQL ALTER TABLE DROP columns string.
 	 *
 	 * @return SQL ALTER TABLE DROP columns string
 	 */
 	private String buildDropColumnsFromTableClaues() {
 		StringBuilder alterTableDropColumnsClause = new StringBuilder();
-		for (int i = 0; i < fColumns.size(); i ++) {
-			alterTableDropColumnsClause.append(fColumns.get(i) + ",");
+		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
+			alterTableDropColumnsClause.append(tableColumn.getColumnName() + ",");
 		}
 		alterTableDropColumnsClause.deleteCharAt(alterTableDropColumnsClause.length() - 1);
 		return alterTableDropColumnsClause.toString();
@@ -273,12 +194,12 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet alterTableModifyColumns() {
-		if (!validateTableNameNotNull() || !validateColumnsSettingsMatching()) {
+		if (!validateTableColumnsNotNull()) {
 			return null;
 		}
 
 		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + SqlStatementStrings.SQL_DATABASE_MODIFY_COLUMN + " "
-				+ buildAddColumnsIntoTableClaues() + ";";
+				+ buildColumnsAndColumnDataTypes() + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
 }

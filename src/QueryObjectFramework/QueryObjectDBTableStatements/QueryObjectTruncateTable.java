@@ -45,10 +45,6 @@ public class QueryObjectTruncateTable extends QueryObjectDBTableAbstract {
 	 * Query Object.
 	 */
 	public void truncateTable() {
-		if (!validateTableNameNotNull()) {
-			return;
-		}
-
 		LOGGER.info("Truncate table " + fTableName);
 		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + ";";
 		fJdbcDbConn.executeQueryObject(sql);

@@ -17,6 +17,7 @@ import java.util.logging.Logger;
  */
 public class SqlCriteriaCondition {
 	private static final Logger LOGGER = Logger.getLogger(SqlCriteriaCondition.class.getName());
+
 	/*
 	 * Scenario:
 	 *

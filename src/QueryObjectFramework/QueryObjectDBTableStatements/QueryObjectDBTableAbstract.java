@@ -1,14 +1,11 @@
 package QueryObjectFramework.QueryObjectDBTableStatements;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import QueryObjectFramework.CommonClasses.SqlColumnDataType;
-import QueryObjectFramework.CommonClasses.SqlDBTableConstraints;
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
 import QueryObjectFramework.CommonClasses.SqlStatementStrings;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
@@ -29,11 +26,8 @@ public class QueryObjectDBTableAbstract {
 
 	protected final SqlQueryTypes fQueryObjectType;
 	protected final @NonNull JdbcDatabaseConnection fJdbcDbConn;
-	protected final @NonNull List<String> fColumns = new ArrayList<>();
-	protected final @NonNull List<SqlColumnDataType> fColumnDataTypes = new ArrayList<>();
-	protected final @NonNull List<SqlDBTableConstraints> fColumnConstraints = new ArrayList<>();
-
-	protected String fTableName = null;
+	protected final @NonNull List<QueryObjectDBTableColumn> fTableColumns = new ArrayList<>();
+	protected String fTableName = "";
 
 	public QueryObjectDBTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn) {
 		fQueryObjectType = queryObjectType;
@@ -50,92 +44,44 @@ public class QueryObjectDBTableAbstract {
 	}
 
 	public QueryObjectDBTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn,
-			@NonNull String tableName, @NonNull List<String> columns) {
+			@NonNull String tableName, @NonNull List<QueryObjectDBTableColumn> tableColumns) {
 		fQueryObjectType = queryObjectType;
 		fJdbcDbConn = jdbcDbConn;
 		if (tableName != null) {
 			fTableName = tableName;
 		}
-		if (columns != null) {
-			fColumns.addAll(columns);
+		if (tableColumns != null) {
+			fTableColumns.addAll(tableColumns);
 		}
-	}
-
-	public QueryObjectDBTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn,
-			@NonNull String tableName, @NonNull List<String> columns, @NonNull List<SqlColumnDataType> columnDataTypes) {
-		fQueryObjectType = queryObjectType;
-		fJdbcDbConn = jdbcDbConn;
-		if (tableName != null) {
-			fTableName = tableName;
-		}
-		if (columns != null) {
-			fColumns.addAll(columns);
-		}
-		if (columnDataTypes != null) {
-			fColumnDataTypes.addAll(columnDataTypes);
-		}
-	}
-
-	public QueryObjectDBTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn,
-			@NonNull String tableName, @NonNull List<String> columns, @NonNull List<SqlColumnDataType> columnDataTypes,
-			@NonNull List<SqlDBTableConstraints> columnConstraints) {
-		fQueryObjectType = queryObjectType;
-		fJdbcDbConn = jdbcDbConn;
-		if (tableName != null) {
-			fTableName = tableName;
-		}
-		if (columns != null) {
-			fColumns.addAll(columns);
-		}
-		if (columnDataTypes != null) {
-			fColumnDataTypes.addAll(columnDataTypes);
-		}
-		if (columnConstraints != null) {
-			fColumnConstraints.addAll(columnConstraints);
-		}
-	}
-
-	public void setTableName(@NonNull String tableName) {
-		fTableName = tableName;
-	}
-
-	public void addColumnName(@NonNull String columnName) {
-		fColumns.add(columnName);
-	}
-
-	public void addColumnDataType(@NonNull SqlColumnDataType columnDataType) {
-		fColumnDataTypes.add(columnDataType);
-	}
-
-	public void addColumnConstraints(SqlDBTableConstraints columnConstraint) {
-		fColumnConstraints.add(columnConstraint);
 	}
 
 	/**
-	 * Validate fTableName is not null.
+	 * Build SQL CREATE TABLE columns string.
 	 *
-	 * @return True if fDBName is null.
+	 * @return SQL CREATE TABLE columns string
 	 */
-	protected boolean validateTableNameNotNull() {
-		if (fTableName == null) {
-			LOGGER.severe("Failed to operate table operation, table name is missing.");
-			return false;
+	protected String buildColumnsAndColumnDataTypes() {
+		StringBuilder createTableColumnsClause = new StringBuilder();
+		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
+			createTableColumnsClause.append(tableColumn.getColumnName() + " " + tableColumn.getColumnDataType().getSqlColumnDataType() + " "
+					+ tableColumn.getColumnConstraint().getColumnConstraintsString() + ",");
 		}
-		return true;
+		createTableColumnsClause.deleteCharAt(createTableColumnsClause.length() - 1);
+		return createTableColumnsClause.toString();
 	}
 
 	/**
-	 * Check UNIQUE columns and create a UNIQUE constraint string.
+	 * Create a UNIQUE constraint string.
 	 *
 	 * @return UNIQUE constraint string.
 	 */
-	protected String checkAndCreateUniqueConstraintColumns() {
+	protected String createAppendConstraintForColumns() {
 		int uniqueColumnAmount = 0;
 		StringBuilder uniqueTableColumnsClause = new StringBuilder("");
-		for (int i = 0; i < fColumnConstraints.size(); i ++) {
-			if (fColumnConstraints.get(i).getUniqueState()) {
-				 uniqueTableColumnsClause.append(fColumns.get(i) + ",");
-				 uniqueColumnAmount ++;
+		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
+			if (tableColumn.getColumnConstraint().getUniqueState()) {
+				uniqueTableColumnsClause.append(tableColumn.getColumnName() + ",");
+				uniqueColumnAmount ++;
 			}
 		}
 		uniqueTableColumnsClause.deleteCharAt(uniqueTableColumnsClause.length() - 1);
@@ -143,6 +89,8 @@ public class QueryObjectDBTableAbstract {
 		/*
 		 * If only one column is UNIQUE, creating clause as "UNIQUE (ID)"; Otherwise,
 		 * creating clause as CONSTRAINT UC_Person UNIQUE (ID,LastName).
+		 *
+		 * TODO: Introducing customized multiple UNIQUE columns name.
 		 */
 		if (uniqueColumnAmount == 1) {
 			uniqueTableColumnsClause.insert(0, ", " + SqlStatementStrings.SQL_DATABASE_UNIQUE + "(");
@@ -158,37 +106,17 @@ public class QueryObjectDBTableAbstract {
 	}
 
 	/**
-	 * Validate columns and columns data types are not null and matching.
-	 * Meanwhile, ColumnConstraints amount must be matched to columns list amount or empty.
+	 * Validate there are no NULL item in the table column list.
 	 *
-	 * @return True if above validate rules are matching.
+	 * @return True if all items in fTableColumns are not NULL.
 	 */
-	protected boolean validateColumnsSettingsMatching() {
-		if (fColumns.size() != fColumnDataTypes.size()) {
-			LOGGER.severe("Failed to operate table operation, column data types and columns are not matching.");
-			return false;
-		}
-		for (String column : fColumns) {
-			if (column == null) {
-				LOGGER.severe("Failed to operate table operation, column item is null.");
+	protected boolean validateTableColumnsNotNull() {
+		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
+			if (tableColumn == null) {
+				LOGGER.severe("Failed to operate table operation, table column item is null.");
 				return false;
 			}
 		}
-		for (SqlColumnDataType columnDataType : fColumnDataTypes) {
-			if (columnDataType == null) {
-				LOGGER.severe("Failed to operate table operation, columnDataType item is null.");
-				return false;
-			}
-		}
-		if (!fColumnConstraints.isEmpty() && fColumnConstraints.size() != fColumns.size()) {
-			LOGGER.severe("Failed to operate table operation, ColumnConstraints should be empty or as same amount of columns.");
-			return false;
-		}
-		/*
-		 * Replace all null constraint to a default SqlDBTableConstraints instance.
-		 */
-		Collections.replaceAll(fColumnConstraints, null, new SqlDBTableConstraints());
-
 		return true;
 	}
 }

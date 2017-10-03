@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import QueryObjectFramework.CommonClasses.SqlColumnDataType;
-import QueryObjectFramework.CommonClasses.SqlDBTableConstraints;
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
 
@@ -23,10 +21,23 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  *	);
  * </pre>
  *
+ * <pre>
+ * 	CREATE TABLE table_name (
+ *   	column1 datatype constraint,
+ *   	column2 datatype constraint,
+ *   	column3 datatype constraint,
+ *  		....
+ *      UNIQUE(column2)
+ *	);
+ * </pre>
+ *
  * The column parameters specify the names of the columns of the table.
  *
  * The data type parameter specifies the type of data the column can hold (e.g.
  * VARCHAR, INT, DATE, etc.).
+ *
+ * NOTE: At the moment, MYSQL server is fully supported as altering
+ * tables.
  *
  * NOTE: At the moment, CREATE TABLE Query Object only supports pre-defined columns way.
  * Create table using another table is not supported right now.
@@ -47,43 +58,18 @@ public class QueryObjectCreateTable extends QueryObjectDBTableAbstract {
 	}
 
 	/**
-	 * Create an CREATE TABLE query object with Table names, columns, and column data types.
+	 * Create an CREATE TABLE query object with Table names and TableColumns.
 	 *
 	 * @param jdbcDbConn
 	 * 			JDBC database connection
 	 * @param tableName
 	 * 			Table name
-	 * @param columns
-	 * 			Table column names
-	 * @param columnDataTypes
-	 *          Table column data types
+	 * @param tableColumns
+	 * 			Table column instances
 	 */
 	public QueryObjectCreateTable(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull String tableName,
-			@NonNull List<String> columns, @NonNull List<SqlColumnDataType> columnDataTypes) {
-		super(SqlQueryTypes.CREATE_TABLE, jdbcDbConn, tableName, columns, columnDataTypes);
-	}
-
-	/**
-	 * Create an CREATE TABLE query object with Table names, columns, column data types and constraints.
-	 *
-	 * NOTE: The number of constraints should be the same as columns. For those columns that don't have constraint,
-	 * placing NULL for placeholder in the list.
-	 *
-	 * @param jdbcDbConn
-	 * 			JDBC database connection
-	 * @param tableName
-	 * 			Table name
-	 * @param columns
-	 * 			Table column names
-	 * @param columnDataTypes
-	 *          Table column data types
-	 * @param columnConstraints
-	 * 			Table column constraint.
-	 */
-	public QueryObjectCreateTable(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull String tableName,
-			@NonNull List<String> columns, @NonNull List<SqlColumnDataType> columnDataTypes,
-			@NonNull List<SqlDBTableConstraints> columnConstraints) {
-		super(SqlQueryTypes.CREATE_TABLE, jdbcDbConn, tableName, columns, columnDataTypes, columnConstraints);
+			@NonNull List<QueryObjectDBTableColumn> tableColumns) {
+		super(SqlQueryTypes.CREATE_TABLE, jdbcDbConn, tableName, tableColumns);
 	}
 
 	/**
@@ -101,34 +87,45 @@ public class QueryObjectCreateTable extends QueryObjectDBTableAbstract {
 	 *	);
 	 * </pre>
 	 *
+	 * <pre>
+	 *  CREATE TABLE Persons (
+	 *    	PersonID INT(2147) NOT NULL AUTO_INCREMENT,
+	 *  	LastName VARCHAR(255),
+	 *   	FirstName VARCHAR(255),
+	 *    	Address VARCHAR(255),
+	 *   	City VARCHAR(255) NOT NULL,
+	 *      UNIQUE(PersonID)
+	 *	);
+	 * </pre>
+	 *
+	 * <pre>
+	 *  CREATE TABLE Persons (
+	 *    	PersonID INT(2147) NOT NULL AUTO_INCREMENT,
+	 *  	LastName VARCHAR(255),
+	 *   	FirstName VARCHAR(255),
+	 *    	Address VARCHAR(255),
+	 *   	City VARCHAR(255) NOT NULL,
+	 *      CONSTRAINT UC_Persons UNIQUE(PersonID, LastName, FirstName)
+	 *	);
+	 *
+	 * NOTE: Currently, the UNIQUE name of multiple columns is hard coupled to table
+	 * name, as format "UC_<table_name>".
+	 * </pre>
+	 *
 	 * NOTE: Only one table can be associated to one Query Object.
 	 *
-	 * NOTE: Column data type will be defined with SqlColumnDataType class,
-	 * more details see SqlColumnDataType class.
+	 * NOTE: Column data type will be defined with QueryObejctDBTableColumn class,
+	 * more details see QueryObejctDBTableColumn class.
 	 *
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet createTable() {
-		if (!validateTableNameNotNull() || !validateColumnsSettingsMatching()) {
+		if (!validateTableColumnsNotNull()) {
 			return null;
 		}
 
-		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " (" + buildColumnsAndColumnDataTypes() + checkAndCreateUniqueConstraintColumns() + ")" + ";";
+		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " (" + buildColumnsAndColumnDataTypes()
+				+ createAppendConstraintForColumns() + ")" + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
-	}
-
-	/**
-	 * Build SQL CREATE TABLE columns string.
-	 *
-	 * @return SQL CREATE TABLE columns string
-	 */
-	private String buildColumnsAndColumnDataTypes() {
-		StringBuilder createTableColumnsClause = new StringBuilder();
-		for (int i = 0; i < fColumns.size(); i ++) {
-			createTableColumnsClause.append(fColumns.get(i) + " " + fColumnDataTypes.get(i).getSqlColumnDataType() + " "
-					+ fColumnConstraints.get(i).getColumnConstraintsString() + ",");
-		}
-		createTableColumnsClause.deleteCharAt(createTableColumnsClause.length() - 1);
-		return createTableColumnsClause.toString();
 	}
 }

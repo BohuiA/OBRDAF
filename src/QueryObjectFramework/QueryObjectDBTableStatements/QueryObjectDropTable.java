@@ -51,10 +51,6 @@ public class QueryObjectDropTable extends QueryObjectDBTableAbstract {
 	 * a table is dropped, all data in the table will be lost.
 	 */
 	public void dropTable() {
-		if (!validateTableNameNotNull()) {
-			return;
-		}
-
 		LOGGER.info("Droping table " + fTableName);
 		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + ";";
 		fJdbcDbConn.executeQueryObject(sql);
