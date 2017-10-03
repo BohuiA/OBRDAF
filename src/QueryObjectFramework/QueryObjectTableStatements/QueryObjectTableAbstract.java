@@ -26,62 +26,25 @@ public class QueryObjectTableAbstract {
 	protected final List<SqlCriteriaCondition> fCriteriaConditions = new ArrayList<>();
 
 	public QueryObjectTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn,
-			@NonNull List<String> tables, @NonNull List<String> columns,
+			@NonNull List<String> tables, List<String> columns,
 			List<SqlCriteriaCondition> selectCriterias) {
 		fQueryObjectType = queryObjectType;
 		fJdbcDbConn = jdbcDbConn;
 		fTables.addAll(tables);
 		if (columns != null) {
 			fColumns.addAll(columns);
+		} else {
+			fColumns.clear();
 		}
 		if (selectCriterias != null) {
 			fCriteriaConditions.addAll(selectCriterias);
+		} else {
+			fCriteriaConditions.clear();
 		}
 	}
 
 	public QueryObjectTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn) {
 		fQueryObjectType = queryObjectType;
 		fJdbcDbConn = jdbcDbConn;
-	}
-
-	public void addTable(@NonNull String table) {
-		fTables.add(table);
-	}
-
-	public void setTables(@NonNull List<String> tables) {
-		clearTables();
-		fTables.addAll(tables);
-	}
-
-	public void clearTables() {
-		fTables.clear();
-	}
-
-	public void addColumn(@NonNull String column) {
-		fColumns.add(column);
-	}
-
-	public void setColumns(@NonNull List<String> columns) {
-		clearColumns();
-		fColumns.addAll(columns);
-	}
-
-	public void clearColumns() {
-		fColumns.clear();
-	}
-
-	public void addCriteriaCondition(@NonNull SqlCriteriaCondition criteriaCondition) {
-		fCriteriaConditions.add(criteriaCondition);
-	}
-
-	public void setCriteriaConditions(List<SqlCriteriaCondition> criteriaConditions) {
-		clearCriteriaConditions();
-		if (criteriaConditions != null) {
-			fCriteriaConditions.addAll(criteriaConditions);
-		}
-	}
-
-	public void clearCriteriaConditions() {
-		fCriteriaConditions.clear();
 	}
 }

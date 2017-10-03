@@ -24,10 +24,8 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	/*
 	 * Select SQL statement specific operation settings
 	 */
-	private final @NonNull List<String> fOrderByColumns = new ArrayList<>();
-	private final @NonNull List<String> fOrderByOrderings = new ArrayList<>();
 	private final @NonNull List<SqlJoinType> fJoinTypes = new ArrayList<>();
-
+	private final @NonNull List<QueryObjectTableOrderBy> fOrderByLists = new ArrayList<>();
 	/**
 	 * Create a SELECT query object with only JDBC connection.
 	 *
@@ -52,11 +50,11 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 * @param tables
 	 * 			Names of table for selecting, should be only one
 	 * @param columns
-	 * 			Names of columns for selection, setting null for
+	 * 			Names of columns for selection, setting NULL for
 	 * 			selecting all columns.
 	 */
 	public QueryObjectSelect(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
-			@NonNull List<String> columns) {
+			List<String> columns) {
 		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, null);
 	}
 
@@ -79,64 +77,70 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 * @param tables
 	 * 			Names of table for selecting, should be only one
 	 * @param columns
-	 * 			Names of columns for selection, setting null for
+	 * 			Names of columns for selection, setting NULL for
 	 * 			selecting all columns.
 	 * @param selectCriterias
 	 * 			List that contains filtering selection criteria.
-	 * 			Setting to NULL for ignoring.
 	 */
 	public QueryObjectSelect(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
-			@NonNull List<String> columns, List<SqlCriteriaCondition> selectCriterias) {
+			List<String> columns, @NonNull List<SqlCriteriaCondition> selectCriterias) {
 		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, selectCriterias);
 	}
 
 	/**
-	 * Create a SELECT query object with WHERE and ORDER BY grammar.
+	 * Create a SELECT query object with WHERE or/and ORDER BY grammar.
 	 *
 	 * Example:
 	 *
 	 * <pre>
 	 *  SELECT column1, column2, ...
 	 *  FROM table_name
+	 *  WHERE NOT condition1 AND condition2 AND NOT condition3 ...
 	 *  ORDER BY column1, column2, ... ASC|DESC;
 	 * </pre>
 	 *
-	 * Note: conditionOperator is set as "" or NULL means there is no condition operator,
-	 * Available condition operators are NOT, OR, AND.
+	 * <pre>
+	 *  SELECT column1, column2, ...
+	 *  FROM table_name
+	 *  ORDER BY column1, column2, ... ASC|DESC;
+	 *
+	 *  NOTE: Pass NULL to selectCriterias parameter to ignore WHERE clause.
+	 * </pre>
+	 *
+	 * Note: Setting selectCriterias to NULL to ignore WHERE clause.
 	 *
 	 * @param jdbcDbConn
 	 * 			JDBC database connection
 	 * @param tables
 	 * 			Names of table for selecting, should be only one
 	 * @param columns
-	 * 			Names of columns for selection, setting null for
-	 * 			selecting all columns.
+	 * 			Names of columns for selection, setting NULL for selecting all columns.
 	 * @param selectCriterias
-	 * 			List that contains filtering selection criteria
-	 * @param orderByColumns
-	 * 			Names of columns that need to order by.
+	 * 			List that contains filtering selection criteria.
 	 * 			Setting to NULL for ignoring.
-	 * @param orderByOrderings
-	 * 			Names of Orderings that need to perform, should be
-	 * 			'ASC' or 'DESC'.
-	 * 			Setting to NULL for ignoring.
+	 * @param orderByLists
+	 * 			List that contains order by parameters
 	 */
 	public QueryObjectSelect(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
-			@NonNull List<String> columns, List<SqlCriteriaCondition> selectCriterias,
-			List<String> orderByColumns, List<String> orderByOrderings) {
+			List<String> columns, List<SqlCriteriaCondition> selectCriterias,
+			@NonNull List<QueryObjectTableOrderBy> orderByLists) {
 		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, selectCriterias);
-		if (orderByColumns != null) {
-			fOrderByColumns.addAll(orderByColumns);
-		}
-		if (orderByOrderings != null) {
-			fOrderByOrderings.addAll(orderByOrderings);
-		}
+		fOrderByLists.addAll(orderByLists);
 	}
 
 	/**
 	 * Create a SELECT query object with WHERE, ODERBY and JOIN grammars.
 	 *
 	 * Example:
+	 *  <pre>
+	 *  SELECT Customers.CustomerName, Orders.OrderID
+	 *  FROM Customers
+	 *  LEFT JOIN Orders ON Customers.CustomerID = Orders.CustomerID;
+	 *
+	 *  NOTE: Setting selectCriterias and orderByLists to NULL to ignore
+	 *  WHRER and ORDER BY clauses.
+	 * </pre>
+	 *
 	 * <pre>
 	 *  SELECT Customers.CustomerName, Orders.OrderID
 	 *  FROM Customers
@@ -152,80 +156,28 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 * @param tables
 	 * 			Names of table for selecting, should be only one
 	 * @param columns
-	 * 			Names of columns for selection, setting null for
+	 * 			Names of columns for selection, setting NULL for
 	 * 			selecting all columns.
 	 * @param selectCriterias
 	 * 			List that contains filtering selection criteria.
 	 * 			Setting to NULL for ignoring.
-	 * @param orderByColumns
-	 * 			Names of columns that need to order by.
-	 * 			Setting to NULL for ignoring.
-	 * @param orderByOrderings
-	 * 			Names of Orderings that need to perform, should be
-	 * 			'ASC' or 'DESC'.
-	 * 			Setting to NULL for ignoring.
+	 * @param orderByLists
+	 * 			List that contains order by parameters.
+	 * 			Setting to NULL for ignoring
 	 * @param joinTypes
 	 * 			List that contains Join types defining in SqlJoinType class.
-	 * 			Setting to NULL for ignoring.
 	 */
 	public QueryObjectSelect(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
-			@NonNull List<String> columns, List<SqlCriteriaCondition> selectCriterias,
-			List<String> orderByColumns, List<String> orderByOrderings, List<SqlJoinType> joinTypes) {
+			List<String> columns, List<SqlCriteriaCondition> selectCriterias,
+			List<QueryObjectTableOrderBy> orderByLists, @NonNull List<SqlJoinType> joinTypes) {
 		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, selectCriterias);
-		if (orderByColumns != null) {
-			fOrderByColumns.addAll(orderByColumns);
+		if (orderByLists != null) {
+			fOrderByLists.addAll(orderByLists);
+		} else {
+			fOrderByLists.clear();
 		}
-		if (orderByOrderings != null) {
-			fOrderByOrderings.addAll(orderByOrderings);
-		}
-		if (joinTypes!= null) {
-			fJoinTypes.addAll(joinTypes);
-		}
-	}
+		fJoinTypes.addAll(joinTypes);
 
-	public void addOrderByColumn(@NonNull String orderByColumn) {
-		fOrderByColumns.add(orderByColumn);
-	}
-
-	public void setOrderByColumns(List<String> orderByColumns) {
-		clearOrderByColumns();
-		if (orderByColumns != null) {
-			fOrderByColumns.addAll(orderByColumns);
-		}
-	}
-
-	public void clearOrderByColumns() {
-		fOrderByColumns.clear();
-	}
-
-	public void addOrderByOrdering(@NonNull String orderByOrdering) {
-		fOrderByOrderings.add(orderByOrdering);
-	}
-
-	public void setOrderByOrderings(List<String> orderByOrdering) {
-		clearOrderByOrderings();
-		if (orderByOrdering != null) {
-			fOrderByOrderings.addAll(orderByOrdering);
-		}
-	}
-
-	public void clearOrderByOrderings() {
-		fOrderByOrderings.clear();
-	}
-
-	public void addJoinType(@NonNull SqlJoinType joinType) {
-		fJoinTypes.add(joinType);
-	}
-
-	public void setJoinTypes(List<SqlJoinType> joinTypes) {
-		clearJoinTypes();
-		if (joinTypes != null) {
-			fJoinTypes.addAll(joinTypes);
-		}
-	}
-
-	public void clearJoinTypes() {
-		fJoinTypes.clear();
 	}
 
 	/**
@@ -475,29 +427,18 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	/**
 	 * Validate SQL ORDER BY columns and orders settings.
 	 *
-	 * fOrderByColumns and fOrderByOrderings should not be
-	 * empty, and amount of these lists should be same. Meanwhile,
 	 * fOrderByOrderings can only be ASC or DESC.
 	 *
 	 * @return True if all lists are matching valid rules.
 	 */
 	private boolean validateOrderByColumnsAndOrderings() {
-		if (fOrderByColumns.isEmpty()) {
-			LOGGER.severe("Failed to select all fileds from table, Order by column names are missing.");
-			return false;
-		}
-		if (fOrderByOrderings.isEmpty()) {
-			LOGGER.severe("Failed to select all fileds from table, Order by orderings are missing.");
-			return false;
-		}
-		if (fOrderByOrderings.size() != fOrderByColumns.size()) {
-			LOGGER.severe("Failed to select all fileds from table, OrderBy columns and orders are missing.");
-			return false;
-		}
-		for (String order : fOrderByOrderings) {
-			if (!order.equalsIgnoreCase("ASC") && !order.equalsIgnoreCase("DESC")) {
-					LOGGER.severe("Failed to select all fileds from table, OrderBy orders must by ASC or DESC.");
-					return false;
+		for (QueryObjectTableOrderBy orderBy : fOrderByLists) {
+			if (orderBy == null) {
+				LOGGER.severe("Failed to select all fileds from table, Order by rule is null.");
+				return false;
+			}
+			if (!orderBy.validateOrderByOrderings()) {
+				return false;
 			}
 		}
 		return true;
@@ -512,8 +453,8 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 */
 	private String buildSqlOrderByClause() {
 		StringBuilder orderByClause = new StringBuilder();
-		for (int i = 0; i < fOrderByColumns.size(); i++) {
-			orderByClause.append(fOrderByColumns.get(i) + " " + fOrderByOrderings.get(i) + ",");
+		for (QueryObjectTableOrderBy orderBy : fOrderByLists) {
+			orderByClause.append(orderBy.getOrderByColumn() + " " + orderBy.getOrderByOrdering() + ",");
 		}
 		orderByClause.deleteCharAt(orderByClause.length() - 1);
 		return orderByClause.toString();
