@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import org.eclipse.jdt.annotation.NonNull;
 
 import QueryObjectFramework.CommonClasses.SqlCriteriaCondition;
-import QueryObjectFramework.CommonClasses.SqlJoinType;
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
 import QueryObjectFramework.CommonClasses.SqlStatementStrings;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
@@ -24,7 +23,7 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	/*
 	 * Select SQL statement specific operation settings
 	 */
-	private final @NonNull List<SqlJoinType> fJoinTypes = new ArrayList<>();
+	private final @NonNull List<QueryObjectTableJoinType> fJoinTypes = new ArrayList<>();
 	private final @NonNull List<QueryObjectTableOrderBy> fOrderByLists = new ArrayList<>();
 	/**
 	 * Create a SELECT query object with only JDBC connection.
@@ -169,7 +168,7 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 */
 	public QueryObjectSelect(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
 			List<String> columns, List<SqlCriteriaCondition> selectCriterias,
-			List<QueryObjectTableOrderBy> orderByLists, @NonNull List<SqlJoinType> joinTypes) {
+			List<QueryObjectTableOrderBy> orderByLists, @NonNull List<QueryObjectTableJoinType> joinTypes) {
 		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, selectCriterias);
 		if (orderByLists != null) {
 			fOrderByLists.addAll(orderByLists);
