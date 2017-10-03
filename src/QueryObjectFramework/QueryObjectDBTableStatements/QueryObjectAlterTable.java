@@ -53,7 +53,12 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  * NOTE: At the moment, MYSQL server is fully supported as altering
  * tables.
  *
- * NOTE: At the moment, DROP UNIQUE constraints is not supported.
+ * NOTE: At the moment, customized DROP UNIQUE constraints is not supported.
+ * DROP UNIQUE constraints will only drops UC_<table_name> UNIQUE ID.
+ * <pre>
+ *  ALTER TABLE Persons
+ *  DROP INDEX UC_Person;
+ * </pre>
  *
  * @author Bohui Axelsson
  */
@@ -178,6 +183,25 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 		}
 		alterTableDropColumnsClause.deleteCharAt(alterTableDropColumnsClause.length() - 1);
 		return alterTableDropColumnsClause.toString();
+	}
+
+	/**
+	 * ALTER TABLE - DROP UNIQUE constraints on existing table
+	 * To drop UNIQUE constraints on an existing table.
+	 *
+	 * Scenario:
+	 *
+	 * <pre>
+	 *  ALTER TABLE Person
+	 *  DROP INDEX UC_Person;
+	 * </pre>
+	 *
+	 * @return ResultSet SQL execution results
+	 */
+	public ResultSet alterTableDropUniqueConstraintsOnExistingTable() {
+		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + SqlStatementStrings.SQL_DATABASE_DROP_INDEX_UNIQUE
+				+ " " + SqlStatementStrings.SQL_DATABASE_MULTIPLE_UNIQUE_COLUMNS + fTableName + ";";
+		return fJdbcDbConn.executeQueryObject(sql);
 	}
 
 	/**

@@ -50,4 +50,5 @@ public final class SqlStatementStrings {
 	public static final String SQL_DATABASE_AUTO_INCREMENT = "AUTO_INCREMENT";
 	public static final String SQL_DATABASE_NOT_NULL = "NOT NULL";
 	public static final String SQL_DATABASE_MULTIPLE_UNIQUE_COLUMNS = "UC_";
+	public static final String SQL_DATABASE_DROP_INDEX_UNIQUE = "DROP INDEX";
 }
