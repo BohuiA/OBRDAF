@@ -310,7 +310,7 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	private String buildSqlWhereClause() {
 		StringBuilder whereClause = new StringBuilder();
 		for (QueryObjectTableCriteriaCondition sqlCriteria : fCriteriaConditions) {
-			if ((sqlCriteria.getValue() instanceof String)
+			if ((sqlCriteria.isStringCriteriaValue())
 					&& !sqlCriteria.getValue().equals("")) {
 				whereClause.append(sqlCriteria.getConditionOperator() + " " + sqlCriteria.getFiled()
 						+ sqlCriteria.getOperator() + "'" + sqlCriteria.getValue() + "' ");

@@ -44,11 +44,11 @@ public class QueryObjectTableOrderBy {
 		}
 	}
 
-	public String getOrderByColumn() {
+	protected String getOrderByColumn() {
 		return fOrderByColumn;
 	}
 
-	public String getOrderByOrdering() {
+	protected String getOrderByOrdering() {
 		return fOrderByOrdering;
 	}
 
@@ -59,7 +59,7 @@ public class QueryObjectTableOrderBy {
 	 *
 	 * @return True if orderings are valid.
 	 */
-	public boolean validateOrderByOrderings() {
+	protected boolean validateOrderByOrderings() {
 		if (!fOrderByOrdering.equalsIgnoreCase("ASC") && !fOrderByOrdering.equalsIgnoreCase("DESC")) {
 			LOGGER.severe("Failed to select all fileds from table, OrderBy orders must by ASC or DESC.");
 			return false;

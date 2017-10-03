@@ -201,7 +201,7 @@ public class QueryObjectDBTableColumnConstraints {
 	 *
 	 * @return True if UNIQUE constraint has been settled.
 	 */
-	public boolean getUniqueState() {
+	protected boolean getUniqueState() {
 		return fUniqueConstraint;
 	}
 
@@ -226,7 +226,7 @@ public class QueryObjectDBTableColumnConstraints {
 	 *
 	 * @return Full String of column constraints.
 	 */
-	public String getColumnConstraintsString() {
+	protected String getColumnConstraintsString() {
 		StringBuilder columnConstraintStr = new StringBuilder("");
 		if (fNotNullConstraint) {
 			columnConstraintStr.append(SqlStatementStrings.SQL_DATABASE_NOT_NULL + " ");

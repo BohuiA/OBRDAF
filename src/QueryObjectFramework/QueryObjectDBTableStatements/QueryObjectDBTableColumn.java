@@ -67,15 +67,15 @@ public class QueryObjectDBTableColumn {
 		fColumnConstraint = columnConstraint;
 	}
 
-	public String getColumnName() {
+	protected String getColumnName() {
 		return fColumnName;
 	}
 
-	public QueryObjectDBTableColumnDataType getColumnDataType() {
+	protected QueryObjectDBTableColumnDataType getColumnDataType() {
 		return fColumnDataType;
 	}
 
-	public QueryObjectDBTableColumnConstraints getColumnConstraint() {
+	protected QueryObjectDBTableColumnConstraints getColumnConstraint() {
 		return fColumnConstraint;
 	}
 }

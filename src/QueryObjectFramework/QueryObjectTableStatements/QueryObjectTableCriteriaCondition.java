@@ -98,35 +98,19 @@ public class QueryObjectTableCriteriaCondition {
 		fConditionOperator = conditionOperator;
 	}
 
-	public void setField(String field) {
-		fField = field;
-	}
-
-	public String getFiled() {
+	protected String getFiled() {
 		return fField;
 	}
 
-	public void setValue(String value) {
-		fValue = value;
-	}
-
-	public Object getValue() {
+	protected Object getValue() {
 		return fValue;
 	}
 
-	public void setOperator(String operator) {
-		fOperator = operator;
-	}
-
-	public String getOperator() {
+	protected String getOperator() {
 		return fOperator;
 	}
 
-	public void setConditionOperator(String conditionOperator) {
-		fConditionOperator = conditionOperator;
-	}
-
-	public String getConditionOperator() {
+	protected String getConditionOperator() {
 		return fConditionOperator;
 	}
 
@@ -141,7 +125,7 @@ public class QueryObjectTableCriteriaCondition {
 	 *
 	 * @return True if all lists are matching valid rules.
 	 */
-	public boolean validateCriteriaCondition() {
+	protected boolean validateCriteriaCondition() {
 		if (fField == null ) {
 			LOGGER.config("filed name is missing, changing filed name to empty string.");
 			fField = "";
@@ -159,5 +143,14 @@ public class QueryObjectTableCriteriaCondition {
 			fConditionOperator = "";
 		}
 		return true;
+	}
+
+	/**
+	 * Check criteria value is String type.
+	 *
+	 * @return True if criteria value is String type.
+	 */
+	protected boolean isStringCriteriaValue() {
+		return fValue instanceof String;
 	}
 }

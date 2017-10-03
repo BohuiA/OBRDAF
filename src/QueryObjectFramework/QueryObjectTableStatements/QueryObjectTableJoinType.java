@@ -20,7 +20,7 @@ public enum QueryObjectTableJoinType {
 		this.fSqlJoinType = sqlJoinType;
 	}
 
-	public String sqlJoinType() {
+	protected String sqlJoinType() {
 		return fSqlJoinType;
 	}
 }

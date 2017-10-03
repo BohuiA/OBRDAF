@@ -27,7 +27,7 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	/*
 	 * Update SQL statement specific operation settings
 	 */
-	private final @NonNull List<QueryObjectTableUpdateColumnAndValue> fUpdateItems = new ArrayList<>();
+	private final @NonNull List<QueryObjectTableColumnAndValue> fUpdateItems = new ArrayList<>();
 
 	/**
 	 * Create an UPDATE query object with update values.
@@ -47,7 +47,7 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	 * 			Updating column and value lists
 	 */
 	public QueryObjectUpdate(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
-			@NonNull List<QueryObjectTableUpdateColumnAndValue> updateItems) {
+			@NonNull List<QueryObjectTableColumnAndValue> updateItems) {
 		super(SqlQueryTypes.UPDATE, jdbcDbConn, tables, null, null);
 		fUpdateItems.addAll(updateItems);
 	}
@@ -74,7 +74,7 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	 */
 	public QueryObjectUpdate(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
 			@NonNull List<QueryObjectTableCriteriaCondition> selectCriterias,
-			@NonNull List<QueryObjectTableUpdateColumnAndValue> updateItems) {
+			@NonNull List<QueryObjectTableColumnAndValue> updateItems) {
 		super(SqlQueryTypes.UPDATE, jdbcDbConn, tables, null, selectCriterias);
 		fUpdateItems.addAll(updateItems);
 	}
@@ -133,8 +133,8 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	 */
 	private String buildSqlUpdateColumnsVaulesClause() {
 		StringBuilder updateColumsAndValues = new StringBuilder();
-		for (QueryObjectTableUpdateColumnAndValue updateItem : fUpdateItems) {
-			if (updateItem.getUpdateValue() instanceof String) {
+		for (QueryObjectTableColumnAndValue updateItem : fUpdateItems) {
+			if (updateItem.isStringUpdateValue()) {
 				updateColumsAndValues.append(updateItem.getUpdateColumnName() + " = " + "'" + updateItem.getUpdateValue() + "'" + ",");
 			} else {
 				updateColumsAndValues.append(updateItem.getUpdateColumnName() + " = " + updateItem.getUpdateValue() + ",");
@@ -206,7 +206,7 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	private String buildSqlWhereClause() {
 		StringBuilder whereClause = new StringBuilder("");
 		for (QueryObjectTableCriteriaCondition sqlCriteria : fCriteriaConditions) {
-			if (sqlCriteria.getValue() instanceof String) {
+			if (sqlCriteria.isStringCriteriaValue()) {
 				whereClause.append(sqlCriteria.getConditionOperator() + " " + sqlCriteria.getFiled()
 						+ sqlCriteria.getOperator() + "'" + sqlCriteria.getValue() + "' ");
 			} else {
