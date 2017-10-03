@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import QueryObjectFramework.CommonClasses.SqlCriteriaCondition;
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
 import QueryObjectFramework.CommonClasses.SqlStatementStrings;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
@@ -52,7 +51,7 @@ public class QueryObjectDelete extends QueryObjectTableAbstract {
 	 * 			List that contains filtering selection criteria
 	 */
 	public QueryObjectDelete(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
-			@NonNull List<SqlCriteriaCondition> selectCriterias) {
+			@NonNull List<QueryObjectTableCriteriaCondition> selectCriterias) {
 		super(SqlQueryTypes.DELETE, jdbcDbConn, tables, null, selectCriterias);
 	}
 
@@ -113,7 +112,7 @@ public class QueryObjectDelete extends QueryObjectTableAbstract {
 			LOGGER.severe("Failed to delete columns in table, more than one table are provided.");
 			return false;
 		}
-		for (SqlCriteriaCondition criteria : fCriteriaConditions) {
+		for (QueryObjectTableCriteriaCondition criteria : fCriteriaConditions) {
 			if (!criteria.validateCriteriaCondition()) {
 				return false;
 			}
@@ -128,7 +127,7 @@ public class QueryObjectDelete extends QueryObjectTableAbstract {
 	 */
 	private String buildSqlWhereClause() {
 		StringBuilder whereClause = new StringBuilder("");
-		for (SqlCriteriaCondition sqlCriteria : fCriteriaConditions) {
+		for (QueryObjectTableCriteriaCondition sqlCriteria : fCriteriaConditions) {
 			if (sqlCriteria.getValue() instanceof String) {
 				whereClause.append(sqlCriteria.getConditionOperator() + " " + sqlCriteria.getFiled()
 						+ sqlCriteria.getOperator() + "'" + sqlCriteria.getValue() + "' ");

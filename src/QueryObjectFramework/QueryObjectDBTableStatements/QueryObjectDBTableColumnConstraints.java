@@ -1,6 +1,8 @@
-package QueryObjectFramework.CommonClasses;
+package QueryObjectFramework.QueryObjectDBTableStatements;
 
 import java.util.logging.Logger;
+
+import QueryObjectFramework.CommonClasses.SqlStatementStrings;
 
 /**
  * Class contains all constraints for one particular
@@ -84,8 +86,8 @@ import java.util.logging.Logger;
  *
  * @author Bohui Axelsson
  */
-public class SqlDBTableConstraints {
-	private static final Logger LOGGER = Logger.getLogger(SqlDBTableConstraints.class.getName());
+public class QueryObjectDBTableColumnConstraints {
+	private static final Logger LOGGER = Logger.getLogger(QueryObjectDBTableColumnConstraints.class.getName());
 
 	/*
 	 * NOT NULL constraint
@@ -105,7 +107,7 @@ public class SqlDBTableConstraints {
 	 * Create a default SqlDBTableConstraints instance without any
 	 * constraint.
 	 */
-	public SqlDBTableConstraints() {}
+	public QueryObjectDBTableColumnConstraints() {}
 
 	/**
 	 * Create a SqlDBTableConstraints instance with NOT NULL and AUTO_INCREMENT
@@ -122,7 +124,7 @@ public class SqlDBTableConstraints {
 	 * @param autoIncrementConstraint
 	 *            True if creating AUTO_INCREMENT constraint
 	 */
-	public SqlDBTableConstraints(boolean notNullConstraint, boolean autoIncrementConstraint) {
+	public QueryObjectDBTableColumnConstraints(boolean notNullConstraint, boolean autoIncrementConstraint) {
 		fNotNullConstraint = notNullConstraint;
 		fAutoIncrementConstraint = autoIncrementConstraint;
 	}
@@ -144,7 +146,7 @@ public class SqlDBTableConstraints {
 	 * @param uniqueConstraint
 	 * 			  True if creating UNIQUE constraint
 	 */
-	public SqlDBTableConstraints(boolean notNullConstraint, boolean autoIncrementConstraint,
+	public QueryObjectDBTableColumnConstraints(boolean notNullConstraint, boolean autoIncrementConstraint,
 			boolean uniqueConstraint) {
 		fNotNullConstraint = notNullConstraint;
 		fAutoIncrementConstraint = autoIncrementConstraint;
@@ -166,7 +168,7 @@ public class SqlDBTableConstraints {
 	 * @param uniqueConstraint
 	 * 			  True if creating UNIQUE constraint
 	 */
-	public SqlDBTableConstraints(boolean notNullConstraint, boolean autoIncrementConstraint,
+	public QueryObjectDBTableColumnConstraints(boolean notNullConstraint, boolean autoIncrementConstraint,
 			int autoIncrementBeginningValue, boolean uniqueConstraint) {
 		fNotNullConstraint = notNullConstraint;
 		fAutoIncrementConstraint = autoIncrementConstraint;
@@ -187,7 +189,7 @@ public class SqlDBTableConstraints {
 	 * @param autoIncrementBeginningValue
 	 * 			  AUTO_INCREMENT beginning value
 	 */
-	public SqlDBTableConstraints(boolean notNullConstraint, boolean autoIncrementConstraint,
+	public QueryObjectDBTableColumnConstraints(boolean notNullConstraint, boolean autoIncrementConstraint,
 			int autoIncrementBeginningValue) {
 		fNotNullConstraint = notNullConstraint;
 		fAutoIncrementConstraint = autoIncrementConstraint;

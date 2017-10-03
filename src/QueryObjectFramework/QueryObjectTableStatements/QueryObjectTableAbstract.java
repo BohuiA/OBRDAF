@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import QueryObjectFramework.CommonClasses.SqlCriteriaCondition;
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
 
@@ -23,11 +22,11 @@ public class QueryObjectTableAbstract {
 	protected final @NonNull JdbcDatabaseConnection fJdbcDbConn;
 	protected final @NonNull List<String> fTables = new ArrayList<>();
 	protected final @NonNull List<String> fColumns = new ArrayList<>();
-	protected final List<SqlCriteriaCondition> fCriteriaConditions = new ArrayList<>();
+	protected final List<QueryObjectTableCriteriaCondition> fCriteriaConditions = new ArrayList<>();
 
 	public QueryObjectTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn,
 			@NonNull List<String> tables, List<String> columns,
-			List<SqlCriteriaCondition> selectCriterias) {
+			List<QueryObjectTableCriteriaCondition> selectCriterias) {
 		fQueryObjectType = queryObjectType;
 		fJdbcDbConn = jdbcDbConn;
 		fTables.addAll(tables);

@@ -2,9 +2,6 @@ package QueryObjectFramework.QueryObjectDBTableStatements;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import QueryObjectFramework.CommonClasses.SqlColumnDataType;
-import QueryObjectFramework.CommonClasses.SqlDBTableConstraints;
-
 /**
  * Table column class contains column relative data for
  * database table operations.
@@ -18,8 +15,8 @@ import QueryObjectFramework.CommonClasses.SqlDBTableConstraints;
  */
 public class QueryObjectDBTableColumn {
 	private @NonNull String fColumnName = "";
-	private @NonNull SqlColumnDataType fColumnDataType = new SqlColumnDataType();
-	private @NonNull SqlDBTableConstraints fColumnConstraint = new SqlDBTableConstraints();
+	private @NonNull QueryObjectDBTableColumnDataType fColumnDataType = new QueryObjectDBTableColumnDataType();
+	private @NonNull QueryObjectDBTableColumnConstraints fColumnConstraint = new QueryObjectDBTableColumnConstraints();
 
 	/**
 	 * Create a default table column instance.
@@ -37,8 +34,8 @@ public class QueryObjectDBTableColumn {
 	 * @param columnConstraint
 	 *            Column constraints
 	 */
-	public QueryObjectDBTableColumn(@NonNull String columnName, @NonNull SqlColumnDataType columnDataType,
-			@NonNull SqlDBTableConstraints columnConstraint) {
+	public QueryObjectDBTableColumn(@NonNull String columnName, @NonNull QueryObjectDBTableColumnDataType columnDataType,
+			@NonNull QueryObjectDBTableColumnConstraints columnConstraint) {
 		fColumnName = columnName;
 		fColumnDataType = columnDataType;
 		fColumnConstraint = columnConstraint;
@@ -52,7 +49,7 @@ public class QueryObjectDBTableColumn {
 	 * @param columnDataType
 	 *            Column data type
 	 */
-	public QueryObjectDBTableColumn(@NonNull String columnName, @NonNull SqlColumnDataType columnDataType) {
+	public QueryObjectDBTableColumn(@NonNull String columnName, @NonNull QueryObjectDBTableColumnDataType columnDataType) {
 		fColumnName = columnName;
 		fColumnDataType = columnDataType;
 	}
@@ -65,7 +62,7 @@ public class QueryObjectDBTableColumn {
 	 * @param columnConstraint
 	 *            Column constraints
 	 */
-	public QueryObjectDBTableColumn(@NonNull String columnName, @NonNull SqlDBTableConstraints columnConstraint) {
+	public QueryObjectDBTableColumn(@NonNull String columnName, @NonNull QueryObjectDBTableColumnConstraints columnConstraint) {
 		fColumnName = columnName;
 		fColumnConstraint = columnConstraint;
 	}
@@ -74,11 +71,11 @@ public class QueryObjectDBTableColumn {
 		return fColumnName;
 	}
 
-	public SqlColumnDataType getColumnDataType() {
+	public QueryObjectDBTableColumnDataType getColumnDataType() {
 		return fColumnDataType;
 	}
 
-	public SqlDBTableConstraints getColumnConstraint() {
+	public QueryObjectDBTableColumnConstraints getColumnConstraint() {
 		return fColumnConstraint;
 	}
 }

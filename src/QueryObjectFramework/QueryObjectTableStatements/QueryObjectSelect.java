@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import QueryObjectFramework.CommonClasses.SqlCriteriaCondition;
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
 import QueryObjectFramework.CommonClasses.SqlStatementStrings;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
@@ -82,7 +81,7 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 * 			List that contains filtering selection criteria.
 	 */
 	public QueryObjectSelect(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
-			List<String> columns, @NonNull List<SqlCriteriaCondition> selectCriterias) {
+			List<String> columns, @NonNull List<QueryObjectTableCriteriaCondition> selectCriterias) {
 		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, selectCriterias);
 	}
 
@@ -121,7 +120,7 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 * 			List that contains order by parameters
 	 */
 	public QueryObjectSelect(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
-			List<String> columns, List<SqlCriteriaCondition> selectCriterias,
+			List<String> columns, List<QueryObjectTableCriteriaCondition> selectCriterias,
 			@NonNull List<QueryObjectTableOrderBy> orderByLists) {
 		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, selectCriterias);
 		fOrderByLists.addAll(orderByLists);
@@ -167,7 +166,7 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 * 			List that contains Join types defining in SqlJoinType class.
 	 */
 	public QueryObjectSelect(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
-			List<String> columns, List<SqlCriteriaCondition> selectCriterias,
+			List<String> columns, List<QueryObjectTableCriteriaCondition> selectCriterias,
 			List<QueryObjectTableOrderBy> orderByLists, @NonNull List<QueryObjectTableJoinType> joinTypes) {
 		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, selectCriterias);
 		if (orderByLists != null) {
@@ -295,7 +294,7 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 * @return True if all lists are matching valid rules.
 	 */
 	private boolean validateWhereConditions() {
-		for (SqlCriteriaCondition criteria : fCriteriaConditions) {
+		for (QueryObjectTableCriteriaCondition criteria : fCriteriaConditions) {
 			if (!criteria.validateCriteriaCondition()) {
 				return false;
 			}
@@ -310,7 +309,7 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 */
 	private String buildSqlWhereClause() {
 		StringBuilder whereClause = new StringBuilder();
-		for (SqlCriteriaCondition sqlCriteria : fCriteriaConditions) {
+		for (QueryObjectTableCriteriaCondition sqlCriteria : fCriteriaConditions) {
 			if ((sqlCriteria.getValue() instanceof String)
 					&& !sqlCriteria.getValue().equals("")) {
 				whereClause.append(sqlCriteria.getConditionOperator() + " " + sqlCriteria.getFiled()
@@ -797,7 +796,7 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 * @return True if all lists are matching valid rules.
 	 */
 	private boolean validateJoinConditions() {
-		for (SqlCriteriaCondition criteria : fCriteriaConditions) {
+		for (QueryObjectTableCriteriaCondition criteria : fCriteriaConditions) {
 			if (!criteria.validateCriteriaCondition()) {
 				return false;
 			}

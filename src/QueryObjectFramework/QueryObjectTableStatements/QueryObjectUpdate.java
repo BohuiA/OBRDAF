@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import QueryObjectFramework.CommonClasses.SqlCriteriaCondition;
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
 import QueryObjectFramework.CommonClasses.SqlStatementStrings;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
@@ -92,7 +91,7 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	 * 			should be the same as the amount of columns.
 	 */
 	public QueryObjectUpdate(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
-			@NonNull List<String> columns, @NonNull List<SqlCriteriaCondition> selectCriterias, @NonNull List<Object> updateValues) {
+			@NonNull List<String> columns, @NonNull List<QueryObjectTableCriteriaCondition> selectCriterias, @NonNull List<Object> updateValues) {
 		super(SqlQueryTypes.UPDATE, jdbcDbConn, tables, columns, selectCriterias);
 		if (updateValues != null) {
 			fUpdateValues.addAll(updateValues);
@@ -235,7 +234,7 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 		if (!validatUpdateAllColumnsWithValues()) {
 			return false;
 		}
-		for (SqlCriteriaCondition criteria : fCriteriaConditions) {
+		for (QueryObjectTableCriteriaCondition criteria : fCriteriaConditions) {
 			if (!criteria.validateCriteriaCondition()) {
 				return false;
 			}
@@ -250,7 +249,7 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	 */
 	private String buildSqlWhereClause() {
 		StringBuilder whereClause = new StringBuilder("");
-		for (SqlCriteriaCondition sqlCriteria : fCriteriaConditions) {
+		for (QueryObjectTableCriteriaCondition sqlCriteria : fCriteriaConditions) {
 			if (sqlCriteria.getValue() instanceof String) {
 				whereClause.append(sqlCriteria.getConditionOperator() + " " + sqlCriteria.getFiled()
 						+ sqlCriteria.getOperator() + "'" + sqlCriteria.getValue() + "' ");

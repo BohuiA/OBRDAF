@@ -1,4 +1,4 @@
-package QueryObjectFramework.CommonClasses;
+package QueryObjectFramework.QueryObjectTableStatements;
 
 import java.util.logging.Logger;
 
@@ -15,8 +15,8 @@ import java.util.logging.Logger;
  *
  * @author Bohui Axelsson
  */
-public class SqlCriteriaCondition {
-	private static final Logger LOGGER = Logger.getLogger(SqlCriteriaCondition.class.getName());
+public class QueryObjectTableCriteriaCondition {
+	private static final Logger LOGGER = Logger.getLogger(QueryObjectTableCriteriaCondition.class.getName());
 
 	/*
 	 * Scenario:
@@ -91,7 +91,7 @@ public class SqlCriteriaCondition {
 	 *            Criteria condition conditionOperator name, empty string is no
 	 *            conditionOperator name needed.
 	 */
-	public SqlCriteriaCondition(String field, Object value, String operator, String conditionOperator) {
+	public QueryObjectTableCriteriaCondition(String field, Object value, String operator, String conditionOperator) {
 		fField = field;
 		fValue = value;
 		fOperator = operator;

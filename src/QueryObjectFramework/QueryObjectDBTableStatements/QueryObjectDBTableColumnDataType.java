@@ -1,4 +1,6 @@
-package QueryObjectFramework.CommonClasses;
+package QueryObjectFramework.QueryObjectDBTableStatements;
+
+import QueryObjectFramework.CommonClasses.SqlDataTypes;
 
 /**
  * class for creating a SQL column table data type.
@@ -8,7 +10,7 @@ package QueryObjectFramework.CommonClasses;
  *
  * @author Bohui Axelsson
  */
-public class SqlColumnDataType {
+public class QueryObjectDBTableColumnDataType {
 	private SqlDataTypes fDataType = SqlDataTypes.EMPTYDATATYPE;
 	private int fDataTypeRange = -1;
 	private int fDataTypeDecimal = -1;
@@ -16,7 +18,7 @@ public class SqlColumnDataType {
 	/**
 	 * Create a default SQL data type instance.
 	 */
-	public SqlColumnDataType() {}
+	public QueryObjectDBTableColumnDataType() {}
 
 	/**
 	 * Create a SQL data type without data range and data decimal.
@@ -24,7 +26,7 @@ public class SqlColumnDataType {
 	 * @param dataType
 	 *            Data type that need to be created for the column.
 	 */
-	public SqlColumnDataType(SqlDataTypes dataType) {
+	public QueryObjectDBTableColumnDataType(SqlDataTypes dataType) {
 		fDataType = dataType;
 		fDataTypeRange = Integer.MIN_VALUE;
 		fDataTypeDecimal = Integer.MIN_VALUE;
@@ -38,7 +40,7 @@ public class SqlColumnDataType {
 	 * @param dataRange
 	 *            Data type range that this data type needs.
 	 */
-	public SqlColumnDataType(SqlDataTypes dataType, int dataRange) {
+	public QueryObjectDBTableColumnDataType(SqlDataTypes dataType, int dataRange) {
 		fDataType = dataType;
 		fDataTypeRange = dataRange;
 		fDataTypeDecimal = Integer.MIN_VALUE;
@@ -54,7 +56,7 @@ public class SqlColumnDataType {
 	 * @param dataDecimal
 	 *            Data type decimal that this data type needs.
 	 */
-	public SqlColumnDataType(SqlDataTypes dataType, int dataRange, int dataDecimal) {
+	public QueryObjectDBTableColumnDataType(SqlDataTypes dataType, int dataRange, int dataDecimal) {
 		fDataType = dataType;
 		fDataTypeRange = dataRange;
 		fDataTypeDecimal = dataDecimal;
