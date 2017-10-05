@@ -11,9 +11,9 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  * Query object class for TRUNCATE TABLE statement. The TRUNCATE TABLE statement
  * is used to delete the data inside a table, but not the table itself.
  *
- * <pre>
+ * <example>
  *  TRUNCATE TABLE table_name;
- * </pre>
+ * </example>
  *
  * @author Bohui Axelsson
  */
@@ -37,9 +37,9 @@ public class QueryObjectTruncateTable extends QueryObjectDBTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  TRUNCATE TABLE table_name;
-	 * </pre>
+	 * </example>
 	 *
 	 * NOTE: Only one table name can be associated to one
 	 * Query Object.

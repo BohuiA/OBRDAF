@@ -11,9 +11,9 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  * Query object class for DROP DATABASE statement.
  * The DROP DATABASE statement is used to delete a existing SQL database.
  *
- * <pre>
+ * <example>
  * DROP DATABASE testDB;
- * </pre>
+ * </example>
  *
  * TIPS: Make sure you have admin privilege before dropping any database.
  * Once a database is created, you can check it in the list of databases
@@ -41,9 +41,9 @@ public class QueryObjectDropDB extends QueryObjectDBAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  DROP DATABASE databasename;
-	 * </pre>
+	 * </example>
 	 *
 	 * NOTE: Only one database can be associated to one
 	 * Query Object.

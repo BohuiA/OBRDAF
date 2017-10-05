@@ -59,7 +59,7 @@ public class QueryObjectTableCriteriaCondition {
 	/**
 	 * Create SQL WHERE criteria condition class.
 	 *
-	 * <pre>
+	 * <example>
 	 * Example:
 	 * "" SalesDate BETWEEN '11/11/2010' AND '12/11/2010'
 	 *
@@ -77,7 +77,7 @@ public class QueryObjectTableCriteriaCondition {
 	 * filed2 -> "" or null
 	 * operator2 -> "" or null
 	 * value2 -> '12/11/2010'
-	 * </pre>
+	 * </example>
 	 *
 	 * @param field
 	 *            Criteria condition field name, empty string is no field name

@@ -20,45 +20,45 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  *
  * Example:
  * - Add column:
- * <pre>
+ * <example>
  *  ALTER TABLE table_name
  *  ADD column_name datatype;
- * </pre>
+ * </example>
  *
  * - Drop column:
- * <pre>
+ * <example>
  *  ALTER TABLE table_name
  *  DROP COLUMN column_name;
- * </pre>
+ * </example>
  *
  * - Modify column:
- * <pre>
+ * <example>
  *  ALTER TABLE table_name
  *  MODIFY COLUMN column_name datatype;
- * </pre>
+ * </example>
  *
  * - Add UNIQUE to existing columns
- * <pre>
+ * <example>
  *  ALTER TABLE table_name
  *  ADD UNIQUE(column_name);
- * </pre>
- * <pre>
+ * </example>
+ * <example>
  *  ALTER TABLE table_name
  *  ADD CONSTRAINT UC_<table_name> UNIQUE(column_name1, column_name2, ..);
  *
  *  NOTE: Currently, the UNIQUE name of multiple columns is hard coupled to table
  *  name, as format "UC_<table_name>".
- * </pre>
+ * </example>
  *
  * NOTE: At the moment, MYSQL server is fully supported as altering
  * tables.
  *
  * NOTE: At the moment, customized DROP UNIQUE constraints is not supported.
  * DROP UNIQUE constraints will only drops UC_<table_name> UNIQUE ID.
- * <pre>
+ * <example>
  *  ALTER TABLE Persons
  *  DROP INDEX UC_Person;
- * </pre>
+ * </example>
  *
  * @author Bohui Axelsson
  */
@@ -71,10 +71,10 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 * value is false for not creating UNIQUE constraint.
 	 *
 	 * Example:
-	 * <pre>
+	 * <example>
 	 *  ALTER TABLE table_name
 	 *  ADD UNIQUE (column_name);
-	 * </pre>
+	 * </example>
 	 *
 	 * For setting multiple columns as UNIQUE, just set the fUniqueConstraints of target columns to TRUE,
 	 * Query Object Pattern will take care of rest work.
@@ -97,16 +97,16 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  ALTER TABLE table_name
 	 *  ADD column_name datatype constraint;
-	 * </pre>
+	 * </example>
 	 *
-	 * <pre>
+	 * <example>
 	 *  ALTER TABLE table_name
 	 *  ADD column_name datatype constraint,
 	 *  UNIQUE(column_name);
-	 * </pre>
+	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
@@ -115,8 +115,8 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 			return null;
 		}
 
-		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + SqlStatementStrings.SQL_DATABASE_ADD + " "
-				+ buildColumnsAndColumnDataTypes() + createAppendConstraintForColumns() + ";";
+		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " " + SqlStatementStrings.SQL_DATABASE_ADD + " "
+				+ buildColumnSettingString() + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
 
@@ -126,15 +126,15 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  ALTER TABLE table_name
 	 *  ADD UNIQUE (column_name);
-	 * </pre>
+	 * </example>
 	 *
-	 * <pre>
+	 * <example>
 	 *  ALTER TABLE table_name
 	 *  ADD CONSTRAINT UC_<table_name> UNIQUE (column_name1, column_name2, ..);
-	 * </pre>
+	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
@@ -143,9 +143,44 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 			return null;
 		}
 
-		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + SqlStatementStrings.SQL_DATABASE_ADD + " "
-				+ createAppendConstraintForColumns() + ";";
+		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " " + SqlStatementStrings.SQL_DATABASE_ADD + " "
+				+ createUniqueConstraintsForColumns() + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
+	}
+
+	/**
+	 * Create a UNIQUE constraint string.
+	 *
+	 * @return UNIQUE constraint string.
+	 */
+	private String createUniqueConstraintsForColumns() {
+		StringBuilder uniqueCoulmnClause = new StringBuilder("");
+		int uniqueColumnsAmount = 0;
+		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
+			String columnConstraints = tableColumn.getColumnConstraint().getColumnConstraintsString();
+			if (columnConstraints.contains(SqlStatementStrings.SQL_DATABASE_UNIQUE)) {
+				uniqueColumnsAmount ++;
+				uniqueCoulmnClause.append(tableColumn.getColumnName() + ",");
+			}
+		}
+
+		/*
+		 * To create UNQIUE clause regarding to the amount of UNIQUE
+		 * columns.
+		 */
+		if (uniqueColumnsAmount == 1) {
+			uniqueCoulmnClause.deleteCharAt(uniqueCoulmnClause.length() - 1);
+			uniqueCoulmnClause.insert(0, SqlStatementStrings.SQL_DATABASE_UNIQUE + "(");
+			uniqueCoulmnClause.append(")");
+		} else if (uniqueColumnsAmount > 1) {
+			uniqueCoulmnClause.deleteCharAt(uniqueCoulmnClause.length() - 1);
+			uniqueCoulmnClause.insert(0, SqlStatementStrings.SQL_DATABASE_CONSTRAINT
+					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_UNIQUE_COLUMNS + this.fTableName + " "
+					+ SqlStatementStrings.SQL_DATABASE_UNIQUE + "(");
+			uniqueCoulmnClause.append(")");
+		}
+
+		return uniqueCoulmnClause.toString();
 	}
 
 	/**
@@ -154,10 +189,10 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  ALTER TABLE table_name
 	 *  DROP COLUMN column_name;
-	 * </pre>
+	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
@@ -166,7 +201,7 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 			return null;
 		}
 
-		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + SqlStatementStrings.SQL_DATABASE_DROP_COLUMN + " "
+		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " " + SqlStatementStrings.SQL_DATABASE_DROP_COLUMN + " "
 				+ buildDropColumnsFromTableClaues() + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
@@ -191,15 +226,15 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  ALTER TABLE Person
 	 *  DROP INDEX UC_Person;
-	 * </pre>
+	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet alterTableDropUniqueConstraintsOnExistingTable() {
-		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + SqlStatementStrings.SQL_DATABASE_DROP_INDEX_UNIQUE
+		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " " + SqlStatementStrings.SQL_DATABASE_DROP_INDEX_UNIQUE
 				+ " " + SqlStatementStrings.SQL_DATABASE_MULTIPLE_UNIQUE_COLUMNS + fTableName + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
@@ -210,10 +245,10 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  ALTER TABLE table_name
 	 *  MODIFY COLUMN column_name datatype;
-	 * </pre>
+	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
@@ -225,5 +260,25 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + SqlStatementStrings.SQL_DATABASE_MODIFY_COLUMN + " "
 				+ buildColumnsAndColumnDataTypes() + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
+	}
+
+	/**
+	 * Build SQL TABLE columns and data types string.
+	 *
+	 * <example>
+	 * 	column_name1 datatype1, column_name2 datatype2, ...
+	 * </example>
+	 *
+	 * @return SQL columns and data types string
+	 */
+	private String buildColumnsAndColumnDataTypes() {
+		StringBuilder columnAndDatatypeClause = new StringBuilder();
+		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
+			columnAndDatatypeClause.append(
+					tableColumn.getColumnName() + " " + tableColumn.getColumnDataType().getSqlColumnDataType() + ",");
+		}
+		columnAndDatatypeClause.deleteCharAt(columnAndDatatypeClause.length() - 1);
+		return columnAndDatatypeClause.toString();
+
 	}
 }

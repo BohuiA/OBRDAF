@@ -11,9 +11,9 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  * Query object class for CREATE DATABASE statement.
  * The CREATE DATABASE statement is used to create a new SQL database.
  *
- * <pre>
+ * <example>
  * CREATE DATABASE databasename;
- * </pre>
+ * </example>
  *
  * TIPS: Make sure you have admin privilege before creating any database.
  * Once a database is created, you can check it in the list of databases
@@ -51,9 +51,9 @@ public class QueryObjectCreateDB extends QueryObjectDBAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  CREATE DATABASE databasename;
-	 * </pre>
+	 * </example>
 	 *
 	 * NOTE: Only one database can be associated to one
 	 * Query Object.

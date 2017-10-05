@@ -34,10 +34,10 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	 *
 	 * Example:
 	 *
-	 * <pre>
+	 * <example>
 	 *  UPDATE table_name
 	 *  SET column1 = value1, column2 = value2, ...;
-	 * </pre>
+	 * </example>
 	 *
 	 * @param jdbcDbConn
 	 * 			JDBC database connection
@@ -57,11 +57,11 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	 *
 	 * Example:
 	 *
-	 * <pre>
+	 * <example>
 	 *  UPDATE table_name
 	 *  SET column1 = value1, column2 = value2, ...
 	 *  WHERE condition;
-	 * </pre>
+	 * </example>
 	 *
 	 * @param jdbcDbConn
 	 * 			JDBC database connection
@@ -86,10 +86,10 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  UPDATE table_name
 	 *  SET column1 = value1, column2 = value2, ...;
-	 * </pre>
+	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
@@ -125,9 +125,9 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	 *
 	 * Example:
 	 *
-	 * <pre>
+	 * <example>
 	 * column1 = value1, column2 = value2, ...
-	 * </pre>
+	 * </example>
 	 *
 	 * @return SQL columns string
 	 */
@@ -151,11 +151,11 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  UPDATE table_name
 	 *  SET column1 = value1, column2 = value2, ...
 	 *  WHERE condition;
-	 * </pre>
+	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
 	 */

@@ -11,9 +11,9 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  * Query object class for DROP TABLE statement. The DROP TABLE statement is used
  * to delete a existing SQL table.
  *
- * <pre>
+ * <example>
  * DROP TABLE table_name;
- * </pre>
+ * </example>
  *
  * TIPS: Be careful before dropping a table. Deleting a table will result in
  * loss of complete information stored in the table!
@@ -40,9 +40,9 @@ public class QueryObjectDropTable extends QueryObjectDBTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  DROP TABLE table_name;
-	 * </pre>
+	 * </example>
 	 *
 	 * NOTE: Only one table name can be associated to one
 	 * Query Object.

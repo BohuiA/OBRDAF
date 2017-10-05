@@ -22,10 +22,10 @@ public class QueryObjectTableColumnAndValue {
 	 *
 	 * Example:
 	 *
-	 * <pre>
+	 * <example>
 	 * 	INSERT INTO table_name
 	 *  VALUES (value1, value2, value3, ...);
-	 * </pre>
+	 * </example>
 	 *
 	 * @param updateValue
 	 *            Updating column value

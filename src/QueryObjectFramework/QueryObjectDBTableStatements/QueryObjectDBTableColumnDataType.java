@@ -122,6 +122,8 @@ public class QueryObjectDBTableColumnDataType {
 		case DOUBLE:
 		case DECIMAL:
 			return fDataType.dataTypeString() + "(" + fDataTypeRange + ", " + fDataTypeDecimal + ")";
+		case EMPTYDATATYPE:
+			return "";
 		default:
 			return fDataType.dataTypeString();
 		}

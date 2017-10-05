@@ -12,16 +12,16 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  * Query object class for CREATE TABLE statement. The CREATE TABLE statement is
  * used to create a new SQL table.
  *
- * <pre>
+ * <example>
  * 	CREATE TABLE table_name (
  *   	column1 datatype constraint,
  *   	column2 datatype constraint,
  *   	column3 datatype constraint,
  *  		....
  *	);
- * </pre>
+ * </example>
  *
- * <pre>
+ * <example>
  * 	CREATE TABLE table_name (
  *   	column1 datatype constraint,
  *   	column2 datatype constraint,
@@ -29,7 +29,7 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  *  		....
  *      UNIQUE(column2)
  *	);
- * </pre>
+ * </example>
  *
  * The column parameters specify the names of the columns of the table.
  *
@@ -77,7 +77,7 @@ public class QueryObjectCreateTable extends QueryObjectDBTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  CREATE TABLE Persons (
 	 *    	PersonID INT(2147),
 	 *  	LastName VARCHAR(255),
@@ -85,9 +85,9 @@ public class QueryObjectCreateTable extends QueryObjectDBTableAbstract {
 	 *    	Address VARCHAR(255),
 	 *   	City VARCHAR(255)
 	 *	);
-	 * </pre>
+	 * </example>
 	 *
-	 * <pre>
+	 * <example>
 	 *  CREATE TABLE Persons (
 	 *    	PersonID INT(2147) NOT NULL AUTO_INCREMENT,
 	 *  	LastName VARCHAR(255),
@@ -96,9 +96,9 @@ public class QueryObjectCreateTable extends QueryObjectDBTableAbstract {
 	 *   	City VARCHAR(255) NOT NULL,
 	 *      UNIQUE(PersonID)
 	 *	);
-	 * </pre>
+	 * </example>
 	 *
-	 * <pre>
+	 * <example>
 	 *  CREATE TABLE Persons (
 	 *    	PersonID INT(2147) NOT NULL AUTO_INCREMENT,
 	 *  	LastName VARCHAR(255),
@@ -110,7 +110,7 @@ public class QueryObjectCreateTable extends QueryObjectDBTableAbstract {
 	 *
 	 * NOTE: Currently, the UNIQUE name of multiple columns is hard coupled to table
 	 * name, as format "UC_<table_name>".
-	 * </pre>
+	 * </example>
 	 *
 	 * NOTE: Only one table can be associated to one Query Object.
 	 *
@@ -124,8 +124,7 @@ public class QueryObjectCreateTable extends QueryObjectDBTableAbstract {
 			return null;
 		}
 
-		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " (" + buildColumnsAndColumnDataTypes()
-				+ createAppendConstraintForColumns() + ")" + ";";
+		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " (" + buildColumnSettingString() + ")" + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
 }

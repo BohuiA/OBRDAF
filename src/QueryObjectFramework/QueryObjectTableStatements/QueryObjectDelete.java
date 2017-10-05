@@ -38,10 +38,10 @@ public class QueryObjectDelete extends QueryObjectTableAbstract {
 	 *
 	 * Example:
 	 *
-	 * <pre>
+	 * <example>
 	 *  UDELETE FROM table_name
 	 *  WHERE condition;
-	 * </pre>
+	 * </example>
 	 *
 	 * @param jdbcDbConn
 	 * 			JDBC database connection
@@ -62,14 +62,14 @@ public class QueryObjectDelete extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  DELETE FROM Customers
 	 *  WHERE CustomerName='Alfreds Futterkiste';
-	 * </pre>
+	 * </example>
 	 *
-	 * <pre>
+	 * <example>
 	 * DELETE * FROM table_name;
-	 * </pre>
+	 * </example>
 	 *
 	 * NOTE: To delete all columns, just set deleteAll parameter to
 	 * true, do not need to add/update columns list.

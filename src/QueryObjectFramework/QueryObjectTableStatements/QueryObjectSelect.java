@@ -39,9 +39,9 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Example:
 	 *
-	 * <pre>
+	 * <example>
 	 * 	SELECT column1, column2, ... FROM table_name;
-	 * </pre>
+	 * </example>
 	 *
 	 * @param jdbcDbConn
 	 * 			JDBC database connection
@@ -61,11 +61,11 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Example:
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT column1, column2, ...
 	 *  FROM table_name
 	 *  WHERE NOT condition1 AND condition2 AND NOT condition3 ...;
-	 * </pre>
+	 * </example>
 	 *
 	 * Note: conditionOperator is set as "" or NULL means there is no condition operator,
 	 * Available condition operators are NOT, OR, AND.
@@ -90,20 +90,20 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Example:
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT column1, column2, ...
 	 *  FROM table_name
 	 *  WHERE NOT condition1 AND condition2 AND NOT condition3 ...
 	 *  ORDER BY column1, column2, ... ASC|DESC;
-	 * </pre>
+	 * </example>
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT column1, column2, ...
 	 *  FROM table_name
 	 *  ORDER BY column1, column2, ... ASC|DESC;
 	 *
 	 *  NOTE: Pass NULL to selectCriterias parameter to ignore WHERE clause.
-	 * </pre>
+	 * </example>
 	 *
 	 * Note: Setting selectCriterias to NULL to ignore WHERE clause.
 	 *
@@ -130,21 +130,21 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 * Create a SELECT query object with WHERE, ODERBY and JOIN grammars.
 	 *
 	 * Example:
-	 *  <pre>
+	 *  <example>
 	 *  SELECT Customers.CustomerName, Orders.OrderID
 	 *  FROM Customers
 	 *  LEFT JOIN Orders ON Customers.CustomerID = Orders.CustomerID;
 	 *
 	 *  NOTE: Setting selectCriterias and orderByLists to NULL to ignore
 	 *  WHRER and ORDER BY clauses.
-	 * </pre>
+	 * </example>
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT Customers.CustomerName, Orders.OrderID
 	 *  FROM Customers
 	 *  LEFT JOIN Orders ON Customers.CustomerID = Orders.CustomerID
 	 *  ORDER BY Customers.CustomerName ASC;
-	 * </pre>
+	 * </example>
 	 *
 	 * Note: conditionOperator is set as "" or NULL means there is no condition operator,
 	 * Available condition operators are NOT, OR, AND.
@@ -185,9 +185,9 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT <DISTINCT> column1, column2, .. FROM table_name;
-	 * </pre>
+	 * </example>
 	 *
 	 * @param distinctSelection
 	 * 			True if only select distinct lines
@@ -254,14 +254,14 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT <DISTINCT> column1, column2, .. FROM table_name WHERE conditionOperator1
 	 *  field1 operator1 value1 ...;
-	 * </pre>
+	 * </example>
 	 *
-	 * <pre>
+	 * <example>
 	 * 	SELECT <DISTINCT> column1, column2, .. FROM Customers WHERE CustomerName LIKE '%or%';
-	 * </pre>
+	 * </example>
 	 *
 	 * @param distinctSelection
 	 *            True if only select distinct lines
@@ -329,9 +329,9 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT COUNT(<DISTINCT> column) FROM table_name;
-	 * </pre>
+	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
@@ -356,14 +356,14 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT COUNT(<DISTINCT> column) FROM table_name WHERE conditionOperator1
 	 *  field1 operator1 value1 ...;
-	 * </pre>
+	 * </example>
 	 *
-	 * <pre>
+	 * <example>
 	 * 	SELECT COUNT(<DISTINCT> *) FROM Customers WHERE CustomerName LIKE '%or%';
-	 * </pre>
+	 * </example>
 	 *
 	 * @param distinctSelection
 	 *			True if only select distinct lines
@@ -395,10 +395,10 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT <DISTINCT> column1, column2, .. FROM table_name ORDER BY column1,
 	 *  column2, ... ASC|DESC;
-	 * </pre>
+	 * </example>
 	 *
 	 * @param distinctSelection
 	 *			True if only select distinct lines
@@ -469,16 +469,16 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT <DISTINCT> column1, column2, .. FROM table_name WHERE conditionOperator1
 	 *  field1 operator1 value1 ...
 	 *  ORDER BY column1, column2, ... ASC|DESC;
-	 * </pre>
+	 * </example>
 	 *
-	 * <pre>
+	 * <example>
 	 * 	SELECT <DISTINCT> * FROM Customers WHERE CustomerName LIKE '%or%' ORDER BY column1,
 	 * column2, ... ASC|DESC;
-	 * </pre>
+	 * </example>
 	 *
 	 * @param distinctSelection
 	 *            True if only select distinct lines
@@ -510,9 +510,9 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT MIN(column) FROM table_name;
-	 * </pre>
+	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
@@ -531,9 +531,9 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT MAX(column) FROM table_name;
-	 * </pre>
+	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
@@ -558,13 +558,13 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT MIN(column) FROM table_name WHERE conditionOperator1 field1 operator1 value1 ...;
-	 * </pre>
+	 * </example>
 	 *
-	 * <pre>
+	 * <example>
 	 * 	SELECT MIN(<DISTINCT> *) FROM Customers WHERE CustomerName LIKE '%or%';
-	 * </pre>
+	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
@@ -590,13 +590,13 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT MAX(column) FROM table_name WHERE conditionOperator1 field1 operator1 value1 ...;
-	 * </pre>
+	 * </example>
 	 *
-	 * <pre>
+	 * <example>
 	 * 	SELECT MAX(<DISTINCT> *) FROM Customers WHERE CustomerName LIKE '%or%';
-	 * </pre>
+	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
@@ -618,9 +618,9 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT AVG(<DISTINCT> column) FROM table_name;
-	 * </pre>
+	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
@@ -645,14 +645,14 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT AVG(<DISTINCT> column) FROM table_name WHERE conditionOperator1
 	 *  field1 operator1 value1 ...;
-	 * </pre>
+	 * </example>
 	 *
-	 * <pre>
+	 * <example>
 	 * 	SELECT AVG(<DISTINCT> *) FROM Customers WHERE CustomerName LIKE '%or%';
-	 * </pre>
+	 * </example>
 	 *
 	 * @param distinctSelection
 	 *			True if only select distinct lines
@@ -684,9 +684,9 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT SUM(<DISTINCT> column) FROM table_name;
-	 * </pre>
+	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
@@ -711,14 +711,14 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT SUM(<DISTINCT> column) FROM table_name WHERE conditionOperator1
 	 *  field1 operator1 value1 ...;
-	 * </pre>
+	 * </example>
 	 *
-	 * <pre>
+	 * <example>
 	 * 	SELECT SUM(<DISTINCT> *) FROM Customers WHERE CustomerName LIKE '%or%';
-	 * </pre>
+	 * </example>
 	 *
 	 * @param distinctSelection
 	 *			True if only select distinct lines
@@ -753,18 +753,18 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *
 	 * Scenario:
 	 *
-	 * <pre>
+	 * <example>
 	 *  SELECT Orders.OrderID, Customers.CustomerName
 	 *  FROM Orders
 	 *  INNER JOIN Customers ON Orders.CustomerID = Customers.CustomerID;
-	 * </pre>
+	 * </example>
 	 *
-	 * <pre>
+	 * <example>
 	 * 	SELECT Orders.OrderID, Customers.CustomerName, Shippers.ShipperName
 	 *  FROM ((Orders
 	 *  INNER JOIN Customers ON Orders.CustomerID = Customers.CustomerID)
 	 *  INNER JOIN Shippers ON Orders.ShipperID = Shippers.ShipperID);
-	 * </pre>
+	 * </example>
 	 *
 	 * @param distinctSelection
 	 *			True if only select distinct lines

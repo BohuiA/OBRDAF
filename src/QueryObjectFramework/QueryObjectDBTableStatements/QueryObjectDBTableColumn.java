@@ -2,6 +2,8 @@ package QueryObjectFramework.QueryObjectDBTableStatements;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import QueryObjectFramework.QueryObjectDBTableColumnConstraint.QueryObjectDBTableColumnConstraints;
+
 /**
  * Table column class contains column relative data for
  * database table operations.

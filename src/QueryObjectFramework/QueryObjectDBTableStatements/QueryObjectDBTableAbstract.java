@@ -56,53 +56,49 @@ public class QueryObjectDBTableAbstract {
 	}
 
 	/**
-	 * Build SQL CREATE TABLE columns string.
+	 * Create columns setting string.
 	 *
-	 * @return SQL CREATE TABLE columns string
+	 * @return A full columns setting string
 	 */
-	protected String buildColumnsAndColumnDataTypes() {
-		StringBuilder createTableColumnsClause = new StringBuilder();
-		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
-			createTableColumnsClause.append(tableColumn.getColumnName() + " " + tableColumn.getColumnDataType().getSqlColumnDataType() + " "
-					+ tableColumn.getColumnConstraint().getColumnConstraintsString() + ",");
-		}
-		createTableColumnsClause.deleteCharAt(createTableColumnsClause.length() - 1);
-		return createTableColumnsClause.toString();
-	}
+	protected String buildColumnSettingString() {
+		StringBuilder tableColumnsClause = new StringBuilder("");
+		StringBuilder uniqueCoulmnNames = new StringBuilder("");
+		int uniqueColumnNamesAmount = 0;
 
-	/**
-	 * Create a UNIQUE constraint string.
-	 *
-	 * @return UNIQUE constraint string.
-	 */
-	protected String createAppendConstraintForColumns() {
-		int uniqueColumnAmount = 0;
-		StringBuilder uniqueTableColumnsClause = new StringBuilder("");
 		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
-			if (tableColumn.getColumnConstraint().getUniqueState()) {
-				uniqueTableColumnsClause.append(tableColumn.getColumnName() + ",");
-				uniqueColumnAmount ++;
+			String columnConstraints = tableColumn.getColumnConstraint().getColumnConstraintsString();
+			if (columnConstraints.contains(SqlStatementStrings.SQL_DATABASE_UNIQUE)) {
+				uniqueColumnNamesAmount++;
+				uniqueCoulmnNames.append(tableColumn.getColumnName() + ",");
+				columnConstraints = columnConstraints.replace(SqlStatementStrings.SQL_DATABASE_UNIQUE, "");
 			}
+
+			tableColumnsClause.append(tableColumn.getColumnName() + " "
+					+ tableColumn.getColumnDataType().getSqlColumnDataType() + " " + columnConstraints + ",");
 		}
-		uniqueTableColumnsClause.deleteCharAt(uniqueTableColumnsClause.length() - 1);
 
 		/*
+		 * Post process table column setting string on UNIQUE constraint.
+		 *
 		 * If only one column is UNIQUE, creating clause as "UNIQUE (ID)"; Otherwise,
 		 * creating clause as CONSTRAINT UC_Person UNIQUE (ID,LastName).
 		 *
 		 * TODO: Introducing customized multiple UNIQUE columns name.
 		 */
-		if (uniqueColumnAmount == 1) {
-			uniqueTableColumnsClause.insert(0, ", " + SqlStatementStrings.SQL_DATABASE_UNIQUE + "(");
-			uniqueTableColumnsClause.append(")");
-		} else if (uniqueColumnAmount > 1) {
-			uniqueTableColumnsClause.insert(0,
-					", " + SqlStatementStrings.SQL_DATABASE_CONSTRAINT
-							+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_UNIQUE_COLUMNS + this.fTableName + " "
-							+ SqlStatementStrings.SQL_DATABASE_UNIQUE + "(");
-			uniqueTableColumnsClause.append(")");
+		if (uniqueColumnNamesAmount == 0) {
+			tableColumnsClause.deleteCharAt(tableColumnsClause.length() - 1);
+		} else if (uniqueColumnNamesAmount == 1) {
+			uniqueCoulmnNames.deleteCharAt(uniqueCoulmnNames.length() - 1);
+			tableColumnsClause
+					.append(" " + SqlStatementStrings.SQL_DATABASE_UNIQUE + "(" + uniqueCoulmnNames.toString() + ")");
+		} else if (uniqueColumnNamesAmount > 1) {
+			uniqueCoulmnNames.deleteCharAt(uniqueCoulmnNames.length() - 1);
+			tableColumnsClause.append(SqlStatementStrings.SQL_DATABASE_CONSTRAINT
+					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_UNIQUE_COLUMNS + this.fTableName + " "
+					+ SqlStatementStrings.SQL_DATABASE_UNIQUE + "(" + uniqueCoulmnNames.toString() + ")");
 		}
-		return uniqueTableColumnsClause.toString();
+
+		return tableColumnsClause.toString();
 	}
 
 	/**
