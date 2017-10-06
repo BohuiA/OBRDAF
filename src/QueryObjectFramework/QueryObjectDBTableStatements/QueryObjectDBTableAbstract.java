@@ -62,15 +62,31 @@ public class QueryObjectDBTableAbstract {
 	 */
 	protected String buildColumnSettingString() {
 		StringBuilder tableColumnsClause = new StringBuilder("");
+		/*
+		 * UUNIQE constraints
+		 */
 		StringBuilder uniqueCoulmnNames = new StringBuilder("");
 		int uniqueColumnNamesAmount = 0;
+		/*
+		 * PRIMARY KEY constraints
+		 */
+		StringBuilder primaryKeyCoulmnNames = new StringBuilder("");
+		int primaryKeyColumnNamesAmount = 0;
 
+		/*
+		 * Go through all table columns one by one and count amounts of
+		 * UNIQUE and PRIMARY KEY constraints.
+		 */
 		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
 			String columnConstraints = tableColumn.getColumnConstraint().getColumnConstraintsString();
 			if (columnConstraints.contains(SqlStatementStrings.SQL_DATABASE_UNIQUE)) {
 				uniqueColumnNamesAmount++;
 				uniqueCoulmnNames.append(tableColumn.getColumnName() + ",");
 				columnConstraints = columnConstraints.replace(SqlStatementStrings.SQL_DATABASE_UNIQUE, "");
+			} else if (columnConstraints.contains(SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY)) {
+				primaryKeyColumnNamesAmount++;
+				primaryKeyCoulmnNames.append(tableColumn.getColumnName() + " ");
+				columnConstraints = columnConstraints.replace(SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY, "");
 			}
 
 			tableColumnsClause.append(tableColumn.getColumnName() + " "
@@ -85,19 +101,39 @@ public class QueryObjectDBTableAbstract {
 		 *
 		 * TODO: Introducing customized multiple UNIQUE columns name.
 		 */
-		if (uniqueColumnNamesAmount == 0) {
-			tableColumnsClause.deleteCharAt(tableColumnsClause.length() - 1);
-		} else if (uniqueColumnNamesAmount == 1) {
+		if (uniqueColumnNamesAmount == 1) {
 			uniqueCoulmnNames.deleteCharAt(uniqueCoulmnNames.length() - 1);
 			tableColumnsClause
-					.append(" " + SqlStatementStrings.SQL_DATABASE_UNIQUE + "(" + uniqueCoulmnNames.toString() + ")");
+					.append(" " + SqlStatementStrings.SQL_DATABASE_UNIQUE + "(" + uniqueCoulmnNames.toString() + "),");
 		} else if (uniqueColumnNamesAmount > 1) {
 			uniqueCoulmnNames.deleteCharAt(uniqueCoulmnNames.length() - 1);
 			tableColumnsClause.append(SqlStatementStrings.SQL_DATABASE_CONSTRAINT
 					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_UNIQUE_COLUMNS + this.fTableName + " "
-					+ SqlStatementStrings.SQL_DATABASE_UNIQUE + "(" + uniqueCoulmnNames.toString() + ")");
+					+ SqlStatementStrings.SQL_DATABASE_UNIQUE + "(" + uniqueCoulmnNames.toString() + "),");
 		}
 
+		/*
+		 * Post process table column setting string on PRIMARY KEY constraint.
+		 *
+		 * Primary keys must contain UNIQUE values, and cannot contain NULL values. A
+		 * table can have only one primary key, which may consist of single or multiple
+		 * fields.
+		 */
+		if (primaryKeyColumnNamesAmount == 1) {
+			primaryKeyCoulmnNames.deleteCharAt(primaryKeyCoulmnNames.length() - 1);
+			tableColumnsClause
+					.append(" " + SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY + "(" + primaryKeyCoulmnNames.toString() + "),");
+		} else if (primaryKeyColumnNamesAmount > 1) {
+			primaryKeyCoulmnNames.deleteCharAt(primaryKeyCoulmnNames.length() - 1);
+			tableColumnsClause.append(SqlStatementStrings.SQL_DATABASE_CONSTRAINT
+					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_PRIMARY_KEY_COLUMNS + this.fTableName + " "
+					+ SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY + "(" + primaryKeyCoulmnNames.toString() + "),");
+		}
+
+		/*
+		 * Remove the last ',' char of clause.
+		 */
+		tableColumnsClause.deleteCharAt(tableColumnsClause.length() - 1);
 		return tableColumnsClause.toString();
 	}
 

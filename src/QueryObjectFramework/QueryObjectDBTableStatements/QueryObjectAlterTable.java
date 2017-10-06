@@ -55,9 +55,18 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  *
  * NOTE: At the moment, customized DROP UNIQUE constraints is not supported.
  * DROP UNIQUE constraints will only drops UC_<table_name> UNIQUE ID.
+ *
+ * NOTE: Because one table can only have one PRIMARY KEY, so user does not
+ * need provide PRIMARY KEY id to DROP PRIMARY KEY of a table.
+ *
  * <example>
  *  ALTER TABLE Persons
  *  DROP INDEX UC_Person;
+ * </example>
+ *
+ * <example>
+ *  ALTER TABLE Persons
+ *  DROP PRIMARY KEY;
  * </example>
  *
  * @author Bohui Axelsson
@@ -66,14 +75,10 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	/**
 	 * Create an ALTER TABLE query object with Table names, columns, and column data types.
 	 *
-	 * NOTE: For updating UNIQUE constraint on table, setting fUniqueConstraint to true in
-	 * fColumnConstraint filed of fTableColumns. Be careful about fUniqueConstraint value, default
-	 * value is false for not creating UNIQUE constraint.
-	 *
-	 * Example:
 	 * <example>
 	 *  ALTER TABLE table_name
-	 *  ADD UNIQUE (column_name);
+	 *  ADD UNIQUE (column_name),
+	 *  ADD PRIMARY KEY (column_name);
 	 * </example>
 	 *
 	 * For setting multiple columns as UNIQUE, just set the fUniqueConstraints of target columns to TRUE,
@@ -105,7 +110,8 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 * <example>
 	 *  ALTER TABLE table_name
 	 *  ADD column_name datatype constraint,
-	 *  UNIQUE(column_name);
+	 *  UNIQUE(column_name),
+	 *  PRIMARY KEY(column_name);
 	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
@@ -121,8 +127,9 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	}
 
 	/**
-	 * ALTER TABLE - ADD UNIQUE constraints on existing columns
-	 * To add UNIQUE constraints to columns already existing in a table.
+	 * ALTER TABLE - ADD constraints on existing columns
+	 * - To add UNIQUE constraints to columns already existing in a table.
+	 * - To add PRIMARY KEY constraints to columns already existing in a table.
 	 *
 	 * Scenario:
 	 *
@@ -133,54 +140,103 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 *
 	 * <example>
 	 *  ALTER TABLE table_name
-	 *  ADD CONSTRAINT UC_<table_name> UNIQUE (column_name1, column_name2, ..);
+	 *  ADD CONSTRAINT UC_<table_name> UNIQUE (column_name1, column_name2, ..),
+	 *  ADD CONSTRAINT PK_<table_name> PRIMARY KEY (column_name1, column_name2, ..);
 	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
 	 */
-	public ResultSet alterTableAddUniqueConstraintsOnExistingColumns() {
+	public ResultSet alterTableAddConstraintsOnExistingColumns() {
 		if (!validateTableColumnsNotNull()) {
 			return null;
 		}
 
 		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " " + SqlStatementStrings.SQL_DATABASE_ADD + " "
-				+ createUniqueConstraintsForColumns() + ";";
+				+ createAppendConstraintsForColumns() + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
 
 	/**
-	 * Create a UNIQUE constraint string.
+	 * Create an appending constraint string.
 	 *
-	 * @return UNIQUE constraint string.
+	 * An appending constraint includes,
+	 * - UNIQUE
+	 * - PRIMARY KEY
+	 *
+	 * TODO: Refactor function to remove duplicate code.
+	 *
+	 * @return Appending constraint string.
 	 */
-	private String createUniqueConstraintsForColumns() {
-		StringBuilder uniqueCoulmnClause = new StringBuilder("");
-		int uniqueColumnsAmount = 0;
+	private String createAppendConstraintsForColumns() {
+		StringBuilder appendingClause = new StringBuilder("");
+		/*
+		 * UUNIQE constraints
+		 */
+		StringBuilder uniqueCoulmnNames = new StringBuilder("");
+		int uniqueColumnNamesAmount = 0;
+		/*
+		 * PRIMARY KEY constraints
+		 */
+		StringBuilder primaryKeyCoulmnNames = new StringBuilder("");
+		int primaryKeyColumnNamesAmount = 0;
+
+		/*
+		 * Go through all table columns one by one and count amounts of UNIQUE and
+		 * PRIMARY KEY constraints.
+		 */
 		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
 			String columnConstraints = tableColumn.getColumnConstraint().getColumnConstraintsString();
 			if (columnConstraints.contains(SqlStatementStrings.SQL_DATABASE_UNIQUE)) {
-				uniqueColumnsAmount ++;
-				uniqueCoulmnClause.append(tableColumn.getColumnName() + ",");
+				uniqueColumnNamesAmount++;
+				uniqueCoulmnNames.append(tableColumn.getColumnName() + ",");
+			} else if (columnConstraints.contains(SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY)) {
+				primaryKeyColumnNamesAmount++;
+				primaryKeyCoulmnNames.append(tableColumn.getColumnName() + " ");
 			}
 		}
 
 		/*
-		 * To create UNQIUE clause regarding to the amount of UNIQUE
-		 * columns.
+		 * Post process table column setting string on UNIQUE constraint.
+		 *
+		 * If only one column is UNIQUE, creating clause as "UNIQUE (ID)"; Otherwise,
+		 * creating clause as CONSTRAINT UC_Person UNIQUE (ID,LastName).
+		 *
+		 * TODO: Introducing customized multiple UNIQUE columns name.
 		 */
-		if (uniqueColumnsAmount == 1) {
-			uniqueCoulmnClause.deleteCharAt(uniqueCoulmnClause.length() - 1);
-			uniqueCoulmnClause.insert(0, SqlStatementStrings.SQL_DATABASE_UNIQUE + "(");
-			uniqueCoulmnClause.append(")");
-		} else if (uniqueColumnsAmount > 1) {
-			uniqueCoulmnClause.deleteCharAt(uniqueCoulmnClause.length() - 1);
-			uniqueCoulmnClause.insert(0, SqlStatementStrings.SQL_DATABASE_CONSTRAINT
+		if (uniqueColumnNamesAmount == 1) {
+			uniqueCoulmnNames.deleteCharAt(uniqueCoulmnNames.length() - 1);
+			appendingClause
+					.append(" " + SqlStatementStrings.SQL_DATABASE_UNIQUE + "(" + uniqueCoulmnNames.toString() + "),");
+		} else if (uniqueColumnNamesAmount > 1) {
+			uniqueCoulmnNames.deleteCharAt(uniqueCoulmnNames.length() - 1);
+			appendingClause.append(SqlStatementStrings.SQL_DATABASE_CONSTRAINT
 					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_UNIQUE_COLUMNS + this.fTableName + " "
-					+ SqlStatementStrings.SQL_DATABASE_UNIQUE + "(");
-			uniqueCoulmnClause.append(")");
+					+ SqlStatementStrings.SQL_DATABASE_UNIQUE + "(" + uniqueCoulmnNames.toString() + "),");
 		}
 
-		return uniqueCoulmnClause.toString();
+		/*
+		 * Post process table column setting string on PRIMARY KEY constraint.
+		 *
+		 * Primary keys must contain UNIQUE values, and cannot contain NULL values. A
+		 * table can have only one primary key, which may consist of single or multiple
+		 * fields.
+		 */
+		if (primaryKeyColumnNamesAmount == 1) {
+			primaryKeyCoulmnNames.deleteCharAt(primaryKeyCoulmnNames.length() - 1);
+			appendingClause.append(
+					" " + SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY + "(" + primaryKeyCoulmnNames.toString() + "),");
+		} else if (primaryKeyColumnNamesAmount > 1) {
+			primaryKeyCoulmnNames.deleteCharAt(primaryKeyCoulmnNames.length() - 1);
+			appendingClause.append(SqlStatementStrings.SQL_DATABASE_CONSTRAINT
+					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_PRIMARY_KEY_COLUMNS + this.fTableName + " "
+					+ SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY + "(" + primaryKeyCoulmnNames.toString() + "),");
+		}
+
+		/*
+		 * Remove the last ',' char of clause.
+		 */
+		appendingClause.deleteCharAt(appendingClause.length() - 1);
+		return appendingClause.toString();
 	}
 
 	/**
@@ -236,6 +292,25 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	public ResultSet alterTableDropUniqueConstraintsOnExistingTable() {
 		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " " + SqlStatementStrings.SQL_DATABASE_DROP_INDEX_UNIQUE
 				+ " " + SqlStatementStrings.SQL_DATABASE_MULTIPLE_UNIQUE_COLUMNS + fTableName + ";";
+		return fJdbcDbConn.executeQueryObject(sql);
+	}
+
+	/**
+	 * ALTER TABLE - DROP PRIMARY KEY constraints on existing table
+	 * To drop PRIMARY KEY constraints on an existing table.
+	 *
+	 * Scenario:
+	 *
+	 * <example>
+	 *  ALTER TABLE Person
+	 *  DROP PRIMARY KEY;
+	 * </example>
+	 *
+	 * @return ResultSet SQL execution results
+	 */
+	public ResultSet alterTableDropPrimaryKeyConstraintsOnExistingTable() {
+		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " "
+				+ SqlStatementStrings.SQL_DATABASE_DROP_PRIMARY_KEY + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
 
