@@ -60,4 +60,9 @@ public class QueryObjectDBTableConstraintAutoIncrement implements QueryObjectDBT
 		return fConstraintDecorator == null ? autoIncrementString
 				: fConstraintDecorator.createConstraintString() + " " + autoIncrementString;
 	}
+
+	@Override
+	public QueryObjectDBTableConstraintDecorator getConstraintDecorator() {
+		return fConstraintDecorator;
+	}
 }

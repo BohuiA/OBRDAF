@@ -1,7 +1,5 @@
 package QueryObjectFramework.QueryObjectDBTableColumnConstraint;
 
-import java.util.logging.Logger;
-
 /**
  * Class contains all constraints for one particular
  * column in one table.
@@ -20,8 +18,6 @@ import java.util.logging.Logger;
  * @author Bohui Axelsson
  */
 public class QueryObjectDBTableColumnConstraints {
-	private static final Logger LOGGER = Logger.getLogger(QueryObjectDBTableColumnConstraints.class.getName());
-
 	private QueryObjectDBTableConstraintDecorator fColumnConstraint = null;
 
 	/**
@@ -53,5 +49,37 @@ public class QueryObjectDBTableColumnConstraints {
 	 */
 	public String getColumnConstraintsString() {
 		return fColumnConstraint == null ? "" : fColumnConstraint.createConstraintString();
+	}
+
+	/**
+	 * Check whether the column has an UNIQUE constraint.
+	 *
+	 * @return True if the column has an UNIQUE constraint.
+	 */
+	public boolean containUnqueConstraint() {
+		QueryObjectDBTableConstraintDecorator columnConstraint = fColumnConstraint;
+		while (columnConstraint != null) {
+			if (columnConstraint instanceof QueryObjectDBTableConstraintUnique) {
+				return true;
+			}
+			columnConstraint = columnConstraint.getConstraintDecorator();
+		}
+		return false;
+	}
+
+	/**
+	 * Check whether the column has an PRIMARY KEY constraint.
+	 *
+	 * @return True if the column has an PRIMARY KEY constraint.
+	 */
+	public boolean containPrimaryKeyConstraint() {
+		QueryObjectDBTableConstraintDecorator columnConstraint = fColumnConstraint;
+		while (columnConstraint != null) {
+			if (columnConstraint instanceof QueryObjectDBTableConstraintPrimaryKey) {
+				return true;
+			}
+			columnConstraint = columnConstraint.getConstraintDecorator();
+		}
+		return false;
 	}
 }

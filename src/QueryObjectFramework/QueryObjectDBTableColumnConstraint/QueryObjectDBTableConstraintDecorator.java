@@ -9,4 +9,5 @@ package QueryObjectFramework.QueryObjectDBTableColumnConstraint;
  */
 public interface QueryObjectDBTableConstraintDecorator {
 	public String createConstraintString();
+	public QueryObjectDBTableConstraintDecorator getConstraintDecorator();
 }

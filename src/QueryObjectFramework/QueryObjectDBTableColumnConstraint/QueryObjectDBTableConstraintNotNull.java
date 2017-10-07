@@ -12,7 +12,7 @@ import QueryObjectFramework.CommonClasses.SqlStatementStrings;
  *   		ID int NOT NULL,
  *   		LastName varchar(255) NOT NULL,
  *   		FirstName varchar(255) NOT NULL,
- *  	 	Age int
+ *  	 		Age int
  *   	);
  *   </example>
  *
@@ -45,5 +45,10 @@ public class QueryObjectDBTableConstraintNotNull implements QueryObjectDBTableCo
 	public String createConstraintString() {
 		return fConstraintDecorator == null ? SqlStatementStrings.SQL_DATABASE_NOT_NULL
 				: fConstraintDecorator.createConstraintString() + " " + SqlStatementStrings.SQL_DATABASE_NOT_NULL;
+	}
+
+	@Override
+	public QueryObjectDBTableConstraintDecorator getConstraintDecorator() {
+		return fConstraintDecorator;
 	}
 }

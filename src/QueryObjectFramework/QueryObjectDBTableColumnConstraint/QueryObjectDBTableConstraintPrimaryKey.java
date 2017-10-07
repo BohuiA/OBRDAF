@@ -1,7 +1,5 @@
 package QueryObjectFramework.QueryObjectDBTableColumnConstraint;
 
-import QueryObjectFramework.CommonClasses.SqlStatementStrings;
-
 /**
  * PRIMARY KEY:
  * The PRIMARY KEY constraint uniquely identifies each record in a
@@ -73,8 +71,13 @@ public class QueryObjectDBTableConstraintPrimaryKey implements QueryObjectDBTabl
 
 	@Override
 	public String createConstraintString() {
-		return fConstraintDecorator == null ? SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY
-				: fConstraintDecorator.createConstraintString() + " " + SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY;
+		return fConstraintDecorator == null ? ""
+				: fConstraintDecorator.createConstraintString() + " ";
+	}
+
+	@Override
+	public QueryObjectDBTableConstraintDecorator getConstraintDecorator() {
+		return fConstraintDecorator;
 	}
 
 }

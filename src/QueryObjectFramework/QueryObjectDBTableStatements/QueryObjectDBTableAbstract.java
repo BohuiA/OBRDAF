@@ -1,7 +1,6 @@
 package QueryObjectFramework.QueryObjectDBTableStatements;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.eclipse.jdt.annotation.NonNull;
 
@@ -20,8 +19,6 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  * @author Bohui Axelsson
  */
 public class QueryObjectDBTableAbstract {
-	private static final Logger LOGGER = Logger.getLogger(QueryObjectDBTableAbstract.class.getName());
-
 	protected final SqlQueryTypes fQueryObjectType;
 	protected final @NonNull JdbcDatabaseConnection fJdbcDbConn;
 	protected final @NonNull QueryObjectDBTableColumnBuilder  fColumnIndex = new QueryObjectDBTableColumnBuilder();

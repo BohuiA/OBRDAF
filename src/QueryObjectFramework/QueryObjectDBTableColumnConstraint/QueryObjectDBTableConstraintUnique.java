@@ -1,7 +1,5 @@
 package QueryObjectFramework.QueryObjectDBTableColumnConstraint;
 
-import QueryObjectFramework.CommonClasses.SqlStatementStrings;
-
 /**
  * UNIQUE:
  * 	 The UNIQUE constraint ensures that all values in a column are different.
@@ -67,7 +65,12 @@ public class QueryObjectDBTableConstraintUnique implements QueryObjectDBTableCon
 
 	@Override
 	public String createConstraintString() {
-		return fConstraintDecorator == null ? SqlStatementStrings.SQL_DATABASE_UNIQUE
-				: fConstraintDecorator.createConstraintString() + " " + SqlStatementStrings.SQL_DATABASE_UNIQUE;
+		return fConstraintDecorator == null ? ""
+				: fConstraintDecorator.createConstraintString() + " ";
+	}
+
+	@Override
+	public QueryObjectDBTableConstraintDecorator getConstraintDecorator() {
+		return fConstraintDecorator;
 	}
 }

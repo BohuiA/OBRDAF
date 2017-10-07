@@ -69,6 +69,14 @@ public class QueryObjectDBTableColumn {
 		fColumnConstraint = columnConstraint;
 	}
 
+	protected boolean containUniqueConstraint() {
+		return fColumnConstraint.containUnqueConstraint();
+	}
+
+	protected boolean containPrimaryKeyConstraint() {
+		return fColumnConstraint.containPrimaryKeyConstraint();
+	}
+
 	protected String getColumnName() {
 		return fColumnName;
 	}

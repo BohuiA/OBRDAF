@@ -59,88 +59,41 @@ public class QueryObjectDBTableColumnBuilder {
 	 *  PRIMARY KEY (column1)
 	 * </example>
 	 *
-	 * TODO: Refactor function to remove duplicate code.
-	 *
 	 * @param tableName
 	 *            Table name that needs to create column clause.
 	 * @return A full columns setting string
 	 */
 	protected String buildColumnWithNameAndDataTypeAndConstraints(String tableName) {
 		StringBuilder tableColumnsClause = new StringBuilder("");
-		/*
-		 * UUNIQE constraints
-		 */
-		StringBuilder uniqueCoulmnNames = new StringBuilder("");
-		int uniqueColumnNamesAmount = 0;
-		/*
-		 * PRIMARY KEY constraints
-		 */
-		StringBuilder primaryKeyCoulmnNames = new StringBuilder("");
-		int primaryKeyColumnNamesAmount = 0;
 
 		/*
-		 * Go through all table columns one by one and count amounts of
-		 * UNIQUE and PRIMARY KEY constraints. Meanwhile, create tableColumnsClause
-		 * with normal constraints.
+		 * Build normal column string without appending constraints.
 		 */
-		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
-			String columnConstraints = tableColumn.getColumnConstraint().getColumnConstraintsString();
-			if (columnConstraints.contains(SqlStatementStrings.SQL_DATABASE_UNIQUE)) {
-				uniqueColumnNamesAmount++;
-				uniqueCoulmnNames.append(tableColumn.getColumnName() + ",");
-				columnConstraints = columnConstraints.replace(SqlStatementStrings.SQL_DATABASE_UNIQUE, "");
-			} else if (columnConstraints.contains(SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY)) {
-				primaryKeyColumnNamesAmount++;
-				primaryKeyCoulmnNames.append(tableColumn.getColumnName() + " ");
-				columnConstraints = columnConstraints.replace(SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY, "");
-			}
-
-			tableColumnsClause.append(tableColumn.getColumnName() + " "
-					+ tableColumn.getColumnDataType().getSqlColumnDataType() + " " + columnConstraints + ",");
-		}
-
-		/*
-		 * Post process table column setting string on UNIQUE constraint.
-		 *
-		 * If only one column is UNIQUE, creating clause as "UNIQUE (ID)"; Otherwise,
-		 * creating clause as CONSTRAINT UC_Person UNIQUE (ID,LastName).
-		 *
-		 * TODO: Introducing customized multiple UNIQUE columns name.
-		 */
-		if (uniqueColumnNamesAmount == 1) {
-			uniqueCoulmnNames.deleteCharAt(uniqueCoulmnNames.length() - 1);
-			tableColumnsClause
-					.append(" " + SqlStatementStrings.SQL_DATABASE_UNIQUE + "(" + uniqueCoulmnNames.toString() + "),");
-		} else if (uniqueColumnNamesAmount > 1) {
-			uniqueCoulmnNames.deleteCharAt(uniqueCoulmnNames.length() - 1);
-			tableColumnsClause.append(SqlStatementStrings.SQL_DATABASE_CONSTRAINT
-					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_UNIQUE_COLUMNS + tableName + " "
-					+ SqlStatementStrings.SQL_DATABASE_UNIQUE + "(" + uniqueCoulmnNames.toString() + "),");
-		}
-
-		/*
-		 * Post process table column setting string on PRIMARY KEY constraint.
-		 *
-		 * Primary keys must contain UNIQUE values, and cannot contain NULL values. A
-		 * table can have only one primary key, which may consist of single or multiple
-		 * fields.
-		 */
-		if (primaryKeyColumnNamesAmount == 1) {
-			primaryKeyCoulmnNames.deleteCharAt(primaryKeyCoulmnNames.length() - 1);
-			tableColumnsClause
-					.append(" " + SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY + "(" + primaryKeyCoulmnNames.toString() + "),");
-		} else if (primaryKeyColumnNamesAmount > 1) {
-			primaryKeyCoulmnNames.deleteCharAt(primaryKeyCoulmnNames.length() - 1);
-			tableColumnsClause.append(SqlStatementStrings.SQL_DATABASE_CONSTRAINT
-					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_PRIMARY_KEY_COLUMNS + tableName + " "
-					+ SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY + "(" + primaryKeyCoulmnNames.toString() + "),");
-		}
-
-		/*
-		 * Remove the last ',' char of clause.
-		 */
+		tableColumnsClause.append(buildColumnsWithNameAndDataTypeAndNormalConstraints());
 		tableColumnsClause.deleteCharAt(tableColumnsClause.length() - 1);
+
+		/*
+		 * Build appending constraints
+		 */
+		tableColumnsClause.append(buildAppendConstraintsForColumns(tableName));
+
 		return tableColumnsClause.toString();
+	}
+
+	/**
+	 * Go through all table columns one by one to create tableColumnsClause
+	 * with normal constraints.
+	 *
+	 * @return Columns definition string
+	 */
+	private String buildColumnsWithNameAndDataTypeAndNormalConstraints() {
+		StringBuilder normalColumnsString = new StringBuilder("");
+		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
+			normalColumnsString
+					.append(tableColumn.getColumnName() + " " + tableColumn.getColumnDataType().getSqlColumnDataType()
+							+ " " + tableColumn.getColumnConstraint().getColumnConstraintsString() + ",");
+		}
+		return normalColumnsString.toString();
 	}
 
 	/**
@@ -160,8 +113,6 @@ public class QueryObjectDBTableColumnBuilder {
 	 *  CONSTRAINT PK_<table_name> PRIMARY KEY (column_name0, column_name2, ..)
 	 * </example>
 	 *
-	 * TODO: Refactor function to remove duplicate code.
-	 *
 	 * @param tableName
 	 *            Table name that needs to create column clause.
 	 * @return Appending constraint string.
@@ -169,28 +120,42 @@ public class QueryObjectDBTableColumnBuilder {
 	protected String buildAppendConstraintsForColumns(String tableName) {
 		StringBuilder appendingClause = new StringBuilder("");
 		/*
+		 * Build UNIQUE appending constraint
+		 */
+		appendingClause.append(buildUnqiueAppendingConstraint(tableName));
+		// Insert ',' if UNIQUE appending constraint string is not null
+		if (!appendingClause.toString().equals("")) {
+			appendingClause.append(",");
+		}
+		/*
+		 * Build and append PRIMARY KEY constraint
+		 */
+		appendingClause.append(buildPrimaryKeyAppendingConstraint(tableName));
+
+		return appendingClause.toString();
+	}
+
+	/**
+	 * Build UNIQUE constraint appending string.
+	 *
+	 * @param tableName
+	 * 			Table name
+	 * @return UNIQUE constraint appending string
+	 */
+	private String buildUnqiueAppendingConstraint(String tableName) {
+		/*
 		 * UUNIQE constraints
 		 */
-		StringBuilder uniqueCoulmnNames = new StringBuilder("");
+		StringBuilder uniqueColumnNames = new StringBuilder("");
 		int uniqueColumnNamesAmount = 0;
-		/*
-		 * PRIMARY KEY constraints
-		 */
-		StringBuilder primaryKeyCoulmnNames = new StringBuilder("");
-		int primaryKeyColumnNamesAmount = 0;
 
 		/*
-		 * Go through all table columns one by one and count amounts of UNIQUE and
-		 * PRIMARY KEY constraints.
+		 * Build constraint string for UNIQUE constraint
 		 */
 		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
-			String columnConstraints = tableColumn.getColumnConstraint().getColumnConstraintsString();
-			if (columnConstraints.contains(SqlStatementStrings.SQL_DATABASE_UNIQUE)) {
+			if (tableColumn.containUniqueConstraint()) {
 				uniqueColumnNamesAmount++;
-				uniqueCoulmnNames.append(tableColumn.getColumnName() + ",");
-			} else if (columnConstraints.contains(SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY)) {
-				primaryKeyColumnNamesAmount++;
-				primaryKeyCoulmnNames.append(tableColumn.getColumnName() + " ");
+				uniqueColumnNames.append(tableColumn.getColumnName() + ",");
 			}
 		}
 
@@ -203,14 +168,42 @@ public class QueryObjectDBTableColumnBuilder {
 		 * TODO: Introducing customized multiple UNIQUE columns name.
 		 */
 		if (uniqueColumnNamesAmount == 1) {
-			uniqueCoulmnNames.deleteCharAt(uniqueCoulmnNames.length() - 1);
-			appendingClause
-					.append(" " + SqlStatementStrings.SQL_DATABASE_UNIQUE + "(" + uniqueCoulmnNames.toString() + "),");
+			uniqueColumnNames.deleteCharAt(uniqueColumnNames.length() - 1);
+			uniqueColumnNames.insert(0, " " + SqlStatementStrings.SQL_DATABASE_UNIQUE + "(");
+			uniqueColumnNames.append(")");
 		} else if (uniqueColumnNamesAmount > 1) {
-			uniqueCoulmnNames.deleteCharAt(uniqueCoulmnNames.length() - 1);
-			appendingClause.append(SqlStatementStrings.SQL_DATABASE_CONSTRAINT
+			uniqueColumnNames.deleteCharAt(uniqueColumnNames.length() - 1);
+			uniqueColumnNames.insert(0, SqlStatementStrings.SQL_DATABASE_CONSTRAINT
 					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_UNIQUE_COLUMNS + tableName + " "
-					+ SqlStatementStrings.SQL_DATABASE_UNIQUE + "(" + uniqueCoulmnNames.toString() + "),");
+					+ SqlStatementStrings.SQL_DATABASE_UNIQUE + "(");
+			uniqueColumnNames.append(")");
+		}
+		return uniqueColumnNames.toString();
+	}
+
+	/**
+	 * Build PRIMARY KEY constraint appending string.
+	 *
+	 * @param tableName
+	 * 			Table name
+	 * @return PRIMARY KEY constraint appending string
+	 */
+	private String buildPrimaryKeyAppendingConstraint(String tableName) {
+		/*
+		 * PRIMARY KEY constraints
+		 */
+		StringBuilder primaryKeyColumnNames = new StringBuilder("");
+		int primaryKeyColumnNamesAmount = 0;
+
+		/*
+		 * Go through all table columns one by one and count amounts of
+		 * PRIMARY KEY constraints.
+		 */
+		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
+			if (tableColumn.containPrimaryKeyConstraint()) {
+				primaryKeyColumnNamesAmount++;
+				primaryKeyColumnNames.append(tableColumn.getColumnName() + " ");
+			}
 		}
 
 		/*
@@ -221,21 +214,17 @@ public class QueryObjectDBTableColumnBuilder {
 		 * fields.
 		 */
 		if (primaryKeyColumnNamesAmount == 1) {
-			primaryKeyCoulmnNames.deleteCharAt(primaryKeyCoulmnNames.length() - 1);
-			appendingClause.append(
-					" " + SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY + "(" + primaryKeyCoulmnNames.toString() + "),");
+			primaryKeyColumnNames.deleteCharAt(primaryKeyColumnNames.length() - 1);
+			primaryKeyColumnNames.insert(0, " " + SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY + "(");
+			primaryKeyColumnNames.append(")");
 		} else if (primaryKeyColumnNamesAmount > 1) {
-			primaryKeyCoulmnNames.deleteCharAt(primaryKeyCoulmnNames.length() - 1);
-			appendingClause.append(SqlStatementStrings.SQL_DATABASE_CONSTRAINT
+			primaryKeyColumnNames.deleteCharAt(primaryKeyColumnNames.length() - 1);
+			primaryKeyColumnNames.insert(0, " " + SqlStatementStrings.SQL_DATABASE_CONSTRAINT
 					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_PRIMARY_KEY_COLUMNS + tableName + " "
-					+ SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY + "(" + primaryKeyCoulmnNames.toString() + "),");
+					+ SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY + "(");
+			primaryKeyColumnNames.append(")");
 		}
-
-		/*
-		 * Remove the last ',' char of clause.
-		 */
-		appendingClause.deleteCharAt(appendingClause.length() - 1);
-		return appendingClause.toString();
+		return primaryKeyColumnNames.toString();
 	}
 
 	/**
