@@ -122,7 +122,7 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 		}
 
 		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " " + SqlStatementStrings.SQL_DATABASE_ADD + " "
-				+ buildColumnSettingString() + ";";
+				+ buildFullColumnSettingString() + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
 
@@ -152,91 +152,8 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 		}
 
 		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " " + SqlStatementStrings.SQL_DATABASE_ADD + " "
-				+ createAppendConstraintsForColumns() + ";";
+				+ buildAppendingColumnSettingString() + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
-	}
-
-	/**
-	 * Create an appending constraint string.
-	 *
-	 * An appending constraint includes,
-	 * - UNIQUE
-	 * - PRIMARY KEY
-	 *
-	 * TODO: Refactor function to remove duplicate code.
-	 *
-	 * @return Appending constraint string.
-	 */
-	private String createAppendConstraintsForColumns() {
-		StringBuilder appendingClause = new StringBuilder("");
-		/*
-		 * UUNIQE constraints
-		 */
-		StringBuilder uniqueCoulmnNames = new StringBuilder("");
-		int uniqueColumnNamesAmount = 0;
-		/*
-		 * PRIMARY KEY constraints
-		 */
-		StringBuilder primaryKeyCoulmnNames = new StringBuilder("");
-		int primaryKeyColumnNamesAmount = 0;
-
-		/*
-		 * Go through all table columns one by one and count amounts of UNIQUE and
-		 * PRIMARY KEY constraints.
-		 */
-		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
-			String columnConstraints = tableColumn.getColumnConstraint().getColumnConstraintsString();
-			if (columnConstraints.contains(SqlStatementStrings.SQL_DATABASE_UNIQUE)) {
-				uniqueColumnNamesAmount++;
-				uniqueCoulmnNames.append(tableColumn.getColumnName() + ",");
-			} else if (columnConstraints.contains(SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY)) {
-				primaryKeyColumnNamesAmount++;
-				primaryKeyCoulmnNames.append(tableColumn.getColumnName() + " ");
-			}
-		}
-
-		/*
-		 * Post process table column setting string on UNIQUE constraint.
-		 *
-		 * If only one column is UNIQUE, creating clause as "UNIQUE (ID)"; Otherwise,
-		 * creating clause as CONSTRAINT UC_Person UNIQUE (ID,LastName).
-		 *
-		 * TODO: Introducing customized multiple UNIQUE columns name.
-		 */
-		if (uniqueColumnNamesAmount == 1) {
-			uniqueCoulmnNames.deleteCharAt(uniqueCoulmnNames.length() - 1);
-			appendingClause
-					.append(" " + SqlStatementStrings.SQL_DATABASE_UNIQUE + "(" + uniqueCoulmnNames.toString() + "),");
-		} else if (uniqueColumnNamesAmount > 1) {
-			uniqueCoulmnNames.deleteCharAt(uniqueCoulmnNames.length() - 1);
-			appendingClause.append(SqlStatementStrings.SQL_DATABASE_CONSTRAINT
-					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_UNIQUE_COLUMNS + this.fTableName + " "
-					+ SqlStatementStrings.SQL_DATABASE_UNIQUE + "(" + uniqueCoulmnNames.toString() + "),");
-		}
-
-		/*
-		 * Post process table column setting string on PRIMARY KEY constraint.
-		 *
-		 * Primary keys must contain UNIQUE values, and cannot contain NULL values. A
-		 * table can have only one primary key, which may consist of single or multiple
-		 * fields.
-		 */
-		if (primaryKeyColumnNamesAmount == 1) {
-			primaryKeyCoulmnNames.deleteCharAt(primaryKeyCoulmnNames.length() - 1);
-			appendingClause.append(
-					" " + SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY + "(" + primaryKeyCoulmnNames.toString() + "),");
-		} else if (primaryKeyColumnNamesAmount > 1) {
-			primaryKeyCoulmnNames.deleteCharAt(primaryKeyCoulmnNames.length() - 1);
-			appendingClause.append(SqlStatementStrings.SQL_DATABASE_CONSTRAINT
-					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_PRIMARY_KEY_COLUMNS + this.fTableName + " "
-					+ SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY + "(" + primaryKeyCoulmnNames.toString() + "),");
-		}
-
-		/*
-		 * Remove the last ',' char of clause.
-		 */
-		appendingClause.deleteCharAt(appendingClause.length() - 1);
-		return appendingClause.toString();
 	}
 
 	/**
@@ -268,12 +185,7 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 * @return SQL ALTER TABLE DROP columns string
 	 */
 	private String buildDropColumnsFromTableClaues() {
-		StringBuilder alterTableDropColumnsClause = new StringBuilder();
-		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
-			alterTableDropColumnsClause.append(tableColumn.getColumnName() + ",");
-		}
-		alterTableDropColumnsClause.deleteCharAt(alterTableDropColumnsClause.length() - 1);
-		return alterTableDropColumnsClause.toString();
+		return fColumnIndex.buildColumnWithNames();
 	}
 
 	/**
@@ -347,13 +259,6 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 * @return SQL columns and data types string
 	 */
 	private String buildColumnsAndColumnDataTypes() {
-		StringBuilder columnAndDatatypeClause = new StringBuilder();
-		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
-			columnAndDatatypeClause.append(
-					tableColumn.getColumnName() + " " + tableColumn.getColumnDataType().getSqlColumnDataType() + ",");
-		}
-		columnAndDatatypeClause.deleteCharAt(columnAndDatatypeClause.length() - 1);
-		return columnAndDatatypeClause.toString();
-
+		return fColumnIndex.buildColumnWithNameAndDataType();
 	}
 }

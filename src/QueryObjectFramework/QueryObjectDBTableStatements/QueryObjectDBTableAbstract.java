@@ -1,13 +1,11 @@
 package QueryObjectFramework.QueryObjectDBTableStatements;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import org.eclipse.jdt.annotation.NonNull;
 
 import QueryObjectFramework.CommonClasses.SqlQueryTypes;
-import QueryObjectFramework.CommonClasses.SqlStatementStrings;
 import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
 
 /**
@@ -26,7 +24,7 @@ public class QueryObjectDBTableAbstract {
 
 	protected final SqlQueryTypes fQueryObjectType;
 	protected final @NonNull JdbcDatabaseConnection fJdbcDbConn;
-	protected final @NonNull List<QueryObjectDBTableColumn> fTableColumns = new ArrayList<>();
+	protected final @NonNull QueryObjectDBTableColumnBuilder  fColumnIndex = new QueryObjectDBTableColumnBuilder();
 	protected String fTableName = "";
 
 	public QueryObjectDBTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn) {
@@ -38,104 +36,37 @@ public class QueryObjectDBTableAbstract {
 			@NonNull String tableName) {
 		fQueryObjectType = queryObjectType;
 		fJdbcDbConn = jdbcDbConn;
-		if (tableName != null) {
-			fTableName = tableName;
-		}
+		fTableName = tableName;
 	}
 
 	public QueryObjectDBTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn,
 			@NonNull String tableName, @NonNull List<QueryObjectDBTableColumn> tableColumns) {
 		fQueryObjectType = queryObjectType;
 		fJdbcDbConn = jdbcDbConn;
-		if (tableName != null) {
-			fTableName = tableName;
-		}
-		if (tableColumns != null) {
-			fTableColumns.addAll(tableColumns);
-		}
+		fTableName = tableName;
+		fColumnIndex.buildDBTableColumnIndex(tableColumns);
 	}
 
 	/**
-	 * Create columns setting string.
+	 * Create columns setting string with table name.
 	 *
 	 * @return A full columns setting string
 	 */
-	protected String buildColumnSettingString() {
-		StringBuilder tableColumnsClause = new StringBuilder("");
-		/*
-		 * UUNIQE constraints
-		 */
-		StringBuilder uniqueCoulmnNames = new StringBuilder("");
-		int uniqueColumnNamesAmount = 0;
-		/*
-		 * PRIMARY KEY constraints
-		 */
-		StringBuilder primaryKeyCoulmnNames = new StringBuilder("");
-		int primaryKeyColumnNamesAmount = 0;
-
-		/*
-		 * Go through all table columns one by one and count amounts of
-		 * UNIQUE and PRIMARY KEY constraints.
-		 */
-		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
-			String columnConstraints = tableColumn.getColumnConstraint().getColumnConstraintsString();
-			if (columnConstraints.contains(SqlStatementStrings.SQL_DATABASE_UNIQUE)) {
-				uniqueColumnNamesAmount++;
-				uniqueCoulmnNames.append(tableColumn.getColumnName() + ",");
-				columnConstraints = columnConstraints.replace(SqlStatementStrings.SQL_DATABASE_UNIQUE, "");
-			} else if (columnConstraints.contains(SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY)) {
-				primaryKeyColumnNamesAmount++;
-				primaryKeyCoulmnNames.append(tableColumn.getColumnName() + " ");
-				columnConstraints = columnConstraints.replace(SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY, "");
-			}
-
-			tableColumnsClause.append(tableColumn.getColumnName() + " "
-					+ tableColumn.getColumnDataType().getSqlColumnDataType() + " " + columnConstraints + ",");
-		}
-
-		/*
-		 * Post process table column setting string on UNIQUE constraint.
-		 *
-		 * If only one column is UNIQUE, creating clause as "UNIQUE (ID)"; Otherwise,
-		 * creating clause as CONSTRAINT UC_Person UNIQUE (ID,LastName).
-		 *
-		 * TODO: Introducing customized multiple UNIQUE columns name.
-		 */
-		if (uniqueColumnNamesAmount == 1) {
-			uniqueCoulmnNames.deleteCharAt(uniqueCoulmnNames.length() - 1);
-			tableColumnsClause
-					.append(" " + SqlStatementStrings.SQL_DATABASE_UNIQUE + "(" + uniqueCoulmnNames.toString() + "),");
-		} else if (uniqueColumnNamesAmount > 1) {
-			uniqueCoulmnNames.deleteCharAt(uniqueCoulmnNames.length() - 1);
-			tableColumnsClause.append(SqlStatementStrings.SQL_DATABASE_CONSTRAINT
-					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_UNIQUE_COLUMNS + this.fTableName + " "
-					+ SqlStatementStrings.SQL_DATABASE_UNIQUE + "(" + uniqueCoulmnNames.toString() + "),");
-		}
-
-		/*
-		 * Post process table column setting string on PRIMARY KEY constraint.
-		 *
-		 * Primary keys must contain UNIQUE values, and cannot contain NULL values. A
-		 * table can have only one primary key, which may consist of single or multiple
-		 * fields.
-		 */
-		if (primaryKeyColumnNamesAmount == 1) {
-			primaryKeyCoulmnNames.deleteCharAt(primaryKeyCoulmnNames.length() - 1);
-			tableColumnsClause
-					.append(" " + SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY + "(" + primaryKeyCoulmnNames.toString() + "),");
-		} else if (primaryKeyColumnNamesAmount > 1) {
-			primaryKeyCoulmnNames.deleteCharAt(primaryKeyCoulmnNames.length() - 1);
-			tableColumnsClause.append(SqlStatementStrings.SQL_DATABASE_CONSTRAINT
-					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_PRIMARY_KEY_COLUMNS + this.fTableName + " "
-					+ SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY + "(" + primaryKeyCoulmnNames.toString() + "),");
-		}
-
-		/*
-		 * Remove the last ',' char of clause.
-		 */
-		tableColumnsClause.deleteCharAt(tableColumnsClause.length() - 1);
-		return tableColumnsClause.toString();
+	protected String buildFullColumnSettingString() {
+		return fColumnIndex.buildColumnWithNameAndDataTypeAndConstraints(fTableName);
 	}
+
+	/**
+	 * Create columns setting string with appending constraints.
+	 * - UNIQUE
+	 * - PRIMARY KEY
+	 *
+	 * @return A full columns setting string
+	 */
+	protected String buildAppendingColumnSettingString() {
+		return fColumnIndex.buildAppendConstraintsForColumns(fTableName);
+	}
+
 
 	/**
 	 * Validate there are no NULL item in the table column list.
@@ -143,12 +74,6 @@ public class QueryObjectDBTableAbstract {
 	 * @return True if all items in fTableColumns are not NULL.
 	 */
 	protected boolean validateTableColumnsNotNull() {
-		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
-			if (tableColumn == null) {
-				LOGGER.severe("Failed to operate table operation, table column item is null.");
-				return false;
-			}
-		}
-		return true;
+		return fColumnIndex.validateTableClolumsNotNull();
 	}
 }

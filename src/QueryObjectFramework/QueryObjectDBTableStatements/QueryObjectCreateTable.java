@@ -124,7 +124,7 @@ public class QueryObjectCreateTable extends QueryObjectDBTableAbstract {
 			return null;
 		}
 
-		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " (" + buildColumnSettingString() + ")" + ";";
+		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " (" + buildFullColumnSettingString() + ")" + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
 }
