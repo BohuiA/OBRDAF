@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import org.eclipse.jdt.annotation.NonNull;
 
 import QueryObjectFramework.CommonClasses.SqlStatementStrings;
+import QueryObjectFramework.QueryObjectDBTableColumnConstraint.QueryObjectDBTableConstraintCheck;
 import QueryObjectFramework.QueryObjectDBTableColumnConstraint.QueryObjectDBTableConstraintForeignKey;
 
 /**
@@ -58,7 +59,8 @@ public class QueryObjectDBTableColumnBuilder {
 	 *  column3 datatype constraint, ....
 	 *  UNIQUE(column2),
 	 *  PRIMARY KEY (column1),
-	 *  FOREIGN KEY (column2) REFERENCE table_name(column0);
+	 *  FOREIGN KEY (column2) REFERENCE table_name(column0),
+	 *  CHECK (filed1 operator1 value1);
 	 * </example>
 	 *
 	 * @param tableName
@@ -119,6 +121,14 @@ public class QueryObjectDBTableColumnBuilder {
 	 *  FOREIGN KEY (column2) REFERENCE table_name(column0);
 	 * </example>
 	 *
+	 * <example>
+	 * 	CHECK (Age>=18)
+	 * </example>
+	 *
+	 * <example>
+	 * 	CONSTRAINT CHK_PersonAge CHECK (Age>=18 AND City='Sandnes')
+	 * </example>
+	 *
 	 * @param tableName
 	 *            Table name that needs to create column clause.
 	 * @return Appending constraint string.
@@ -129,10 +139,6 @@ public class QueryObjectDBTableColumnBuilder {
 		 * Build UNIQUE appending constraint
 		 */
 		appendingClause.append(buildUnqiueAppendingConstraint(tableName));
-		// Insert ',' if UNIQUE appending constraint string is not null
-		if (!appendingClause.toString().equals("")) {
-			appendingClause.append(",");
-		}
 
 		/*
 		 * Build and append PRIMARY KEY constraint
@@ -143,6 +149,15 @@ public class QueryObjectDBTableColumnBuilder {
 		 * Build and append FOREIGN
 		 */
 		appendingClause.append(buildForeignKeyAppendingConstraint(tableName));
+
+		/*
+		 * Build and append CHECK constraint
+		 */
+		appendingClause.append(buildCheckAppendingConstraint(tableName));
+
+		if (appendingClause.charAt(appendingClause.length() - 1) == ',') {
+			appendingClause.deleteCharAt(appendingClause.length() - 1);
+		}
 
 		return appendingClause.toString();
 	}
@@ -182,13 +197,13 @@ public class QueryObjectDBTableColumnBuilder {
 		if (uniqueColumnNamesAmount == 1) {
 			uniqueColumnNames.deleteCharAt(uniqueColumnNames.length() - 1);
 			uniqueColumnNames.insert(0, " " + SqlStatementStrings.SQL_DATABASE_UNIQUE + "(");
-			uniqueColumnNames.append(")");
+			uniqueColumnNames.append("),");
 		} else if (uniqueColumnNamesAmount > 1) {
 			uniqueColumnNames.deleteCharAt(uniqueColumnNames.length() - 1);
 			uniqueColumnNames.insert(0, SqlStatementStrings.SQL_DATABASE_CONSTRAINT
 					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_UNIQUE_COLUMNS + tableName + " "
 					+ SqlStatementStrings.SQL_DATABASE_UNIQUE + "(");
-			uniqueColumnNames.append(")");
+			uniqueColumnNames.append("),");
 		}
 		return uniqueColumnNames.toString();
 	}
@@ -214,7 +229,7 @@ public class QueryObjectDBTableColumnBuilder {
 		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
 			if (tableColumn.containPrimaryKeyConstraint()) {
 				primaryKeyColumnNamesAmount++;
-				primaryKeyColumnNames.append(tableColumn.getColumnName() + " ");
+				primaryKeyColumnNames.append(tableColumn.getColumnName() + ",");
 			}
 		}
 
@@ -228,13 +243,13 @@ public class QueryObjectDBTableColumnBuilder {
 		if (primaryKeyColumnNamesAmount == 1) {
 			primaryKeyColumnNames.deleteCharAt(primaryKeyColumnNames.length() - 1);
 			primaryKeyColumnNames.insert(0, " " + SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY + "(");
-			primaryKeyColumnNames.append(")");
+			primaryKeyColumnNames.append("),");
 		} else if (primaryKeyColumnNamesAmount > 1) {
 			primaryKeyColumnNames.deleteCharAt(primaryKeyColumnNames.length() - 1);
 			primaryKeyColumnNames.insert(0, " " + SqlStatementStrings.SQL_DATABASE_CONSTRAINT
 					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_PRIMARY_KEY_COLUMNS + tableName + " "
 					+ SqlStatementStrings.SQL_DATABASE_PRIMARY_KEY + "(");
-			primaryKeyColumnNames.append(")");
+			primaryKeyColumnNames.append("),");
 		}
 		return primaryKeyColumnNames.toString();
 	}
@@ -246,7 +261,7 @@ public class QueryObjectDBTableColumnBuilder {
 	 * 			Table name
 	 * @return FOREIGN KEY constraint appending string
 	 */
-	private Object buildForeignKeyAppendingConstraint(String tableName) {
+	private String buildForeignKeyAppendingConstraint(String tableName) {
 		/*
 		 * FOREIGN KEY constraints
 		 */
@@ -257,7 +272,7 @@ public class QueryObjectDBTableColumnBuilder {
 
 		/*
 		 * Go through all table columns one by one and count amounts of
-		 * PRIMARY KEY constraints.
+		 * FOREIGN KEY constraints.
 		 */
 		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
 			QueryObjectDBTableConstraintForeignKey foreignKeyConstraint = tableColumn
@@ -277,13 +292,57 @@ public class QueryObjectDBTableColumnBuilder {
 			foreignKeyColumnClause.append(SqlStatementStrings.SQL_DATABASE_CONSTRAINT + " "
 					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_FOREIGN_KEY_COLUMNS + tableName + " "
 					+ SqlStatementStrings.SQL_DATABASE_FOREIGN_KEY + "(" + foreignKeyColumnNames.toString() + ") "
-					+ SqlStatementStrings.SQL_DATABASE_REFERENCES + foreignKeyReferencedTableAndColumn.toString());
+					+ SqlStatementStrings.SQL_DATABASE_REFERENCES + foreignKeyReferencedTableAndColumn.toString() + ",");
 		} else if (foreignKeyColumnNamesAmount > 1) {
 			LOGGER.warning("At the moment, multiple FOREIGN KEY columns is not support."
 					+ "Only one column can be FOREIGN KEY.");
 			return "";
 		}
 		return foreignKeyColumnClause.toString();
+	}
+
+	/**
+	 * Build CHECK constraint appending string.
+	 *
+	 * TODO: Add customized CHECK ID name for adding
+	 * multiple columns as CHECK constraints.
+	 *
+	 * @param tableName
+	 * 			Table name
+	 * @return CHECK constraint appending string
+	 */
+	private String buildCheckAppendingConstraint(String tableName) {
+		/*
+		 * CHECK constraints
+		 */
+		StringBuilder checkColumnClause = new StringBuilder("");
+		StringBuilder checkColumnNames = new StringBuilder("");
+		int checkColumnNamesAmount = 0;
+
+		/*
+		 * Go through all table columns one by one and count amounts of
+		 * CHECK constraints.
+		 */
+		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
+			QueryObjectDBTableConstraintCheck checkConstraint = tableColumn
+					.containtAndGetCheckConstraint();
+			if (checkConstraint != null) {
+				checkColumnNamesAmount++;
+				checkColumnNames.append(checkConstraint.getCriteriaConditionClause() + " AND ");
+			}
+		}
+
+		/*
+		 * Post process table column setting string on CHECK constraint.
+		 */
+		if (checkColumnNamesAmount == 1) {
+			checkColumnClause.append(SqlStatementStrings.SQL_DATABASE_CHECK + " (" + checkColumnNames.toString() + "),");
+		} else if (checkColumnNamesAmount > 1) {
+			checkColumnClause.append(SqlStatementStrings.SQL_DATABASE_CONSTRAINT + " "
+					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_CHECK_COLUMNS + tableName + " "
+					+ SqlStatementStrings.SQL_DATABASE_CHECK + " (" + checkColumnNames.toString() + "),");
+		}
+		return checkColumnClause.toString();
 	}
 
 	/**

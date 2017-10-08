@@ -370,7 +370,7 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet selectAndCountColumnsWhereConditions(boolean distinctSelection) {
-		if (!validateEmptyTableAndUpdateEmptyColumn() && !validateWhereConditions()) {
+		if (!validateEmptyTableAndUpdateEmptyColumn() || !validateWhereConditions()) {
 			return null;
 		}
 

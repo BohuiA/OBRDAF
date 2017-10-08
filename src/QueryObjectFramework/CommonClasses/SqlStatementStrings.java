@@ -54,4 +54,8 @@ public final class SqlStatementStrings {
 	public static final String SQL_DATABASE_MULTIPLE_FOREIGN_KEY_COLUMNS = "FK_";
 	public static final String SQL_DATABASE_DROP_INDEX_UNIQUE = "DROP INDEX";
 	public static final String SQL_DATABASE_DROP_PRIMARY_KEY = "DROP PRIMARY KEY";
+	public static final String SQL_DATABASE_DROP_CHECK = "DROP CHECK";
+	public static final String SQL_DATABASE_CHECK = "CHECK";
+	public static final String SQL_DATABASE_MULTIPLE_CHECK_COLUMNS = "CHK_";
+
 }

@@ -15,6 +15,8 @@ package QueryObjectFramework.QueryObjectDBTableColumnConstraint;
  * 		<class> QueryObjectDBTableConstraintPrimaryKey </class>
  * - FOREIGN KEY
  * 		<class> QueryObjectDBTableConstraintForeignKey </class>
+ * - CHECK
+ * 		<class> QueryObjectDBTableConstraintCheck </class>
  *
  * @author Bohui Axelsson
  */
@@ -94,6 +96,22 @@ public class QueryObjectDBTableColumnConstraints {
 		while (columnConstraint != null) {
 			if (columnConstraint instanceof QueryObjectDBTableConstraintForeignKey) {
 				return (QueryObjectDBTableConstraintForeignKey) columnConstraint;
+			}
+			columnConstraint = columnConstraint.getConstraintDecorator();
+		}
+		return null;
+	}
+
+	/**
+	 * Check and return whether the column has a CHECK constraint.
+	 *
+	 * @return CHECK decorator instance.
+	 */
+	public QueryObjectDBTableConstraintCheck containAndGetCheckConstraint() {
+		QueryObjectDBTableConstraintDecorator columnConstraint = fColumnConstraint;
+		while (columnConstraint != null) {
+			if (columnConstraint instanceof QueryObjectDBTableConstraintCheck) {
+				return (QueryObjectDBTableConstraintCheck) columnConstraint;
 			}
 			columnConstraint = columnConstraint.getConstraintDecorator();
 		}

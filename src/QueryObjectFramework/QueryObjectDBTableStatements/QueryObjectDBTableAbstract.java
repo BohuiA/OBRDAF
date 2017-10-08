@@ -21,7 +21,7 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
 public class QueryObjectDBTableAbstract {
 	protected final SqlQueryTypes fQueryObjectType;
 	protected final @NonNull JdbcDatabaseConnection fJdbcDbConn;
-	protected final @NonNull QueryObjectDBTableColumnBuilder  fColumnIndex = new QueryObjectDBTableColumnBuilder();
+	protected final @NonNull QueryObjectDBTableColumnBuilder fColumnBuilder = new QueryObjectDBTableColumnBuilder();
 	protected String fTableName = "";
 
 	public QueryObjectDBTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn) {
@@ -41,7 +41,7 @@ public class QueryObjectDBTableAbstract {
 		fQueryObjectType = queryObjectType;
 		fJdbcDbConn = jdbcDbConn;
 		fTableName = tableName;
-		fColumnIndex.buildDBTableColumnIndex(tableColumns);
+		fColumnBuilder.buildDBTableColumnIndex(tableColumns);
 	}
 
 	/**
@@ -50,7 +50,7 @@ public class QueryObjectDBTableAbstract {
 	 * @return A full columns setting string
 	 */
 	protected String buildFullColumnSettingString() {
-		return fColumnIndex.buildColumnWithNameAndDataTypeAndConstraints(fTableName);
+		return fColumnBuilder.buildColumnWithNameAndDataTypeAndConstraints(fTableName);
 	}
 
 	/**
@@ -58,11 +58,12 @@ public class QueryObjectDBTableAbstract {
 	 * - UNIQUE
 	 * - PRIMARY KEY
 	 * - FOREIGN KEY
+	 * - CHECK
 	 *
 	 * @return A full columns setting string
 	 */
 	protected String buildAppendingColumnSettingString() {
-		return fColumnIndex.buildAppendConstraintsForColumns(fTableName);
+		return fColumnBuilder.buildAppendConstraintsForColumns(fTableName);
 	}
 
 
@@ -72,6 +73,6 @@ public class QueryObjectDBTableAbstract {
 	 * @return True if all items in fTableColumns are not NULL.
 	 */
 	protected boolean validateTableColumnsNotNull() {
-		return fColumnIndex.validateTableClolumsNotNull();
+		return fColumnBuilder.validateTableClolumsNotNull();
 	}
 }

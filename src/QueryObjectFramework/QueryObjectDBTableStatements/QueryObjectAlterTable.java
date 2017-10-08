@@ -50,18 +50,62 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  *  name, as format "UC_<table_name>".
  * </example>
  *
- * NOTE: At the moment, MYSQL server is fully supported as altering
- * tables.
+ * <example>
+ * 	ALTER TABLE Persons
+ *  DROP INDEX UC_Person;
+ *
+ *  TIP: To drop a UNIQUE from toble, create a normal QueryObjectDBTableColumn class
+ *  instance with all needed information, and then call correct operations, such as add,
+ *  drop, and modify. ADD, DROP, and MODIFY operations will share same QueryObjectDBTableColumn
+ *  class instances.
+ * </example>
  *
  * NOTE: At the moment, customized DROP UNIQUE constraints is not supported.
  * DROP UNIQUE constraints will only drops UC_<table_name> UNIQUE ID.
  *
+ * - PRIMARY KEY:
+ * <example>
+ *  ALTER TABLE Persons
+ *  DROP PRIMARY KEY;
+ * </example>
+ *
+ * <example>
+ *  ALTER TABLE Persons
+ *  ADD PRIMARY KEY (ID);
+ * </example>
+ *
  * NOTE: Because one table can only have one PRIMARY KEY, so user does not
  * need provide PRIMARY KEY id to DROP PRIMARY KEY of a table.
+ *
+ * - FOREIGN KEY:
+ * <example>
+ * 	ALTER TABLE Orders
+ *  ADD FOREIGN KEY (PersonID) REFERENCES Persons(PersonID);
+ * </example>
  *
  * NOTE: Because current only support one column can be FOREIGN KEY, FOREIGN KEY id
  * will be created automatically as "FK_<table_name>", so user does not need to
  * provide a FOREIGN KEY to drop FOREIGN KEY from an existing table.
+ *
+ * - CHECK:
+ * <example>
+ * 	ALTER TABLE Persons
+ * 	ADD CHECK (Age>=18);
+ * </example>
+ *
+ * <example>
+ * 	ALTER TABLE Persons
+ * 	DROP CONSTRAINT CHK_PersonAge;
+ * </example>
+ *
+ * NOTE: At the moment, CREATE TABLE only support one CHECK id on one TABLE, which CHECK
+ * id is automatically set by Query Object, CHECK id format is "CHK_<table_name>".
+ *
+ * NOTE: At the moment, MYSQL server is fully supported as altering
+ * tables.
+ *
+ * TODO: Add support for customized CHECK id in order to support multiple CHECK ids in
+ * one table.
  *
  * <example>
  *  ALTER TABLE Persons
@@ -154,6 +198,16 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 *  ADD FOREIGN KEY (PersonID) REFERENCES Persons(PersonID);
 	 * </example>
 	 *
+	 * <example>
+	 * 	ALTER TABLE Persons
+	 * 	ADD CHECK (Age>=18);
+	 * </example>
+	 *
+	 *  <example>
+	 * 	ALTER TABLE Persons
+	 * 	ADD CONSTRAINT CHK_PersonAge CHECK (Age>=18 AND City='Sandnes');
+	 * </example>
+
 	 * @return ResultSet SQL execution results
 	 */
 	public ResultSet alterTableAddConstraintsOnExistingColumns() {
@@ -195,7 +249,7 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 * @return SQL ALTER TABLE DROP columns string
 	 */
 	private String buildDropColumnsFromTableClaues() {
-		return fColumnIndex.buildColumnWithNames();
+		return fColumnBuilder.buildColumnWithNames();
 	}
 
 	/**
@@ -257,6 +311,27 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	}
 
 	/**
+	 * ALTER TABLE - DROP CHECK constraints on existing table
+	 * To drop CHECK constraints on an existing table.
+	 *
+	 * NOTE:
+	 * Scenario:
+	 *
+	 * <example>
+	 *  ALTER TABLE Persons
+	 *  DROP CHECK CHK_Persons;
+	 * </example>
+	 *
+	 * @return ResultSet SQL execution results
+	 */
+	public ResultSet alterTableDropCheckConstraintsOnExistingTable() {
+		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " "
+				+ SqlStatementStrings.SQL_DATABASE_DROP_CHECK + " "
+				+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_CHECK_COLUMNS + fTableName + ";";
+		return fJdbcDbConn.executeQueryObject(sql);
+	}
+
+	/**
 	 * ALTER TABLE - ALTER/MODIFY COLUMN
 	 * To change the data type of a column in a table.
 	 *
@@ -289,6 +364,6 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 * @return SQL columns and data types string
 	 */
 	private String buildColumnsAndColumnDataTypes() {
-		return fColumnIndex.buildColumnWithNameAndDataType();
+		return fColumnBuilder.buildColumnWithNameAndDataType();
 	}
 }

@@ -31,6 +31,19 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  *	);
  * </example>
  *
+ * <example>
+ * 	CREATE TABLE Persons (
+ * 		ID int NOT NULL,
+ * 		LastName varchar(255) NOT NULL,
+ * 		FirstName varchar(255),
+ * 		Age int,
+ * 		UNIQUE (ID),
+ * 		PRIMARY KEY (ID),
+ * 		FOREIGN KEY (LastName) REFERENCE Company (CompanyName),
+ * 		CONSTRAINT CHK_Person CHECK (Age>=18 AND City='Sandnes')
+ * 	);
+ * </example>
+ *
  * The column parameters specify the names of the columns of the table.
  *
  * The data type parameter specifies the type of data the column can hold (e.g.
@@ -41,6 +54,9 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  *
  * NOTE: At the moment, CREATE TABLE Query Object only supports pre-defined columns way.
  * Create table using another table is not supported right now.
+ *
+ * NOTE: At the moment, CREATE TABLE only support one CHECK id on one TABLE, which CHECK
+ * id is automatically set by Query Object, CHECK id format is "CHK_<table_name>".
  *
  * @author Bohui Axelsson
  */
