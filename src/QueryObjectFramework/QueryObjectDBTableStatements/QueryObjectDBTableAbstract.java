@@ -57,6 +57,7 @@ public class QueryObjectDBTableAbstract {
 	 * Create columns setting string with appending constraints.
 	 * - UNIQUE
 	 * - PRIMARY KEY
+	 * - FOREIGN KEY
 	 *
 	 * @return A full columns setting string
 	 */

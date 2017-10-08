@@ -3,6 +3,7 @@ package QueryObjectFramework.QueryObjectDBTableStatements;
 import org.eclipse.jdt.annotation.NonNull;
 
 import QueryObjectFramework.QueryObjectDBTableColumnConstraint.QueryObjectDBTableColumnConstraints;
+import QueryObjectFramework.QueryObjectDBTableColumnConstraint.QueryObjectDBTableConstraintForeignKey;
 
 /**
  * Table column class contains column relative data for
@@ -75,6 +76,10 @@ public class QueryObjectDBTableColumn {
 
 	protected boolean containPrimaryKeyConstraint() {
 		return fColumnConstraint.containPrimaryKeyConstraint();
+	}
+
+	protected QueryObjectDBTableConstraintForeignKey containtAndGetForeignKeyConstraint() {
+		return fColumnConstraint.containAndGetForeignKeyConstraint();
 	}
 
 	protected String getColumnName() {

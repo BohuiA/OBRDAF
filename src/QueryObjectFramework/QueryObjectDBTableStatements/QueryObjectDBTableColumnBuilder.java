@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import org.eclipse.jdt.annotation.NonNull;
 
 import QueryObjectFramework.CommonClasses.SqlStatementStrings;
+import QueryObjectFramework.QueryObjectDBTableColumnConstraint.QueryObjectDBTableConstraintForeignKey;
 
 /**
  * Builder class for column definations.
@@ -56,7 +57,8 @@ public class QueryObjectDBTableColumnBuilder {
 	 *  column2 datatype constraint,
 	 *  column3 datatype constraint, ....
 	 *  UNIQUE(column2),
-	 *  PRIMARY KEY (column1)
+	 *  PRIMARY KEY (column1),
+	 *  FOREIGN KEY (column2) REFERENCE table_name(column0);
 	 * </example>
 	 *
 	 * @param tableName
@@ -113,6 +115,10 @@ public class QueryObjectDBTableColumnBuilder {
 	 *  CONSTRAINT PK_<table_name> PRIMARY KEY (column_name0, column_name2, ..)
 	 * </example>
 	 *
+	 * <example>
+	 *  FOREIGN KEY (column2) REFERENCE table_name(column0);
+	 * </example>
+	 *
 	 * @param tableName
 	 *            Table name that needs to create column clause.
 	 * @return Appending constraint string.
@@ -127,10 +133,16 @@ public class QueryObjectDBTableColumnBuilder {
 		if (!appendingClause.toString().equals("")) {
 			appendingClause.append(",");
 		}
+
 		/*
 		 * Build and append PRIMARY KEY constraint
 		 */
 		appendingClause.append(buildPrimaryKeyAppendingConstraint(tableName));
+
+		/*
+		 * Build and append FOREIGN
+		 */
+		appendingClause.append(buildForeignKeyAppendingConstraint(tableName));
 
 		return appendingClause.toString();
 	}
@@ -225,6 +237,53 @@ public class QueryObjectDBTableColumnBuilder {
 			primaryKeyColumnNames.append(")");
 		}
 		return primaryKeyColumnNames.toString();
+	}
+
+	/**
+	 * Build FOREIGN KEY constraint appending string.
+	 *
+	 * @param tableName
+	 * 			Table name
+	 * @return FOREIGN KEY constraint appending string
+	 */
+	private Object buildForeignKeyAppendingConstraint(String tableName) {
+		/*
+		 * FOREIGN KEY constraints
+		 */
+		StringBuilder foreignKeyColumnClause = new StringBuilder("");
+		StringBuilder foreignKeyColumnNames = new StringBuilder("");
+		StringBuilder foreignKeyReferencedTableAndColumn = new StringBuilder("");
+		int foreignKeyColumnNamesAmount = 0;
+
+		/*
+		 * Go through all table columns one by one and count amounts of
+		 * PRIMARY KEY constraints.
+		 */
+		for (QueryObjectDBTableColumn tableColumn : fTableColumns) {
+			QueryObjectDBTableConstraintForeignKey foreignKeyConstraint = tableColumn
+					.containtAndGetForeignKeyConstraint();
+			if (foreignKeyConstraint != null) {
+				foreignKeyColumnNamesAmount++;
+				foreignKeyColumnNames.append(tableColumn.getColumnName() + " ");
+				foreignKeyReferencedTableAndColumn.append(foreignKeyConstraint.getReferencedTableName() + "("
+						+ foreignKeyConstraint.getReferencedColumnName() + ")");
+			}
+		}
+
+		/*
+		 * Post process table column setting string on FOREIGN KEY constraint.
+		 */
+		if (foreignKeyColumnNamesAmount == 1) {
+			foreignKeyColumnClause.append(SqlStatementStrings.SQL_DATABASE_CONSTRAINT + " "
+					+ SqlStatementStrings.SQL_DATABASE_MULTIPLE_FOREIGN_KEY_COLUMNS + tableName + " "
+					+ SqlStatementStrings.SQL_DATABASE_FOREIGN_KEY + "(" + foreignKeyColumnNames.toString() + ") "
+					+ SqlStatementStrings.SQL_DATABASE_REFERENCES + foreignKeyReferencedTableAndColumn.toString());
+		} else if (foreignKeyColumnNamesAmount > 1) {
+			LOGGER.warning("At the moment, multiple FOREIGN KEY columns is not support."
+					+ "Only one column can be FOREIGN KEY.");
+			return "";
+		}
+		return foreignKeyColumnClause.toString();
 	}
 
 	/**

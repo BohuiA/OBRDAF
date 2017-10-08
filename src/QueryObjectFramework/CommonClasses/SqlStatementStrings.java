@@ -51,6 +51,7 @@ public final class SqlStatementStrings {
 	public static final String SQL_DATABASE_NOT_NULL = "NOT NULL";
 	public static final String SQL_DATABASE_MULTIPLE_UNIQUE_COLUMNS = "UC_";
 	public static final String SQL_DATABASE_MULTIPLE_PRIMARY_KEY_COLUMNS = "PK_";
+	public static final String SQL_DATABASE_MULTIPLE_FOREIGN_KEY_COLUMNS = "FK_";
 	public static final String SQL_DATABASE_DROP_INDEX_UNIQUE = "DROP INDEX";
 	public static final String SQL_DATABASE_DROP_PRIMARY_KEY = "DROP PRIMARY KEY";
 }

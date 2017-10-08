@@ -59,6 +59,10 @@ import QueryObjectFramework.JdbcDatabaseConnection.JdbcDatabaseConnection;
  * NOTE: Because one table can only have one PRIMARY KEY, so user does not
  * need provide PRIMARY KEY id to DROP PRIMARY KEY of a table.
  *
+ * NOTE: Because current only support one column can be FOREIGN KEY, FOREIGN KEY id
+ * will be created automatically as "FK_<table_name>", so user does not need to
+ * provide a FOREIGN KEY to drop FOREIGN KEY from an existing table.
+ *
  * <example>
  *  ALTER TABLE Persons
  *  DROP INDEX UC_Person;
@@ -111,7 +115,8 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 *  ALTER TABLE table_name
 	 *  ADD column_name datatype constraint,
 	 *  UNIQUE(column_name),
-	 *  PRIMARY KEY(column_name);
+	 *  PRIMARY KEY(column_name),
+	 *  FOREIGN KEY (column_name) REFERENCES table_name(column_name);
 	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
@@ -142,6 +147,11 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	 *  ALTER TABLE table_name
 	 *  ADD CONSTRAINT UC_<table_name> UNIQUE (column_name1, column_name2, ..),
 	 *  ADD CONSTRAINT PK_<table_name> PRIMARY KEY (column_name1, column_name2, ..);
+	 * </example>
+	 *
+	 * <example>
+	 *  ALTER TABLE Orders
+	 *  ADD FOREIGN KEY (PersonID) REFERENCES Persons(PersonID);
 	 * </example>
 	 *
 	 * @return ResultSet SQL execution results
@@ -223,6 +233,26 @@ public class QueryObjectAlterTable extends QueryObjectDBTableAbstract {
 	public ResultSet alterTableDropPrimaryKeyConstraintsOnExistingTable() {
 		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " "
 				+ SqlStatementStrings.SQL_DATABASE_DROP_PRIMARY_KEY + ";";
+		return fJdbcDbConn.executeQueryObject(sql);
+	}
+
+	/**
+	 * ALTER TABLE - DROP FOREIGN KEY constraints on existing table
+	 * To drop FOREIGN KEY constraints on an existing table.
+	 *
+	 * Scenario:
+	 *
+	 * <example>
+	 *  ALTER TABLE Orders
+	 *  DROP FOREIGN KEY FK_PersonOrder;
+	 * </example>
+	 *
+	 * @return ResultSet SQL execution results
+	 */
+	public ResultSet alterTableDropForeignKeyConstraintsOnExistingTable() {
+		String sql = fQueryObjectType.sqlQueryType() + " " + fTableName + " "
+				+ SqlStatementStrings.SQL_DATABASE_DROP_PRIMARY_KEY + " " + SqlStatementStrings.SQL_DATABASE_FOREIGN_KEY
+				+ " " + SqlStatementStrings.SQL_DATABASE_MULTIPLE_FOREIGN_KEY_COLUMNS + fTableName + ";";
 		return fJdbcDbConn.executeQueryObject(sql);
 	}
 

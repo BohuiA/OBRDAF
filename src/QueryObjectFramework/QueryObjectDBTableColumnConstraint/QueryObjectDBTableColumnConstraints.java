@@ -11,9 +11,10 @@ package QueryObjectFramework.QueryObjectDBTableColumnConstraint;
  * 		<class> QueryObjectDBTableConstraintAutoIncrement </class>
  * - UNIQUE
  * 		<class> QueryObjectDBTableConstraintUnique </class>
- *
- * TODO: Add customized BUILDER methods for users to create columns with
- * constraints easily.
+ * - PRIMARY KEY
+ * 		<class> QueryObjectDBTableConstraintPrimaryKey </class>
+ * - FOREIGN KEY
+ * 		<class> QueryObjectDBTableConstraintForeignKey </class>
  *
  * @author Bohui Axelsson
  */
@@ -81,5 +82,21 @@ public class QueryObjectDBTableColumnConstraints {
 			columnConstraint = columnConstraint.getConstraintDecorator();
 		}
 		return false;
+	}
+
+	/**
+	 * Check and return whether the column has a FOREIGN KEY constraint.
+	 *
+	 * @return FOREIGN KEY decorator instance.
+	 */
+	public QueryObjectDBTableConstraintForeignKey containAndGetForeignKeyConstraint() {
+		QueryObjectDBTableConstraintDecorator columnConstraint = fColumnConstraint;
+		while (columnConstraint != null) {
+			if (columnConstraint instanceof QueryObjectDBTableConstraintForeignKey) {
+				return (QueryObjectDBTableConstraintForeignKey) columnConstraint;
+			}
+			columnConstraint = columnConstraint.getConstraintDecorator();
+		}
+		return null;
 	}
 }
