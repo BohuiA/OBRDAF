@@ -48,12 +48,11 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 * @param tables
 	 * 			Names of table for selecting, should be only one
 	 * @param columns
-	 * 			Names of columns for selection, setting NULL for
-	 * 			selecting all columns.
+	 * 			Names of columns for selection.
 	 */
 	public QueryObjectSelect(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
-			List<String> columns) {
-		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, null);
+			@NonNull List<String> columns) {
+		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns);
 	}
 
 	/**
@@ -75,18 +74,17 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 * @param tables
 	 * 			Names of table for selecting, should be only one
 	 * @param columns
-	 * 			Names of columns for selection, setting NULL for
-	 * 			selecting all columns.
+	 * 			Names of columns for selection.
 	 * @param selectCriterias
 	 * 			List that contains filtering selection criteria.
 	 */
 	public QueryObjectSelect(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
-			List<String> columns, @NonNull List<QueryObjectTableCriteriaCondition> selectCriterias) {
+			@NonNull List<String> columns, @NonNull List<QueryObjectTableCriteriaCondition> selectCriterias) {
 		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, selectCriterias);
 	}
 
 	/**
-	 * Create a SELECT query object with WHERE or/and ORDER BY grammar.
+	 * Create a SELECT query object with WHERE and ORDER BY grammar.
 	 *
 	 * Example:
 	 *
@@ -101,26 +99,24 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 *  SELECT column1, column2, ...
 	 *  FROM table_name
 	 *  ORDER BY column1, column2, ... ASC|DESC;
-	 *
-	 *  NOTE: Pass NULL to selectCriterias parameter to ignore WHERE clause.
 	 * </example>
 	 *
-	 * Note: Setting selectCriterias to NULL to ignore WHERE clause.
+	 * Note: Setting selectCriterias to empty to ignore WHERE clause.
 	 *
 	 * @param jdbcDbConn
 	 * 			JDBC database connection
 	 * @param tables
 	 * 			Names of table for selecting, should be only one
 	 * @param columns
-	 * 			Names of columns for selection, setting NULL for selecting all columns.
+	 * 			Names of columns for selection, setting empty for selecting all columns.
 	 * @param selectCriterias
 	 * 			List that contains filtering selection criteria.
-	 * 			Setting to NULL for ignoring.
+	 * 			Setting to empty for ignoring.
 	 * @param orderByLists
 	 * 			List that contains order by parameters
 	 */
 	public QueryObjectSelect(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
-			List<String> columns, List<QueryObjectTableCriteriaCondition> selectCriterias,
+			@NonNull List<String> columns, @NonNull List<QueryObjectTableCriteriaCondition> selectCriterias,
 			@NonNull List<QueryObjectTableOrderBy> orderByLists) {
 		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, selectCriterias);
 		fOrderByLists.addAll(orderByLists);
@@ -154,26 +150,22 @@ public class QueryObjectSelect extends QueryObjectTableAbstract {
 	 * @param tables
 	 * 			Names of table for selecting, should be only one
 	 * @param columns
-	 * 			Names of columns for selection, setting NULL for
+	 * 			Names of columns for selection, setting empty for
 	 * 			selecting all columns.
 	 * @param selectCriterias
 	 * 			List that contains filtering selection criteria.
-	 * 			Setting to NULL for ignoring.
+	 * 			Setting to empty for ignoring.
 	 * @param orderByLists
 	 * 			List that contains order by parameters.
-	 * 			Setting to NULL for ignoring
+	 * 			Setting to empty for ignoring
 	 * @param joinTypes
 	 * 			List that contains Join types defining in SqlJoinType class.
 	 */
 	public QueryObjectSelect(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
-			List<String> columns, List<QueryObjectTableCriteriaCondition> selectCriterias,
-			List<QueryObjectTableOrderBy> orderByLists, @NonNull List<QueryObjectTableJoinType> joinTypes) {
+			@NonNull List<String> columns, @NonNull List<QueryObjectTableCriteriaCondition> selectCriterias,
+			@NonNull List<QueryObjectTableOrderBy> orderByLists, @NonNull List<QueryObjectTableJoinType> joinTypes) {
 		super(SqlQueryTypes.SELECT, jdbcDbConn, tables, columns, selectCriterias);
-		if (orderByLists != null) {
-			fOrderByLists.addAll(orderByLists);
-		} else {
-			fOrderByLists.clear();
-		}
+		fOrderByLists.addAll(orderByLists);
 		fJoinTypes.addAll(joinTypes);
 
 	}

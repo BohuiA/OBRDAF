@@ -52,7 +52,9 @@ public class QueryObjectInsertInto extends QueryObjectTableAbstract {
 	 */
 	public QueryObjectInsertInto(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
 			@NonNull List<QueryObjectTableColumnAndValue> insertItems) {
-		super(SqlQueryTypes.INSERT, jdbcDbConn, tables, null, null);
+		super(SqlQueryTypes.INSERT, jdbcDbConn, tables);
+		fColumns.clear();
+		fCriteriaConditions.clear();
 		fInsertItems.addAll(insertItems);
 	}
 

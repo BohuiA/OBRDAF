@@ -52,7 +52,10 @@ public class QueryObjectDelete extends QueryObjectTableAbstract {
 	 */
 	public QueryObjectDelete(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
 			@NonNull List<QueryObjectTableCriteriaCondition> selectCriterias) {
-		super(SqlQueryTypes.DELETE, jdbcDbConn, tables, null, selectCriterias);
+		super(SqlQueryTypes.DELETE, jdbcDbConn);
+		fTables.addAll(tables);
+		fColumns.clear();
+		fCriteriaConditions.addAll(selectCriterias);
 	}
 
 	/**

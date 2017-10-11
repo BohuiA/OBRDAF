@@ -66,7 +66,6 @@ public class QueryObjectDBTableAbstract {
 		return fColumnBuilder.buildAppendConstraintsForColumns(fTableName);
 	}
 
-
 	/**
 	 * Validate there are no NULL item in the table column list.
 	 *

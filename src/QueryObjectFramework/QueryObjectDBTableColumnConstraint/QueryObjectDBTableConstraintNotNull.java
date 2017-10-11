@@ -12,7 +12,7 @@ import QueryObjectFramework.CommonClasses.SqlStatementStrings;
  *   		ID int NOT NULL,
  *   		LastName varchar(255) NOT NULL,
  *   		FirstName varchar(255) NOT NULL,
- *  	 		Age int
+ *  	 	Age int
  *   	);
  *   </example>
  *

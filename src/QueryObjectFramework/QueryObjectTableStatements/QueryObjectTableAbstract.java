@@ -22,28 +22,41 @@ public class QueryObjectTableAbstract {
 	protected final @NonNull JdbcDatabaseConnection fJdbcDbConn;
 	protected final @NonNull List<String> fTables = new ArrayList<>();
 	protected final @NonNull List<String> fColumns = new ArrayList<>();
-	protected final List<QueryObjectTableCriteriaCondition> fCriteriaConditions = new ArrayList<>();
+	protected final @NonNull List<QueryObjectTableCriteriaCondition> fCriteriaConditions = new ArrayList<>();
 
 	public QueryObjectTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn,
-			@NonNull List<String> tables, List<String> columns,
-			List<QueryObjectTableCriteriaCondition> selectCriterias) {
+			@NonNull List<String> tables, @NonNull List<String> columns) {
 		fQueryObjectType = queryObjectType;
 		fJdbcDbConn = jdbcDbConn;
 		fTables.addAll(tables);
-		if (columns != null) {
-			fColumns.addAll(columns);
-		} else {
-			fColumns.clear();
-		}
-		if (selectCriterias != null) {
-			fCriteriaConditions.addAll(selectCriterias);
-		} else {
-			fCriteriaConditions.clear();
-		}
+		fColumns.addAll(columns);
+		fCriteriaConditions.clear();
+	}
+
+	public QueryObjectTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn,
+			@NonNull List<String> tables, @NonNull List<String> columns,
+			@NonNull List<QueryObjectTableCriteriaCondition> selectCriterias) {
+		fQueryObjectType = queryObjectType;
+		fJdbcDbConn = jdbcDbConn;
+		fTables.addAll(tables);
+		fColumns.addAll(columns);
+		fCriteriaConditions.addAll(selectCriterias);
 	}
 
 	public QueryObjectTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn) {
 		fQueryObjectType = queryObjectType;
 		fJdbcDbConn = jdbcDbConn;
+		fTables.clear();
+		fColumns.clear();
+		fCriteriaConditions.clear();
+	}
+
+	public QueryObjectTableAbstract(SqlQueryTypes queryObjectType, @NonNull JdbcDatabaseConnection jdbcDbConn,
+			@NonNull List<String> tables) {
+		fQueryObjectType = queryObjectType;
+		fJdbcDbConn = jdbcDbConn;
+		fTables.addAll(tables);
+		fColumns.clear();
+		fCriteriaConditions.clear();
 	}
 }

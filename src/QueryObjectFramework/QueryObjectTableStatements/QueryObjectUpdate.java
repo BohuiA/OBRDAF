@@ -48,7 +48,7 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	 */
 	public QueryObjectUpdate(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
 			@NonNull List<QueryObjectTableColumnAndValue> updateItems) {
-		super(SqlQueryTypes.UPDATE, jdbcDbConn, tables, null, null);
+		super(SqlQueryTypes.UPDATE, jdbcDbConn, tables);
 		fUpdateItems.addAll(updateItems);
 	}
 
@@ -75,7 +75,10 @@ public class QueryObjectUpdate extends QueryObjectTableAbstract {
 	public QueryObjectUpdate(@NonNull JdbcDatabaseConnection jdbcDbConn, @NonNull List<String> tables,
 			@NonNull List<QueryObjectTableCriteriaCondition> selectCriterias,
 			@NonNull List<QueryObjectTableColumnAndValue> updateItems) {
-		super(SqlQueryTypes.UPDATE, jdbcDbConn, tables, null, selectCriterias);
+		super(SqlQueryTypes.UPDATE, jdbcDbConn);
+		fTables.addAll(tables);
+		fColumns.clear();
+		fCriteriaConditions.addAll(selectCriterias);
 		fUpdateItems.addAll(updateItems);
 	}
 
